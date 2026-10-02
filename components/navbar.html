@@ -1,0 +1,50 @@
+<header
+  class="fixed top-0 left-0 right-0 z-50 border-b border-zinc-200/80 bg-zinc-50/90 backdrop-blur dark:border-zinc-800/80 dark:bg-zinc-950/90"
+>
+  <div
+    class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8"
+  >
+    <a class="text-lg font-bold tracking-tight" href="#home"
+      >FARHAN CHOWDHURY<span class="text-indigo-500"></span
+    ></a>
+    <nav class="hidden items-center gap-7 text-sm font-medium md:flex">
+      <a class="transition hover:text-indigo-500" href="#home">Home</a>
+      <a class="transition hover:text-indigo-500" href="#about">About</a>
+      <a class="transition hover:text-indigo-500" href="#projects">Projects</a>
+      <a class="transition hover:text-indigo-500" href="#resume">Resume</a>
+      <a class="transition hover:text-indigo-500" href="#blog">Blog</a>
+      <a class="transition hover:text-indigo-500" href="#contact">Contact</a>
+    </nav>
+    <div class="flex items-center gap-2">
+      <button
+        aria-label="Toggle dark mode"
+        class="rounded-full border border-zinc-200 p-2.5 transition hover:border-zinc-400 dark:border-zinc-700 dark:hover:border-zinc-500"
+        id="themeToggle"
+      >
+        <i class="hidden h-4 w-4 dark:block" data-lucide="sun"></i>
+        <i class="h-4 w-4 dark:hidden" data-lucide="moon"></i>
+      </button>
+      <button
+        aria-label="Open menu"
+        class="rounded-full border border-zinc-200 p-2.5 md:hidden dark:border-zinc-700"
+        id="mobileMenuBtn"
+      >
+        <i class="h-4 w-4" data-lucide="menu"></i>
+      </button>
+    </div>
+  </div>
+  <!-- Mobile Navigation -->
+  <nav
+    class="hidden border-t border-zinc-200 px-5 py-4 dark:border-zinc-800 md:hidden"
+    id="mobileMenu"
+  >
+    <div class="flex flex-col gap-4 text-sm font-medium">
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="#resume">Resume</a>
+      <a href="#blog">Blog</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+</header>

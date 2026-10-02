@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Farhan Chowdhury — Portfolio</title>
+    <meta
+      name="description"
+      content="Farhan Chowdhury's personal developer portfolio."
+    />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body
+    class="bg-zinc-50 text-zinc-900 antialiased transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-100"
+  >
+    <div class="min-h-screen">
+      <!-- Navbar -->
+      <div id="navbar"></div>
+
+      <main
+        class="mx-auto grid max-w-7xl gap-8 px-5 py-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:px-8 lg:py-10"
+      >
+        <!-- Sidebar -->
+        <div id="sidebar"></div>
+
+        <div class="min-w-0">
+          <!-- Sections are loaded from /sections -->
+          <div id="home-section"></div>
+          <div id="about-section"></div>
+          <div id="projects-section"></div>
+          <div id="resume-section"></div>
+          <div id="blog-section"></div>
+          <div id="contact-section"></div>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <div id="footer"></div>
+    </div>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>

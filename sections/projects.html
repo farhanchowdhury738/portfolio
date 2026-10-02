@@ -1,0 +1,257 @@
+<section
+  class="scroll-mt-24 border-t border-zinc-200 py-20 dark:border-zinc-800"
+  id="projects"
+>
+  <!-- ==========================================================
+
+       PROJECT SECTION HEADER
+
+       ========================================================== -->
+  <div class="mb-10 flex items-end justify-between gap-5">
+    <div>
+      <p
+        class="text-sm font-semibold uppercase tracking-[0.18em] text-indigo-500"
+      >
+        Selected work
+      </p>
+      <h2 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+        Featured Projects
+      </h2>
+    </div>
+    <!-- ========================================================
+
+         VIEW ALL BUTTON
+
+         This button shows/hides the remaining projects.
+
+         ======================================================== -->
+    <button
+      class="hidden text-sm font-semibold text-zinc-500 transition hover:text-indigo-500 sm:block"
+      id="viewAllProjects"
+      type="button"
+    >
+      View all →
+    </button>
+  </div>
+  <!-- ==========================================================
+
+       PROJECT GRID
+
+
+
+       First 2 projects:
+
+       -> Visible by default
+
+
+
+       Projects after first 2:
+
+       -> Add class "extra-project hidden"
+
+       ========================================================== -->
+  <div class="grid gap-5 md:grid-cols-2" id="projectsGrid">
+    <!-- ========================================================
+
+         PROJECT 01
+
+         EDIT HERE
+
+         ======================================================== -->
+    <article
+      class="group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+    >
+      <!-- Project Image / Placeholder -->
+      <div
+        class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600"
+      >
+        PROJECT 01
+      </div>
+      <!-- Project Information -->
+      <div class="pt-5">
+        <!-- Technologies -->
+        <p
+          class="text-xs font-semibold uppercase tracking-wider text-indigo-500"
+        >
+          PHP · MVC · MySQL
+        </p>
+        <!-- Project Name -->
+        <h3 class="mt-2 text-xl font-bold">Khoja-Khuji</h3>
+        <!-- Description -->
+        <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+          A Lost &amp; Found Management System designed to help users report,
+          search, and manage lost and found items.
+        </p>
+        <!-- Project Links -->
+        <div class="mt-5 flex gap-4 text-sm font-semibold">
+          <a class="transition hover:text-indigo-500" href="#"> Live Demo ↗ </a>
+          <a class="transition hover:text-indigo-500" href="#"> GitHub ↗ </a>
+        </div>
+      </div>
+    </article>
+    <!-- ========================================================
+
+         PROJECT 02
+
+         EDIT HERE
+
+         ======================================================== -->
+    <article
+      class="group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+    >
+      <!-- Project Image / Placeholder -->
+      <div
+        class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600"
+      >
+        PROJECT 02
+      </div>
+      <!-- Project Information -->
+      <div class="pt-5">
+        <!-- Technologies -->
+        <p
+          class="text-xs font-semibold uppercase tracking-wider text-indigo-500"
+        >
+          Tailwind · JavaScript · PDF
+        </p>
+        <!-- Project Name -->
+        <h3 class="mt-2 text-xl font-bold">IEEE-AIUB Attendance Generator</h3>
+        <!-- Description -->
+        <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+          A responsive tool for creating attendance sheets with live preview and
+          A4 PDF or Word export.
+        </p>
+        <!-- Project Links -->
+        <div class="mt-5 flex gap-4 text-sm font-semibold">
+          <a class="transition hover:text-indigo-500" href="#"> Live Demo ↗ </a>
+          <a class="transition hover:text-indigo-500" href="#"> GitHub ↗ </a>
+        </div>
+      </div>
+    </article>
+    <!-- ========================================================
+
+         PROJECT 03
+
+
+
+         IMPORTANT:
+
+         "extra-project hidden" means this project is hidden
+
+         until the user clicks "View all".
+
+         ======================================================== -->
+    <article
+      class="extra-project hidden group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+    >
+      <!-- Project Image -->
+      <div
+        class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600"
+      >
+        PROJECT 03
+      </div>
+      <div class="pt-5">
+        <p
+          class="text-xs font-semibold uppercase tracking-wider text-indigo-500"
+        >
+          R · NLP · Machine Learning
+        </p>
+        <h3 class="mt-2 text-xl font-bold">Data Science / NLP Project</h3>
+        <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+          A data science project covering text preprocessing, TF-IDF feature
+          extraction, machine learning models, and performance evaluation.
+        </p>
+        <div class="mt-5 flex gap-4 text-sm font-semibold">
+          <a class="transition hover:text-indigo-500" href="#">
+            Case Study ↗
+          </a>
+          <a class="transition hover:text-indigo-500" href="#"> GitHub ↗ </a>
+        </div>
+      </div>
+    </article>
+    <!-- ========================================================
+
+         PROJECT 04
+
+
+
+         COPY THIS WHOLE ARTICLE TO ADD MORE PROJECTS.
+
+         ======================================================== -->
+    <article
+      class="extra-project hidden group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+    >
+      <div
+        class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600"
+      >
+        PROJECT 04
+      </div>
+      <div class="pt-5">
+        <p
+          class="text-xs font-semibold uppercase tracking-wider text-indigo-500"
+        >
+          React · Next.js · API
+        </p>
+        <h3 class="mt-2 text-xl font-bold">Your Next Project</h3>
+        <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+          Add your project description here. Explain briefly what the project
+          does and what problem it solves.
+        </p>
+        <div class="mt-5 flex gap-4 text-sm font-semibold">
+          <a class="transition hover:text-indigo-500" href="#"> Live Demo ↗ </a>
+          <a class="transition hover:text-indigo-500" href="#"> GitHub ↗ </a>
+        </div>
+      </div>
+    </article>
+    <!-- ========================================================
+
+         PROJECT 05
+
+         EXAMPLE OF ANOTHER PROJECT
+
+         ======================================================== -->
+    <article
+      class="extra-project hidden group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+    >
+      <div
+        class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600"
+      >
+        PROJECT 05
+      </div>
+      <div class="pt-5">
+        <p
+          class="text-xs font-semibold uppercase tracking-wider text-indigo-500"
+        >
+          PHP · MySQL · JavaScript
+        </p>
+        <h3 class="mt-2 text-xl font-bold">Another Project</h3>
+        <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+          Replace this text with your own project description.
+        </p>
+        <div class="mt-5 flex gap-4 text-sm font-semibold">
+          <a class="transition hover:text-indigo-500" href="#"> Live Demo ↗ </a>
+          <a class="transition hover:text-indigo-500" href="#"> GitHub ↗ </a>
+        </div>
+      </div>
+    </article>
+  </div>
+  <!-- ==========================================================
+
+       MOBILE / SMALL SCREEN VIEW ALL BUTTON
+
+
+
+       The top button is hidden on small screens.
+
+       This button is shown only on mobile.
+
+       ========================================================== -->
+  <div class="mt-8 text-center sm:hidden">
+    <button
+      class="text-sm font-semibold text-zinc-500 transition hover:text-indigo-500"
+      id="viewAllProjectsMobile"
+      type="button"
+    >
+      View all →
+    </button>
+  </div>
+</section>
