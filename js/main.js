@@ -176,38 +176,48 @@ async function loadProjects() {
     const projects = await response.json();
 
     // ==========================================================
-    // PROJECTS PAGE
-    // Initially show only featured projects
-    // View All will show the remaining projects
+    // CATEGORY DROPDOWN
     // ==========================================================
 
-    const projectsGrid = document.getElementById("projectsGrid");
+    const categorySelect =
+      document.getElementById("project-category");
 
-    if (projectsGrid) {
-      const featuredProjects = projects.filter(
-        (project) => project.featured === true
-      );
-
-      const otherProjects = projects.filter(
-        (project) => project.featured !== true
-      );
-
-      const orderedProjects = [
-        ...featuredProjects,
-        ...otherProjects,
+    if (categorySelect) {
+      const categories = [
+        ...new Set(projects.map((project) => project.category)),
       ];
 
-      projectsGrid.innerHTML = orderedProjects
+      categorySelect.innerHTML = `
+        <option>Featured Projects</option>
+        <option value="all">All Projects</option>
+
+        ${categories
+          .map(
+            (category) =>
+              `<option value="${category}">${category}</option>`
+          )
+          .join("")}
+      `;
+    }
+
+    // ==========================================================
+    // PROJECTS PAGE
+    // ==========================================================
+
+    const projectsGrid =
+      document.getElementById("projectsGrid");
+
+    function renderProjects(projectList) {
+      if (!projectsGrid) return;
+
+      projectsGrid.innerHTML = projectList
         .map(
-          (project, index) => `
+          (project) => `
             <article
-              class="${
-                index >= featuredProjects.length
-                  ? "extra-project hidden"
-                  : ""
-              } group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+              class="group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
             >
 
+              <!-- Project Image -->
               <div
                 class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600"
               >
@@ -224,25 +234,32 @@ async function loadProjects() {
                 }
               </div>
 
+              <!-- Project Content -->
               <div class="pt-5">
 
+                <!-- Technologies -->
                 <p
                   class="text-xs font-semibold uppercase tracking-wider text-indigo-500"
                 >
                   ${project.technologies.join(" · ")}
                 </p>
 
+                <!-- Title -->
                 <h3 class="mt-2 text-xl font-bold">
                   ${project.title}
                 </h3>
 
+                <!-- Description -->
                 <p
                   class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400"
                 >
                   ${project.description}
                 </p>
 
-                <div class="mt-5 flex gap-4 text-sm font-semibold">
+                <!-- Project Links -->
+                <div
+                  class="mt-5 flex gap-4 text-sm font-semibold"
+                >
 
                   ${
                     project.liveDemo
@@ -290,27 +307,61 @@ async function loadProjects() {
                   }
 
                 </div>
+
               </div>
+
             </article>
           `
         )
         .join("");
+
+      lucide.createIcons();
     }
 
     // ==========================================================
-    // HOME PAGE - FEATURED PROJECTS
-    // Show every project where featured === true
+    // INITIAL PROJECTS PAGE
+    // Show ONLY featured projects
     // ==========================================================
 
-    const featuredContainer = document.getElementById(
-      "featured-projects-list"
+    const featuredProjects = projects.filter(
+      (project) => project.featured === true
     );
 
-    if (featuredContainer) {
-      const featuredProjects = projects.filter(
-        (project) => project.featured === true
-      );
+    renderProjects(featuredProjects);
 
+    // ==========================================================
+    // CATEGORY FILTER
+    // ==========================================================
+
+    categorySelect?.addEventListener("change", () => {
+      const selectedCategory = categorySelect.value;
+
+      let filteredProjects;
+
+      if (selectedCategory === "all") {
+        // All Projects → show every project
+        filteredProjects = projects;
+      } else {
+        // Specific category → show ALL projects
+        // belonging to that category
+        filteredProjects = projects.filter(
+          (project) =>
+            project.category === selectedCategory
+        );
+      }
+
+      renderProjects(filteredProjects);
+    });
+
+    // ==========================================================
+    // HOME PAGE - FEATURED PROJECTS
+    // Always show only featured projects
+    // ==========================================================
+
+    const featuredContainer =
+      document.getElementById("featured-projects-list");
+
+    if (featuredContainer) {
       featuredContainer.innerHTML = featuredProjects
         .map(
           (project) => `
@@ -318,6 +369,7 @@ async function loadProjects() {
               class="group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
             >
 
+              <!-- Project Image -->
               <div
                 class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600"
               >
@@ -334,25 +386,32 @@ async function loadProjects() {
                 }
               </div>
 
+              <!-- Project Content -->
               <div class="pt-5">
 
+                <!-- Technologies -->
                 <p
                   class="text-xs font-semibold uppercase tracking-wider text-indigo-500"
                 >
                   ${project.technologies.join(" · ")}
                 </p>
 
+                <!-- Title -->
                 <h3 class="mt-2 text-xl font-bold">
                   ${project.title}
                 </h3>
 
+                <!-- Description -->
                 <p
                   class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400"
                 >
                   ${project.description}
                 </p>
 
-                <div class="mt-5 flex gap-4 text-sm font-semibold">
+                <!-- Project Links -->
+                <div
+                  class="mt-5 flex gap-4 text-sm font-semibold"
+                >
 
                   ${
                     project.liveDemo
@@ -384,15 +443,32 @@ async function loadProjects() {
                       : ""
                   }
 
+                  ${
+                    project.caseStudy
+                      ? `
+                        <a
+                          class="transition hover:text-indigo-500"
+                          href="${project.caseStudy}"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Case Study ↗
+                        </a>
+                      `
+                      : ""
+                  }
+
                 </div>
+
               </div>
+
             </article>
           `
         )
         .join("");
-    }
 
-    lucide.createIcons();
+      lucide.createIcons();
+    }
 
   } catch (error) {
     console.error("Projects Error:", error);
