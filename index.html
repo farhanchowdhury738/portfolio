@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Farhan Chowdhury — Portfolio</title>
+
     <meta
       name="description"
       content="Farhan Chowdhury's personal developer portfolio."
@@ -11,6 +13,7 @@
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+
     <script>
       tailwind.config = {
         darkMode: "class",
@@ -28,6 +31,7 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
+
   <body
     class="bg-zinc-50 text-zinc-900 antialiased transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-100"
   >
@@ -35,19 +39,41 @@
       <!-- Navbar -->
       <div id="navbar"></div>
 
+      <!-- ==========================================
+           MAIN PORTFOLIO LAYOUT
+           ========================================== -->
       <main
         class="mx-auto grid max-w-7xl gap-8 px-5 pb-8 pt-24 lg:grid-cols-[280px_minmax(0,1fr)] lg:px-8 lg:pb-10 lg:pt-28"
       >
-        <!-- Sidebar -->
-        <div id="sidebar"></div>
+        <!-- ========================================
+             SIDEBAR
+             Mobile  : AFTER main content
+             Desktop : LEFT SIDE
+             ======================================== -->
+        <div id="sidebar" class="order-2 lg:order-1"></div>
 
-        <div class="min-w-0">
-          <!-- Sections are loaded from /sections -->
+        <!-- ========================================
+             MAIN CONTENT
+             Mobile  : BEFORE sidebar
+             Desktop : RIGHT SIDE
+             ======================================== -->
+        <div id="main-content" class="min-w-0 order-1 lg:order-2">
+          <!-- Home -->
           <div id="home-section"></div>
+
+          <!-- About -->
           <div id="about-section"></div>
+
+          <!-- Projects -->
           <div id="projects-section"></div>
+
+          <!-- Resume -->
           <div id="resume-section"></div>
+
+          <!-- Blog -->
           <div id="blog-section"></div>
+
+          <!-- Contact -->
           <div id="contact-section"></div>
         </div>
       </main>
@@ -56,6 +82,7 @@
       <div id="footer"></div>
     </div>
 
+    <!-- Main JavaScript -->
     <script src="js/main.js"></script>
   </body>
 </html>
