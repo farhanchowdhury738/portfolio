@@ -3,46 +3,24 @@
        PROJECT SECTION HEADER
   ========================================================== -->
 
-  <div class="mb-10 flex items-end justify-between gap-5">
-    <div>
-      <!-- Main section title -->
-      <div class="flex items-center justify-between gap-5">
-        <div class="relative w-fit">
-          <select
-            id="project-category"
-            class="appearance-none rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-2.5 pr-10 text-sm font-medium text-zinc-200 shadow-sm backdrop-blur-md transition hover:border-zinc-600 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400/30"
-          >
-            <option value="all">All Projects</option>
-          </select>
+ <div class="mb-12">
+  <div class="sticky top-24 z-40">
+    <div class="relative w-fit">
+      <select
+        id="project-category"
+        class="appearance-none rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-2.5 pr-10 text-sm font-medium text-zinc-200 shadow-sm backdrop-blur-md transition hover:border-zinc-600 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400/30"
+      >
+        <option value="featured">Featured Projects</option>
+        <option value="all">All Projects</option>
+      </select>
 
-          <i
-            class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
-            data-lucide="chevron-down"
-          ></i>
-        </div>
-      </div>
+      <i
+        class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
+        data-lucide="chevron-down"
+      ></i>
     </div>
-
-    <!-- ========================================================
-         DESKTOP VIEW ALL BUTTON
-         --------------------------------------------------------
-         Hidden on mobile using "hidden sm:block".
-
-         JavaScript uses this ID:
-         #viewAllProjects
-
-         Clicking it shows/hides the projects that are initially
-         hidden because their "featured" value is false.
-    ======================================================== -->
-
-    <button
-      class="hidden text-sm font-semibold text-zinc-500 transition hover:text-indigo-500 sm:block"
-      id="viewAllProjects"
-      type="button"
-    >
-      View all →
-    </button>
   </div>
+</div>
 
   <!-- ==========================================================
        PROJECT GRID / CONTAINER
