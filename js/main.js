@@ -179,8 +179,7 @@ async function loadProjects() {
     // CATEGORY DROPDOWN
     // ==========================================================
 
-    const categorySelect =
-      document.getElementById("project-category");
+    const categorySelect = document.getElementById("project-category");
 
     if (categorySelect) {
       const categories = [
@@ -188,14 +187,11 @@ async function loadProjects() {
       ];
 
       categorySelect.innerHTML = `
-        <option>Featured Projects</option>
+        <option value="featured">Featured Projects</option>
         <option value="all">All Projects</option>
 
         ${categories
-          .map(
-            (category) =>
-              `<option value="${category}">${category}</option>`
-          )
+          .map((category) => `<option value="${category}">${category}</option>`)
           .join("")}
       `;
     }
@@ -204,8 +200,7 @@ async function loadProjects() {
     // PROJECTS PAGE
     // ==========================================================
 
-    const projectsGrid =
-      document.getElementById("projectsGrid");
+    const projectsGrid = document.getElementById("projectsGrid");
 
     function renderProjects(projectList) {
       if (!projectsGrid) return;
@@ -311,7 +306,7 @@ async function loadProjects() {
               </div>
 
             </article>
-          `
+          `,
         )
         .join("");
 
@@ -324,7 +319,7 @@ async function loadProjects() {
     // ==========================================================
 
     const featuredProjects = projects.filter(
-      (project) => project.featured === true
+      (project) => project.featured === true,
     );
 
     renderProjects(featuredProjects);
@@ -333,33 +328,34 @@ async function loadProjects() {
     // CATEGORY FILTER
     // ==========================================================
 
-    categorySelect?.addEventListener("change", () => {
-      const selectedCategory = categorySelect.value;
+    if (categorySelect) {
+      categorySelect.addEventListener("change", () => {
+        const selectedCategory = categorySelect.value;
 
-      let filteredProjects;
+        let filteredProjects = [];
 
-      if (selectedCategory === "all") {
-        // All Projects → show every project
-        filteredProjects = projects;
-      } else {
-        // Specific category → show ALL projects
-        // belonging to that category
-        filteredProjects = projects.filter(
-          (project) =>
-            project.category === selectedCategory
-        );
-      }
+        if (selectedCategory === "featured") {
+          filteredProjects = projects.filter(
+            (project) => project.featured === true,
+          );
+        } else if (selectedCategory === "all") {
+          filteredProjects = projects;
+        } else {
+          filteredProjects = projects.filter(
+            (project) => project.category === selectedCategory,
+          );
+        }
 
-      renderProjects(filteredProjects);
-    });
+        renderProjects(filteredProjects);
+      });
+    }
 
     // ==========================================================
     // HOME PAGE - FEATURED PROJECTS
     // Always show only featured projects
     // ==========================================================
 
-    const featuredContainer =
-      document.getElementById("featured-projects-list");
+    const featuredContainer = document.getElementById("featured-projects-list");
 
     if (featuredContainer) {
       featuredContainer.innerHTML = featuredProjects
@@ -463,13 +459,12 @@ async function loadProjects() {
               </div>
 
             </article>
-          `
+          `,
         )
         .join("");
 
       lucide.createIcons();
     }
-
   } catch (error) {
     console.error("Projects Error:", error);
   }
