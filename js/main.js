@@ -55,7 +55,7 @@ async function loadCertificates() {
             </p>
 
             <!-- Date -->
-            <p class="mt-1 text-base font-medium text-indigo-400">
+            <p class="mt-1 text-base font-medium text-indigo-500 dark:text-indigo-400">
               ${certificate.date}
             </p>
 
@@ -129,7 +129,7 @@ async function loadVolunteering() {
 
               <!-- Timeline Dot -->
               <div
-                class="absolute left-0 top-1 h-3.5 w-3.5 rounded-full border-4 border-zinc-950 bg-indigo-400 shadow-[0_0_0_2px_rgba(129,140,248,0.12)]"
+                class="absolute left-0 top-1 h-3.5 w-3.5 rounded-full border-4 border-zinc-50 bg-indigo-400 dark:border-zinc-950 shadow-[0_0_0_2px_rgba(129,140,248,0.12)]"
               ></div>
 
               <!-- Title -->
@@ -138,7 +138,7 @@ async function loadVolunteering() {
               </h4>
 
               <!-- Time -->
-              <p class="mt-2 text-base font-medium text-indigo-400">
+              <p class="mt-2 text-base font-medium text-indigo-500 dark:text-indigo-400">
                 ${item.time}
               </p>
 
