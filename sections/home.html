@@ -1,19 +1,13 @@
-<section
-  class="scroll-mt-24"
-  id="home"
->
+<section class="scroll-mt-24" id="home">
   <div class="max-w-4xl">
-    <p
-      class="mb-5 text-sm font-semibold uppercase tracking-[0.2em] text-indigo-500"
-    >
-      Hello, I'm Farhan
-    </p>
     <h2
       class="max-w-4xl text-5xl font-bold leading-[1.05] tracking-[-0.04em] sm:text-6xl lg:text-7xl"
     >
-      I build things for the
+      Exploring technology by
 
-      <span class="text-indigo-500">web &amp; beyond.</span>
+      <span class="text-4xl text-indigo-500 sm:text-5xl lg:text-6xl">
+        building real things.
+      </span>
     </h2>
     <p
       class="mt-7 max-w-2xl text-base leading-7 text-zinc-600 sm:text-lg dark:text-zinc-400"
@@ -22,6 +16,7 @@
       development, software engineering, data science, and AI. I enjoy turning
       ideas into practical solutions and learning by building.
     </p>
+
     <div class="mt-9 flex flex-wrap gap-3">
       <a
         class="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 dark:bg-white dark:text-zinc-900 dark:hover:bg-indigo-500 dark:hover:text-white"
@@ -34,45 +29,68 @@
       </a>
       <a
         class="inline-flex items-center gap-2 rounded-full border border-zinc-300 px-5 py-3 text-sm font-semibold transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700"
-        href="#resume"
-        data-section-link="resume"
+        href="../Farhan-chowdhury-CV.pdf"
+        download
       >
         Download CV <i class="h-4 w-4" data-lucide="download"></i>
       </a>
     </div>
+
     <div class="mt-14 flex flex-wrap gap-2">
       <span
-        class="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-medium dark:bg-zinc-900"
+        class="rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium dark:bg-zinc-900"
         >PHP</span
       >
       <span
-        class="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-medium dark:bg-zinc-900"
+        class="rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium dark:bg-zinc-900"
         >JavaScript</span
       >
       <span
-        class="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-medium dark:bg-zinc-900"
+        class="rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium dark:bg-zinc-900"
         >React</span
       >
       <span
-        class="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-medium dark:bg-zinc-900"
+        class="rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium dark:bg-zinc-900"
         >Next.js</span
       >
       <span
-        class="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-medium dark:bg-zinc-900"
+        class="rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium dark:bg-zinc-900"
         >Python</span
       >
       <span
-        class="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-medium dark:bg-zinc-900"
+        class="rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium dark:bg-zinc-900"
         >R</span
       >
       <span
-        class="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-medium dark:bg-zinc-900"
+        class="rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium dark:bg-zinc-900"
         >MySQL</span
       >
       <span
-        class="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-medium dark:bg-zinc-900"
+        class="rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium dark:bg-zinc-900"
         >Git</span
       >
     </div>
+  </div>
+
+  <!-- Featured Projects -->
+  <div class="mt-24">
+    <div class="mb-8 flex items-center justify-between gap-4">
+      <h3 class="text-2xl font-bold tracking-tight">Featured Projects</h3>
+
+      <a
+        href="#projects"
+        data-section-link="projects"
+        class="inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-600 transition hover:text-indigo-500 dark:text-zinc-400 dark:hover:text-indigo-400"
+      >
+        View All
+        <i class="h-4 w-4" data-lucide="arrow-right"></i>
+      </a>
+    </div>
+
+    <!-- Featured projects will be loaded from projects.json -->
+    <div
+      id="featured-projects-list"
+      class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+    ></div>
   </div>
 </section>

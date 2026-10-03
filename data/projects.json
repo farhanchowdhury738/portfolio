@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "title": "Khoja-Khuji",
+    "category": "Web Development",
+    "technologies": ["PHP", "MVC", "MySQL"],
+    "description": "A Lost & Found Management System designed to help users report, search, and manage lost and found items.",
+    "image": "../images/projects/khoja-khuji.png",
+    "liveDemo": "https://aiub-web-project-khoja-khuji.infy.click/",
+    "github": "https://github.com/farhanchowdhury738/WebTech-lost-found-management-system",
+    "caseStudy": "",
+    "featured": true
+  },
+  {
+    "id": 2,
+    "title": "IEEE-AIUB Event Toolkit",
+    "category": "Web Application",
+    "technologies": ["HTML", "JavaScript", "Tailwind CSS"],
+    "description": "IEEE toolkit with participant management, live preview, and PDF/Word export.",
+    "image": "../images/projects/ieee-aiub-event-toolkit.png",
+    "liveDemo": "https://ieee-aiub-event-toolkit.netlify.app/",
+    "github": "https://github.com/farhanchowdhury738/aiub-ieee-attendance-sheet-generator",
+    "caseStudy": "",
+    "featured": true
+  },
+  {
+    "id": 3,
+    "title": "E-Commerce Store",
+    "category": "Web Development",
+    "technologies": ["PHP", "MySQL", "MVC", "JavaScript"],
+    "description": "A full-stack e-commerce application with product management, shopping cart, user authentication, and order management.",
+    "image": "",
+    "liveDemo": "",
+    "github": "",
+    "caseStudy": "",
+    "featured": false
+  },
+  {
+    "id": 4,
+    "title": "Data Science NLP Analysis",
+    "category": "Data Science",
+    "technologies": ["R", "NLP", "TF-IDF", "Machine Learning"],
+    "description": "A natural language processing project involving text preprocessing, TF-IDF feature extraction, machine learning models, and performance evaluation.",
+    "image": "",
+    "liveDemo": "",
+    "github": "",
+    "caseStudy": "",
+    "featured": false
+  },
+  {
+    "id": 5,
+    "title": "Portfolio Website",
+    "category": "Frontend Development",
+    "technologies": ["HTML", "Tailwind CSS", "JavaScript", "JSON"],
+    "description": "A responsive personal portfolio website showcasing projects, education, experience, certifications, volunteering, and technical skills.",
+    "image": "",
+    "liveDemo": "",
+    "github": "",
+    "caseStudy": "",
+    "featured": false
+  },
+  {
+    "id": 6,
+    "title": "Student Management System",
+    "category": "Software Development",
+    "technologies": ["Java", "MySQL", "OOP"],
+    "description": "A student management application for managing student records, academic information, and basic administrative operations.",
+    "image": "",
+    "liveDemo": "",
+    "github": "",
+    "caseStudy": "",
+    "featured": true
+  },
+  {
+    "id": 7,
+    "title": "Task Management Application",
+    "category": "Web Application",
+    "technologies": ["React", "JavaScript", "CSS", "API"],
+    "description": "A task management application that allows users to create, organize, update, and track tasks through a simple interface.",
+    "image": "",
+    "liveDemo": "",
+    "github": "",
+    "caseStudy": "",
+    "featured": false
+  },
+  {
+    "id": 8,
+    "title": "Weather Dashboard",
+    "category": "Web Application",
+    "technologies": ["JavaScript", "API", "HTML", "CSS"],
+    "description": "A weather dashboard that retrieves weather information from an API and presents current conditions and forecast data in a responsive interface.",
+    "image": "",
+    "liveDemo": "",
+    "github": "",
+    "caseStudy": "",
+    "featured": false
+  },
+  {
+    "id": 9,
+    "title": "Machine Learning Prediction System",
+    "category": "Machine Learning",
+    "technologies": ["Python", "Pandas", "Scikit-learn", "Machine Learning"],
+    "description": "A machine learning project focused on data preprocessing, feature engineering, model training, prediction, and performance evaluation.",
+    "image": "",
+    "liveDemo": "",
+    "github": "",
+    "caseStudy": "",
+    "featured": false
+  },
+  {
+    "id": 10,
+    "title": "Inventory Management System",
+    "category": "Software Development",
+    "technologies": ["PHP", "MySQL", "JavaScript"],
+    "description": "An inventory management system for tracking products, stock levels, suppliers, and basic inventory operations.",
+    "image": "",
+    "liveDemo": "",
+    "github": "",
+    "caseStudy": "",
+    "featured": false
+  }
+]

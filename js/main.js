@@ -162,6 +162,244 @@ async function loadVolunteering() {
 }
 
 // ============================================================
+// LOAD PROJECTS FROM JSON
+// ============================================================
+
+async function loadProjects() {
+  try {
+    const response = await fetch("data/projects.json");
+
+    if (!response.ok) {
+      throw new Error("Failed to load projects.json");
+    }
+
+    const projects = await response.json();
+
+    // ==========================================================
+    // PROJECTS PAGE
+    // Initially show only featured projects
+    // View All will show the remaining projects
+    // ==========================================================
+
+    const projectsGrid = document.getElementById("projectsGrid");
+
+    if (projectsGrid) {
+      const featuredProjects = projects.filter(
+        (project) => project.featured === true
+      );
+
+      const otherProjects = projects.filter(
+        (project) => project.featured !== true
+      );
+
+      const orderedProjects = [
+        ...featuredProjects,
+        ...otherProjects,
+      ];
+
+      projectsGrid.innerHTML = orderedProjects
+        .map(
+          (project, index) => `
+            <article
+              class="${
+                index >= featuredProjects.length
+                  ? "extra-project hidden"
+                  : ""
+              } group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+            >
+
+              <div
+                class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600"
+              >
+                ${
+                  project.image
+                    ? `
+                      <img
+                        src="${project.image}"
+                        alt="${project.title}"
+                        class="h-full w-full object-cover"
+                      />
+                    `
+                    : `PROJECT ${String(project.id).padStart(2, "0")}`
+                }
+              </div>
+
+              <div class="pt-5">
+
+                <p
+                  class="text-xs font-semibold uppercase tracking-wider text-indigo-500"
+                >
+                  ${project.technologies.join(" · ")}
+                </p>
+
+                <h3 class="mt-2 text-xl font-bold">
+                  ${project.title}
+                </h3>
+
+                <p
+                  class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400"
+                >
+                  ${project.description}
+                </p>
+
+                <div class="mt-5 flex gap-4 text-sm font-semibold">
+
+                  ${
+                    project.liveDemo
+                      ? `
+                        <a
+                          class="transition hover:text-indigo-500"
+                          href="${project.liveDemo}"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Live Demo ↗
+                        </a>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    project.github
+                      ? `
+                        <a
+                          class="transition hover:text-indigo-500"
+                          href="${project.github}"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          GitHub ↗
+                        </a>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    project.caseStudy
+                      ? `
+                        <a
+                          class="transition hover:text-indigo-500"
+                          href="${project.caseStudy}"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Case Study ↗
+                        </a>
+                      `
+                      : ""
+                  }
+
+                </div>
+              </div>
+            </article>
+          `
+        )
+        .join("");
+    }
+
+    // ==========================================================
+    // HOME PAGE - FEATURED PROJECTS
+    // Show every project where featured === true
+    // ==========================================================
+
+    const featuredContainer = document.getElementById(
+      "featured-projects-list"
+    );
+
+    if (featuredContainer) {
+      const featuredProjects = projects.filter(
+        (project) => project.featured === true
+      );
+
+      featuredContainer.innerHTML = featuredProjects
+        .map(
+          (project) => `
+            <article
+              class="group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+            >
+
+              <div
+                class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600"
+              >
+                ${
+                  project.image
+                    ? `
+                      <img
+                        src="${project.image}"
+                        alt="${project.title}"
+                        class="h-full w-full object-cover"
+                      />
+                    `
+                    : `PROJECT ${String(project.id).padStart(2, "0")}`
+                }
+              </div>
+
+              <div class="pt-5">
+
+                <p
+                  class="text-xs font-semibold uppercase tracking-wider text-indigo-500"
+                >
+                  ${project.technologies.join(" · ")}
+                </p>
+
+                <h3 class="mt-2 text-xl font-bold">
+                  ${project.title}
+                </h3>
+
+                <p
+                  class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400"
+                >
+                  ${project.description}
+                </p>
+
+                <div class="mt-5 flex gap-4 text-sm font-semibold">
+
+                  ${
+                    project.liveDemo
+                      ? `
+                        <a
+                          class="transition hover:text-indigo-500"
+                          href="${project.liveDemo}"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Live Demo ↗
+                        </a>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    project.github
+                      ? `
+                        <a
+                          class="transition hover:text-indigo-500"
+                          href="${project.github}"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          GitHub ↗
+                        </a>
+                      `
+                      : ""
+                  }
+
+                </div>
+              </div>
+            </article>
+          `
+        )
+        .join("");
+    }
+
+    lucide.createIcons();
+
+  } catch (error) {
+    console.error("Projects Error:", error);
+  }
+}
+
+// ============================================================
 // LOAD ALL PORTFOLIO COMPONENTS
 // ============================================================
 
@@ -183,6 +421,9 @@ async function loadPortfolio() {
 
   // Load loadVolunteering after resume section is loaded
   await loadVolunteering();
+
+  // Load loadVolunteering after resume section is loaded
+  await loadProjects();
 
   // Initialize all portfolio functionality
   initializePortfolio();
