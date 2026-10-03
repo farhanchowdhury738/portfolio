@@ -4,11 +4,96 @@
 
 async function loadFile(targetId, file) {
   const response = await fetch(file);
+
   if (!response.ok) {
     throw new Error(`Could not load ${file}`);
   }
+
   document.getElementById(targetId).innerHTML = await response.text();
 }
+
+
+// ============================================================
+// LOAD CERTIFICATES FROM JSON
+// ============================================================
+
+async function loadCertificates() {
+  const container = document.getElementById("certificates-list");
+
+  // Certificate section not loaded yet / not found
+  if (!container) return;
+
+  try {
+    const response = await fetch("data/certificates.json");
+
+    if (!response.ok) {
+      throw new Error("Failed to load certificates.json");
+    }
+
+    const certificates = await response.json();
+
+    container.innerHTML = certificates
+      .map(
+        (certificate) => `
+          <div class="mb-10 ml-7">
+
+            <!-- Title + Logo -->
+            <div class="flex items-center gap-3">
+              <img
+                src="${certificate.logo}"
+                alt="${certificate.organization}"
+                class="h-10 w-10 shrink-0 rounded-lg object-contain"
+              />
+
+              <h4 class="text-lg font-bold">
+                ${certificate.title}
+              </h4>
+            </div>
+
+            <!-- Organization -->
+            <p class="mt-1 text-base text-zinc-500 dark:text-zinc-400">
+              ${certificate.organization}
+            </p>
+
+            <!-- Date -->
+            <p class="mt-1 text-base font-medium text-indigo-400">
+              ${certificate.date}
+            </p>
+
+            <!-- Credential -->
+            <a
+              href="${certificate.credential}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-4 inline-flex items-center gap-1.5 rounded-full border border-zinc-400 px-3.5 py-1.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-500 dark:text-zinc-300 dark:hover:border-indigo-400 dark:hover:text-indigo-400"
+            >
+              Show credential
+              <i class="h-4 w-4" data-lucide="external-link"></i>
+            </a>
+
+            <!-- Skills -->
+            <p class="mt-4 text-sm text-zinc-700 dark:text-zinc-300">
+              <span class="font-bold">Skills:</span>
+              ${certificate.skills}
+            </p>
+
+          </div>
+        `
+      )
+      .join("");
+
+    // Render Lucide icons after certificates are created
+    lucide.createIcons();
+
+  } catch (error) {
+    console.error("Certificates Error:", error);
+  }
+}
+
+
+// ============================================================
+// LOAD ALL PORTFOLIO COMPONENTS
+// ============================================================
 
 async function loadPortfolio() {
   await Promise.all([
@@ -23,15 +108,21 @@ async function loadPortfolio() {
     loadFile("contact-section", "sections/contact.html"),
   ]);
 
+  // Load certificates after resume section is loaded
+  await loadCertificates();
+
+  // Initialize all portfolio functionality
   initializePortfolio();
 }
+
 
 // ============================================================
 // EXISTING PORTFOLIO FUNCTIONALITY
 // ============================================================
 
 function initializePortfolio() {
-  // Render Lucide icons after the HTML is loaded.
+
+  // Render Lucide icons after HTML is loaded
   lucide.createIcons();
 
   const html = document.documentElement;
@@ -39,21 +130,40 @@ function initializePortfolio() {
   const mobileMenuBtn = document.getElementById("mobileMenuBtn");
   const mobileMenu = document.getElementById("mobileMenu");
 
-  // Persist theme
+
+  // ==========================================================
+  // PERSIST THEME
+  // ==========================================================
+
   if (
     localStorage.theme === "dark" ||
-    (!('theme' in localStorage) &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches)
+    (
+      !("theme" in localStorage) &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    )
   ) {
     html.classList.add("dark");
   } else {
     html.classList.remove("dark");
   }
 
+
+  // ==========================================================
+  // THEME TOGGLE
+  // ==========================================================
+
   themeToggle?.addEventListener("click", () => {
     html.classList.toggle("dark");
-    localStorage.theme = html.classList.contains("dark") ? "dark" : "light";
+
+    localStorage.theme = html.classList.contains("dark")
+      ? "dark"
+      : "light";
   });
+
+
+  // ==========================================================
+  // MOBILE MENU
+  // ==========================================================
 
   mobileMenuBtn?.addEventListener("click", () => {
     mobileMenu?.classList.toggle("hidden");
@@ -73,68 +183,187 @@ function initializePortfolio() {
     contact: "contact-section",
   };
 
+
   function showSection(sectionName, updateHash = true) {
-    const targetId = sectionMap[sectionName] ? sectionMap[sectionName] : sectionMap.home;
-    const activeName = sectionMap[sectionName] ? sectionName : "home";
 
+    const targetId = sectionMap[sectionName]
+      ? sectionMap[sectionName]
+      : sectionMap.home;
+
+    const activeName = sectionMap[sectionName]
+      ? sectionName
+      : "home";
+
+
+    // Show / hide sections
     Object.values(sectionMap).forEach((id) => {
+
       const section = document.getElementById(id);
-      section?.classList.toggle("hidden", id !== targetId);
+
+      section?.classList.toggle(
+        "hidden",
+        id !== targetId
+      );
+
     });
 
-    // Highlight the current navigation item.
-    document.querySelectorAll("[data-section-link]").forEach((link) => {
-      const isActive = link.dataset.sectionLink === activeName;
-      link.classList.toggle("text-indigo-500", isActive);
-    });
+
+    // ========================================================
+    // HIGHLIGHT ACTIVE NAVIGATION ITEM
+    // ========================================================
+
+    document
+      .querySelectorAll("[data-section-link]")
+      .forEach((link) => {
+
+        const isActive =
+          link.dataset.sectionLink === activeName;
+
+        link.classList.toggle(
+          "text-indigo-500",
+          isActive
+        );
+
+      });
+
+
+    // ========================================================
+    // UPDATE URL HASH
+    // ========================================================
 
     if (updateHash) {
-      history.replaceState(null, "", `#${activeName}`);
+      history.replaceState(
+        null,
+        "",
+        `#${activeName}`
+      );
     }
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // ========================================================
+    // SCROLL TO TOP
+    // ========================================================
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+
+    // Close mobile menu
     mobileMenu?.classList.add("hidden");
   }
 
-  document.querySelectorAll("[data-section-link]").forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      showSection(link.dataset.sectionLink);
-    });
-  });
 
-  const initialSection = window.location.hash.replace("#", "");
-  showSection(sectionMap[initialSection] ? initialSection : "home", false);
+  // ==========================================================
+  // NAVIGATION CLICK EVENTS
+  // ==========================================================
+
+  document
+    .querySelectorAll("[data-section-link]")
+    .forEach((link) => {
+
+      link.addEventListener("click", (event) => {
+
+        event.preventDefault();
+
+        showSection(
+          link.dataset.sectionLink
+        );
+
+      });
+
+    });
+
+
+  // ==========================================================
+  // INITIAL SECTION
+  // ==========================================================
+
+  const initialSection =
+    window.location.hash.replace("#", "");
+
+  showSection(
+    sectionMap[initialSection]
+      ? initialSection
+      : "home",
+    false
+  );
+
 
   // ==========================================================
   // SHOW / HIDE ALL PROJECTS
   // ==========================================================
 
-  const viewAllProjects = document.getElementById("viewAllProjects");
-  const viewAllProjectsMobile = document.getElementById("viewAllProjectsMobile");
-  const extraProjects = document.querySelectorAll(".extra-project");
+  const viewAllProjects =
+    document.getElementById("viewAllProjects");
+
+  const viewAllProjectsMobile =
+    document.getElementById("viewAllProjectsMobile");
+
+  const extraProjects =
+    document.querySelectorAll(".extra-project");
+
 
   function toggleProjects() {
-    const isHidden = extraProjects[0]?.classList.contains("hidden");
+
+    const isHidden =
+      extraProjects[0]?.classList.contains("hidden");
+
 
     extraProjects.forEach((project) => {
-      project.classList.toggle("hidden", !isHidden);
+
+      project.classList.toggle(
+        "hidden",
+        !isHidden
+      );
+
     });
 
+
     if (viewAllProjects) {
-      viewAllProjects.textContent = isHidden ? "Show less ↑" : "View all →";
+
+      viewAllProjects.textContent =
+        isHidden
+          ? "Show less ↑"
+          : "View all →";
+
     }
+
 
     if (viewAllProjectsMobile) {
-      viewAllProjectsMobile.textContent = isHidden ? "Show less ↑" : "View all →";
+
+      viewAllProjectsMobile.textContent =
+        isHidden
+          ? "Show less ↑"
+          : "View all →";
+
     }
+
   }
 
-  viewAllProjects?.addEventListener("click", toggleProjects);
-  viewAllProjectsMobile?.addEventListener("click", toggleProjects);
+
+  viewAllProjects?.addEventListener(
+    "click",
+    toggleProjects
+  );
+
+  viewAllProjectsMobile?.addEventListener(
+    "click",
+    toggleProjects
+  );
 }
 
+
+// ============================================================
+// START PORTFOLIO
+// ============================================================
+
 loadPortfolio().catch((error) => {
-  console.error("Portfolio loading error:", error);
+
+  console.error(
+    "Portfolio loading error:",
+    error
+  );
+
 });
-  
