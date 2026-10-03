@@ -59,9 +59,52 @@ function initializePortfolio() {
     mobileMenu?.classList.toggle("hidden");
   });
 
-  document.querySelectorAll("#mobileMenu a").forEach((link) => {
-    link.addEventListener("click", () => mobileMenu?.classList.add("hidden"));
+
+  // ==========================================================
+  // SINGLE-VIEW NAVIGATION
+  // ==========================================================
+
+  const sectionMap = {
+    home: "home-section",
+    about: "about-section",
+    projects: "projects-section",
+    resume: "resume-section",
+    blog: "blog-section",
+    contact: "contact-section",
+  };
+
+  function showSection(sectionName, updateHash = true) {
+    const targetId = sectionMap[sectionName] ? sectionMap[sectionName] : sectionMap.home;
+    const activeName = sectionMap[sectionName] ? sectionName : "home";
+
+    Object.values(sectionMap).forEach((id) => {
+      const section = document.getElementById(id);
+      section?.classList.toggle("hidden", id !== targetId);
+    });
+
+    // Highlight the current navigation item.
+    document.querySelectorAll("[data-section-link]").forEach((link) => {
+      const isActive = link.dataset.sectionLink === activeName;
+      link.classList.toggle("text-indigo-500", isActive);
+    });
+
+    if (updateHash) {
+      history.replaceState(null, "", `#${activeName}`);
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    mobileMenu?.classList.add("hidden");
+  }
+
+  document.querySelectorAll("[data-section-link]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      showSection(link.dataset.sectionLink);
+    });
   });
+
+  const initialSection = window.location.hash.replace("#", "");
+  showSection(sectionMap[initialSection] ? initialSection : "home", false);
 
   // ==========================================================
   // SHOW / HIDE ALL PROJECTS
@@ -94,3 +137,4 @@ function initializePortfolio() {
 loadPortfolio().catch((error) => {
   console.error("Portfolio loading error:", error);
 });
+  
