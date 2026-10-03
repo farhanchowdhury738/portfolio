@@ -285,6 +285,9 @@ async function loadPortfolio() {
   // Load loadVolunteering after resume section is loaded
   await loadProjects();
 
+  // Blog feed (likes / comments)
+  if (window.loadBlog) await window.loadBlog();
+
   // Initialize all portfolio functionality
   initializePortfolio();
 }
@@ -418,13 +421,13 @@ function initializePortfolio() {
   // INITIAL SECTION
   // ==========================================================
 
-  const initialSection = window.location.hash.replace("#", "");
+  const initialSection = window.location.hash.replace("#", "").split("/")[0];
 
   showSection(sectionMap[initialSection] ? initialSection : "home", false);
 
   // Back / forward buttons and manual hash changes
   window.addEventListener("hashchange", () => {
-    const name = window.location.hash.replace("#", "");
+    const name = window.location.hash.replace("#", "").split("/")[0];
     showSection(sectionMap[name] ? name : "home", false);
   });
 }

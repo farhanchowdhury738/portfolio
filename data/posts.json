@@ -1,0 +1,29 @@
+[
+  {
+    "slug": "php-mvc-project",
+    "date": "2026-10-03",
+    "category": "Web Development",
+    "title": "What I Learned Building a PHP MVC Project",
+    "text": ["Coming soon. Replace this text with your post in data/posts.json."],
+    "image": "",
+    "link": ""
+  },
+  {
+    "slug": "nlp-tfidf-project",
+    "date": "2026-10-02",
+    "category": "Data Science",
+    "title": "My First NLP & TF-IDF Project",
+    "text": ["Coming soon. Replace this text with your post in data/posts.json."],
+    "image": "",
+    "link": ""
+  },
+  {
+    "slug": "react-nextjs-learning",
+    "date": "2026-10-01",
+    "category": "Frontend",
+    "title": "Learning React and Next.js Through Projects",
+    "text": ["Coming soon. Replace this text with your post in data/posts.json."],
+    "image": "",
+    "link": ""
+  }
+]
