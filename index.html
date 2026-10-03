@@ -4,7 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Farhan Chowdhury</title>
+    <title>Farhan Chowdhury — Software Developer</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%236366f1'/%3E%3Ctext x='32' y='43' font-family='Arial' font-size='30' font-weight='700' text-anchor='middle' fill='white'%3EFC%3C/text%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Farhan Chowdhury — Software Developer" />
+    <meta property="og:description" content="Computer Science student building web applications and exploring data science and AI." />
+    <meta property="og:url" content="https://farhan-chowdhury.netlify.app/" />
+    <meta property="og:image" content="https://farhan-chowdhury.netlify.app/images/farhan.png" />
+    <meta name="twitter:card" content="summary" />
+
+    <!-- Apply saved / system theme BEFORE first paint (prevents dark-mode flash) -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("theme");
+          var dark =
+            t === "dark" ||
+            (t === null &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.classList.toggle("dark", dark);
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Makes native controls (dropdown list, scrollbars) follow the site theme -->
+    <meta name="color-scheme" content="light dark" />
+    <style>
+      html { color-scheme: light; }
+      html.dark { color-scheme: dark; }
+      header nav a[aria-current="page"] { text-decoration: underline; text-decoration-color: #6366f1; text-decoration-thickness: 2px; text-underline-offset: 8px; }
+      @keyframes section-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+      .section-fade { animation: section-fade 0.2s ease-out; }
+      @media (prefers-reduced-motion: reduce) { .section-fade { animation: none; } html { scroll-behavior: auto; } }
+    </style>
 
     <!-- Apply saved / system theme BEFORE first paint (prevents dark-mode flash) -->
     <script>
@@ -29,7 +64,7 @@
 
     <meta
       name="description"
-      content="Farhan Chowdhury's personal developer portfolio."
+      content="Portfolio of Farhan Chowdhury, a Computer Science student building web applications and exploring data science and AI."
     />
 
     <!-- Tailwind CSS CDN -->
@@ -56,6 +91,7 @@
   <body
     class="bg-zinc-50 text-zinc-900 antialiased transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-100"
   >
+    <noscript><p class="p-6 text-center">Please enable JavaScript to view this portfolio.</p></noscript>
     <div class="min-h-screen">
       <!-- Navbar -->
       <div id="navbar"></div>

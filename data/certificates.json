@@ -3,7 +3,7 @@
     "title": "MATLAB Onramp",
     "organization": "MathWorks",
     "date": "Dec 2025",
-    "logo": "../images/matlab.jpg",
+    "logo": "images/matlab.jpg",
     "credential": "https://matlabacademy.mathworks.com/progress/share/certificate.html?id=65147af2-9d43-4c48-90a5-5da45d4689ff&",
     "skills": "MATLAB"
   },
@@ -11,7 +11,7 @@
     "title": "Problem Solving Certificate",
     "organization": "HackerRank",
     "date": "May 2025",
-    "logo": "../images/hackerrank.png",
+    "logo": "images/hackerrank.png",
     "credential": "https://www.hackerrank.com/certificates/b1faaa632bcb",
     "skills": "C++"
   },
@@ -19,7 +19,7 @@
     "title": "Java Certificate",
     "organization": "HackerRank",
     "date": "Nov 2024",
-    "logo": "../images/hackerrank.png",
+    "logo": "images/hackerrank.png",
     "credential": "https://www.hackerrank.com/certificates/c833244f061f",
     "skills": "Java"
   },
@@ -27,7 +27,7 @@
     "title": "Cisco IT Essentials",
     "organization": "Cisco",
     "date": "Aug 2023",
-    "logo": "../images/cisco.jpg",
+    "logo": "images/cisco.jpg",
     "credential": "https://drive.google.com/file/d/1-sj-Uew9KL8zYqLb9o2Pg4RvCb4SDqYP/view",
     "skills": "Networking"
   },
@@ -35,7 +35,7 @@
     "title": "Champion, Idea Generation Segment",
     "organization": "IEEE SPAVE 2025",
     "date": "Oct 2025",
-    "logo": "../images/ieee.png",
+    "logo": "images/ieee.png",
     "credential": "https://drive.google.com/file/d/1y_m2HcnLGyjW_v5-q7tZoGZsrxWqEWdd/view?usp=sharing"
   }
 ]

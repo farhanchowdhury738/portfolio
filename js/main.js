@@ -3,13 +3,16 @@
 // ============================================================
 
 async function loadFile(targetId, file) {
-  const response = await fetch(file);
-
-  if (!response.ok) {
-    throw new Error(`Could not load ${file}`);
+  const target = document.getElementById(targetId);
+  try {
+    const response = await fetch(file);
+    if (!response.ok) throw new Error(`Could not load ${file}`);
+    target.innerHTML = await response.text();
+  } catch (error) {
+    console.error(error);
+    target.innerHTML =
+      '<p class="py-10 text-sm text-zinc-500 dark:text-zinc-400">This section could not be loaded. Please refresh the page.</p>';
   }
-
-  document.getElementById(targetId).innerHTML = await response.text();
 }
 
 // ============================================================
@@ -40,7 +43,7 @@ async function loadCertificates() {
             <div class="flex items-center gap-3">
               <img
                 src="${certificate.logo}"
-                alt="${certificate.organization}"
+                alt="${certificate.organization} logo" loading="lazy" width="40" height="40"
                 class="h-10 w-10 shrink-0 rounded-lg object-contain"
               />
 
@@ -165,306 +168,92 @@ async function loadVolunteering() {
 // LOAD PROJECTS FROM JSON
 // ============================================================
 
+function projectCard(project) {
+  const initials = project.title
+    .split(/\s+/)
+    .filter((w) => /^[A-Za-z0-9]/.test(w))
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
+
+  const link = (href, label, primary) =>
+    href
+      ? `<a href="${href}" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center rounded-full border px-3.5 py-1.5 transition ${
+             primary
+               ? "border-transparent bg-zinc-900 text-white hover:bg-indigo-500 dark:bg-white dark:text-zinc-900 dark:hover:bg-indigo-500 dark:hover:text-white"
+               : "border-zinc-300 hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700"
+           }">${label} ↗</a>`
+      : "";
+
+  return `
+    <article class="group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+      <div class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-100 to-zinc-100 text-4xl font-bold tracking-tight text-indigo-300 dark:from-indigo-950 dark:to-zinc-800 dark:text-indigo-800">
+        ${
+          project.image
+            ? `<img src="${project.image}" alt="${project.title}" loading="lazy" class="h-full w-full object-cover object-top" />`
+            : initials
+        }
+      </div>
+      <div class="pt-5">
+        <div class="flex flex-wrap gap-1.5">
+          ${project.technologies
+            .map(
+              (t) =>
+                `<span class="rounded-full border border-zinc-200 px-2.5 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">${t}</span>`,
+            )
+            .join("")}
+        </div>
+        <h3 class="mt-3 text-xl font-bold">${project.title}</h3>
+        <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">${project.description}</p>
+        <div class="mt-5 flex flex-wrap gap-2 text-sm font-semibold">
+          ${link(project.liveDemo, "Live Demo", true)}
+          ${link(project.github, "GitHub", false)}
+          ${link(project.caseStudy, "Case Study", false)}
+        </div>
+      </div>
+    </article>`;
+}
+
 async function loadProjects() {
   try {
     const response = await fetch("data/projects.json");
-
-    if (!response.ok) {
-      throw new Error("Failed to load projects.json");
-    }
-
+    if (!response.ok) throw new Error("Failed to load projects.json");
     const projects = await response.json();
+    const featured = projects.filter((p) => p.featured === true);
 
-    // ==========================================================
-    // CATEGORY DROPDOWN
-    // ==========================================================
+    const render = (container, list) => {
+      if (container) container.innerHTML = list.map(projectCard).join("");
+    };
 
     const categorySelect = document.getElementById("project-category");
+    const projectsGrid = document.getElementById("projectsGrid");
 
     if (categorySelect) {
-      const categories = [
-        ...new Set(projects.map((project) => project.category)),
-      ];
-
+      const categories = [...new Set(projects.map((p) => p.category))];
       categorySelect.innerHTML = `
         <option value="featured">Featured Projects</option>
         <option value="all">All Projects</option>
+        ${categories.map((c) => `<option value="${c}">${c}</option>`).join("")}`;
+      categorySelect.value = "all";
 
-        ${categories
-          .map((category) => `<option value="${category}">${category}</option>`)
-          .join("")}
-      `;
-    }
-
-    // ==========================================================
-    // PROJECTS PAGE
-    // ==========================================================
-
-    const projectsGrid = document.getElementById("projectsGrid");
-
-    function renderProjects(projectList) {
-      if (!projectsGrid) return;
-
-      projectsGrid.innerHTML = projectList
-        .map(
-          (project) => `
-            <article
-              class="group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
-            >
-
-              <!-- Project Image -->
-              <div
-                class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600"
-              >
-                ${
-                  project.image
-                    ? `
-                      <img
-                        src="${project.image}"
-                        alt="${project.title}"
-                        class="h-full w-full object-cover"
-                      />
-                    `
-                    : `PROJECT ${String(project.id).padStart(2, "0")}`
-                }
-              </div>
-
-              <!-- Project Content -->
-              <div class="pt-5">
-
-                <!-- Technologies -->
-                <p
-                  class="text-xs font-semibold uppercase tracking-wider text-indigo-500"
-                >
-                  ${project.technologies.join(" · ")}
-                </p>
-
-                <!-- Title -->
-                <h3 class="mt-2 text-xl font-bold">
-                  ${project.title}
-                </h3>
-
-                <!-- Description -->
-                <p
-                  class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400"
-                >
-                  ${project.description}
-                </p>
-
-                <!-- Project Links -->
-                <div
-                  class="mt-5 flex gap-4 text-sm font-semibold"
-                >
-
-                  ${
-                    project.liveDemo
-                      ? `
-                        <a
-                          class="transition hover:text-indigo-500"
-                          href="${project.liveDemo}"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Live Demo ↗
-                        </a>
-                      `
-                      : ""
-                  }
-
-                  ${
-                    project.github
-                      ? `
-                        <a
-                          class="transition hover:text-indigo-500"
-                          href="${project.github}"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          GitHub ↗
-                        </a>
-                      `
-                      : ""
-                  }
-
-                  ${
-                    project.caseStudy
-                      ? `
-                        <a
-                          class="transition hover:text-indigo-500"
-                          href="${project.caseStudy}"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Case Study ↗
-                        </a>
-                      `
-                      : ""
-                  }
-
-                </div>
-
-              </div>
-
-            </article>
-          `,
-        )
-        .join("");
-
-      lucide.createIcons();
-    }
-
-    // ==========================================================
-    // INITIAL PROJECTS PAGE
-    // Show ONLY featured projects
-    // ==========================================================
-
-    const featuredProjects = projects.filter(
-      (project) => project.featured === true,
-    );
-
-    renderProjects(featuredProjects);
-
-    // ==========================================================
-    // CATEGORY FILTER
-    // ==========================================================
-
-    if (categorySelect) {
       categorySelect.addEventListener("change", () => {
-        const selectedCategory = categorySelect.value;
-
-        let filteredProjects = [];
-
-        if (selectedCategory === "featured") {
-          filteredProjects = projects.filter(
-            (project) => project.featured === true,
-          );
-        } else if (selectedCategory === "all") {
-          filteredProjects = projects;
-        } else {
-          filteredProjects = projects.filter(
-            (project) => project.category === selectedCategory,
-          );
-        }
-
-        renderProjects(filteredProjects);
+        const value = categorySelect.value;
+        render(
+          projectsGrid,
+          value === "featured"
+            ? featured
+            : value === "all"
+              ? projects
+              : projects.filter((p) => p.category === value),
+        );
+        lucide.createIcons();
       });
     }
 
-    // ==========================================================
-    // HOME PAGE - FEATURED PROJECTS
-    // Always show only featured projects
-    // ==========================================================
-
-    const featuredContainer = document.getElementById("featured-projects-list");
-
-    if (featuredContainer) {
-      featuredContainer.innerHTML = featuredProjects
-        .map(
-          (project) => `
-            <article
-              class="group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
-            >
-
-              <!-- Project Image -->
-              <div
-                class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600"
-              >
-                ${
-                  project.image
-                    ? `
-                      <img
-                        src="${project.image}"
-                        alt="${project.title}"
-                        class="h-full w-full object-cover"
-                      />
-                    `
-                    : `PROJECT ${String(project.id).padStart(2, "0")}`
-                }
-              </div>
-
-              <!-- Project Content -->
-              <div class="pt-5">
-
-                <!-- Technologies -->
-                <p
-                  class="text-xs font-semibold uppercase tracking-wider text-indigo-500"
-                >
-                  ${project.technologies.join(" · ")}
-                </p>
-
-                <!-- Title -->
-                <h3 class="mt-2 text-xl font-bold">
-                  ${project.title}
-                </h3>
-
-                <!-- Description -->
-                <p
-                  class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400"
-                >
-                  ${project.description}
-                </p>
-
-                <!-- Project Links -->
-                <div
-                  class="mt-5 flex gap-4 text-sm font-semibold"
-                >
-
-                  ${
-                    project.liveDemo
-                      ? `
-                        <a
-                          class="transition hover:text-indigo-500"
-                          href="${project.liveDemo}"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Live Demo ↗
-                        </a>
-                      `
-                      : ""
-                  }
-
-                  ${
-                    project.github
-                      ? `
-                        <a
-                          class="transition hover:text-indigo-500"
-                          href="${project.github}"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          GitHub ↗
-                        </a>
-                      `
-                      : ""
-                  }
-
-                  ${
-                    project.caseStudy
-                      ? `
-                        <a
-                          class="transition hover:text-indigo-500"
-                          href="${project.caseStudy}"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Case Study ↗
-                        </a>
-                      `
-                      : ""
-                  }
-
-                </div>
-
-              </div>
-
-            </article>
-          `,
-        )
-        .join("");
-
-      lucide.createIcons();
-    }
+    render(projectsGrid, projects);
+    render(document.getElementById("featured-projects-list"), featured);
+    lucide.createIcons();
   } catch (error) {
     console.error("Projects Error:", error);
   }
@@ -542,7 +331,8 @@ function initializePortfolio() {
   // ==========================================================
 
   mobileMenuBtn?.addEventListener("click", () => {
-    mobileMenu?.classList.toggle("hidden");
+    const isHidden = mobileMenu?.classList.toggle("hidden");
+    mobileMenuBtn.setAttribute("aria-expanded", String(!isHidden));
   });
 
   // ==========================================================
@@ -572,6 +362,11 @@ function initializePortfolio() {
       section?.classList.toggle("hidden", id !== targetId);
     });
 
+    const activeSection = document.getElementById(targetId);
+    activeSection?.classList.remove("section-fade");
+    void activeSection?.offsetWidth;
+    activeSection?.classList.add("section-fade");
+
     // ========================================================
     // HIGHLIGHT ACTIVE NAVIGATION ITEM
     // ========================================================
@@ -580,14 +375,17 @@ function initializePortfolio() {
       const isActive = link.dataset.sectionLink === activeName;
 
       link.classList.toggle("text-indigo-500", isActive);
+
+      if (isActive) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
     });
 
     // ========================================================
     // UPDATE URL HASH
     // ========================================================
 
-    if (updateHash) {
-      history.replaceState(null, "", `#${activeName}`);
+    if (updateHash && window.location.hash !== `#${activeName}`) {
+      history.pushState(null, "", `#${activeName}`);
     }
 
     // ========================================================
@@ -601,6 +399,7 @@ function initializePortfolio() {
 
     // Close mobile menu
     mobileMenu?.classList.add("hidden");
+    mobileMenuBtn?.setAttribute("aria-expanded", "false");
   }
 
   // ==========================================================
@@ -623,39 +422,11 @@ function initializePortfolio() {
 
   showSection(sectionMap[initialSection] ? initialSection : "home", false);
 
-  // ==========================================================
-  // SHOW / HIDE ALL PROJECTS
-  // ==========================================================
-
-  const viewAllProjects = document.getElementById("viewAllProjects");
-
-  const viewAllProjectsMobile = document.getElementById(
-    "viewAllProjectsMobile",
-  );
-
-  const extraProjects = document.querySelectorAll(".extra-project");
-
-  function toggleProjects() {
-    const isHidden = extraProjects[0]?.classList.contains("hidden");
-
-    extraProjects.forEach((project) => {
-      project.classList.toggle("hidden", !isHidden);
-    });
-
-    if (viewAllProjects) {
-      viewAllProjects.textContent = isHidden ? "Show less ↑" : "View all →";
-    }
-
-    if (viewAllProjectsMobile) {
-      viewAllProjectsMobile.textContent = isHidden
-        ? "Show less ↑"
-        : "View all →";
-    }
-  }
-
-  viewAllProjects?.addEventListener("click", toggleProjects);
-
-  viewAllProjectsMobile?.addEventListener("click", toggleProjects);
+  // Back / forward buttons and manual hash changes
+  window.addEventListener("hashchange", () => {
+    const name = window.location.hash.replace("#", "");
+    showSection(sectionMap[name] ? name : "home", false);
+  });
 }
 
 // ============================================================
