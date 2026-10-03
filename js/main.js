@@ -168,7 +168,23 @@ async function loadVolunteering() {
 // LOAD PROJECTS FROM JSON
 // ============================================================
 
-function projectCard(project) {
+const escapeHTML = (s) =>
+  String(s ?? "").replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
+  );
+
+const BTN =
+  "inline-flex items-center rounded-full border px-3.5 py-1.5 transition";
+const BTN_PRIMARY =
+  "border-transparent bg-zinc-900 text-white hover:bg-indigo-500 dark:bg-white dark:text-zinc-900 dark:hover:bg-indigo-500 dark:hover:text-white";
+const BTN_OUTLINE =
+  "border-zinc-300 hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700";
+
+function projectCard(project, index) {
   const initials = project.title
     .split(/\s+/)
     .filter((w) => /^[A-Za-z0-9]/.test(w))
@@ -179,11 +195,7 @@ function projectCard(project) {
   const link = (href, label, primary) =>
     href
       ? `<a href="${href}" target="_blank" rel="noopener noreferrer"
-           class="inline-flex items-center rounded-full border px-3.5 py-1.5 transition ${
-             primary
-               ? "border-transparent bg-zinc-900 text-white hover:bg-indigo-500 dark:bg-white dark:text-zinc-900 dark:hover:bg-indigo-500 dark:hover:text-white"
-               : "border-zinc-300 hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700"
-           }">${label} ↗</a>`
+           class="${BTN} ${primary ? BTN_PRIMARY : BTN_OUTLINE}">${label} ↗</a>`
       : "";
 
   return `
@@ -191,7 +203,7 @@ function projectCard(project) {
       <div class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-100 to-zinc-100 text-4xl font-bold tracking-tight text-indigo-300 dark:from-indigo-950 dark:to-zinc-800 dark:text-indigo-800">
         ${
           project.image
-            ? `<img src="${project.image}" alt="${project.title}" loading="lazy" class="h-full w-full object-cover object-top" />`
+            ? `<img src="${project.image}" alt="${project.title}" loading="lazy"/>`
             : initials
         }
       </div>
@@ -207,12 +219,128 @@ function projectCard(project) {
         <h3 class="mt-3 text-xl font-bold">${project.title}</h3>
         <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">${project.description}</p>
         <div class="mt-5 flex flex-wrap gap-2 text-sm font-semibold">
-          ${link(project.liveDemo, "Live Demo", true)}
+          <button type="button" data-project-details="${index}" class="${BTN} ${BTN_PRIMARY}">View Details</button>
+          ${link(project.liveDemo, "Live Demo", false)}
           ${link(project.github, "GitHub", false)}
           ${link(project.caseStudy, "Case Study", false)}
         </div>
       </div>
     </article>`;
+}
+
+// ---------- Details pop-up ----------
+let projectModalKeyHandler = null;
+let projectModalOpener = null;
+
+function closeProjectModal() {
+  document.getElementById("project-modal")?.remove();
+  document.body.classList.remove("overflow-hidden");
+  if (projectModalKeyHandler)
+    document.removeEventListener("keydown", projectModalKeyHandler);
+  projectModalKeyHandler = null;
+  projectModalOpener?.focus();
+  projectModalOpener = null;
+}
+
+function openProjectModal(project, opener) {
+  closeProjectModal();
+  projectModalOpener = opener || null;
+
+  const paragraphs = project.details?.length
+    ? project.details
+    : [project.description];
+  const meta = [
+    ["Role", project.role],
+    ["Year", project.year],
+    ["Category", project.category],
+  ].filter(([, v]) => v);
+  const links = [
+    ["Live Demo", project.liveDemo, true],
+    ["GitHub", project.github],
+    ["Case Study", project.caseStudy],
+  ]
+    .filter(([, href]) => href)
+    .map(
+      ([label, href, primary]) =>
+        `<a href="${escapeHTML(href)}" target="_blank" rel="noopener noreferrer" class="${BTN} ${primary ? BTN_PRIMARY : BTN_OUTLINE}">${label} ↗</a>`,
+    )
+    .join("");
+
+  const overlay = document.createElement("div");
+  overlay.id = "project-modal";
+  overlay.className =
+    "fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-6";
+  overlay.innerHTML = `
+    <div role="dialog" aria-modal="true" aria-labelledby="project-modal-title"
+         class="relative max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl bg-white p-6 text-zinc-900 shadow-2xl dark:bg-zinc-900 dark:text-zinc-100 sm:rounded-3xl sm:p-8">
+      <button type="button" data-close aria-label="Close details"
+              class="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-zinc-300 text-lg transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700">✕</button>
+
+      ${
+        project.image
+          ? `<img src="${escapeHTML(project.image)}" alt="${escapeHTML(project.title)}" class="mb-6 max-h-[50vh] w-full rounded-2xl border border-zinc-200 bg-zinc-100 object-contain dark:border-zinc-800 dark:bg-zinc-800" />`
+          : ""
+      }
+
+      <h3 id="project-modal-title" class="pr-10 text-2xl font-bold tracking-tight">${escapeHTML(project.title)}</h3>
+
+      <div class="mt-3 flex flex-wrap gap-1.5">
+        ${(project.technologies || [])
+          .map(
+            (t) =>
+              `<span class="rounded-full border border-zinc-200 px-2.5 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">${escapeHTML(t)}</span>`,
+          )
+          .join("")}
+      </div>
+
+      ${
+        meta.length
+          ? `<dl class="mt-5 grid gap-3 text-sm sm:grid-cols-3">${meta
+              .map(
+                ([k, v]) =>
+                  `<div class="rounded-2xl border border-zinc-200 p-3 dark:border-zinc-800"><dt class="text-zinc-500 dark:text-zinc-400">${k}</dt><dd class="mt-0.5 font-semibold">${escapeHTML(v)}</dd></div>`,
+              )
+              .join("")}</dl>`
+          : ""
+      }
+
+      <div class="mt-5 space-y-3 text-[15px] leading-7 text-zinc-700 dark:text-zinc-300">
+        ${paragraphs.map((p) => `<p>${escapeHTML(p)}</p>`).join("")}
+      </div>
+
+      ${
+        project.features?.length
+          ? `<h4 class="mt-6 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Key features</h4>
+             <ul class="mt-2 list-disc space-y-1.5 pl-5 text-[15px] leading-7 text-zinc-700 dark:text-zinc-300">${project.features.map((f) => `<li>${escapeHTML(f)}</li>`).join("")}</ul>`
+          : ""
+      }
+
+      ${
+        project.gallery?.length
+          ? `<div class="mt-6 grid gap-3 sm:grid-cols-2">${project.gallery
+              .map(
+                (src) =>
+                  `<img src="${escapeHTML(src)}" alt="${escapeHTML(project.title)} screenshot" loading="lazy" class="w-full rounded-2xl border border-zinc-200 dark:border-zinc-800" />`,
+              )
+              .join("")}</div>`
+          : ""
+      }
+
+      ${links ? `<div class="mt-7 flex flex-wrap gap-2 text-sm font-semibold">${links}</div>` : ""}
+    </div>`;
+
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay || e.target.closest("[data-close]"))
+      closeProjectModal();
+  });
+  projectModalKeyHandler = (e) => {
+    if (e.key === "Escape") closeProjectModal();
+  };
+  document.addEventListener("keydown", projectModalKeyHandler);
+
+  document.body.appendChild(overlay);
+  document.body.classList.add("overflow-hidden");
+  overlay.querySelector("[data-close]").focus();
 }
 
 async function loadProjects() {
@@ -223,8 +351,18 @@ async function loadProjects() {
     const featured = projects.filter((p) => p.featured === true);
 
     const render = (container, list) => {
-      if (container) container.innerHTML = list.map(projectCard).join("");
+      if (container)
+        container.innerHTML = list
+          .map((p) => projectCard(p, projects.indexOf(p)))
+          .join("");
     };
+
+    // One click handler for every "View Details" button (Home + Projects page)
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-project-details]");
+      if (btn)
+        openProjectModal(projects[Number(btn.dataset.projectDetails)], btn);
+    });
 
     const categorySelect = document.getElementById("project-category");
     const projectsGrid = document.getElementById("projectsGrid");
