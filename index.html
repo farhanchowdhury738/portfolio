@@ -41,27 +41,6 @@
       @media (prefers-reduced-motion: reduce) { .section-fade { animation: none; } html { scroll-behavior: auto; } }
     </style>
 
-    <!-- Apply saved / system theme BEFORE first paint (prevents dark-mode flash) -->
-    <script>
-      (function () {
-        try {
-          var t = localStorage.getItem("theme");
-          var dark =
-            t === "dark" ||
-            (t === null &&
-              window.matchMedia("(prefers-color-scheme: dark)").matches);
-          document.documentElement.classList.toggle("dark", dark);
-        } catch (e) {}
-      })();
-    </script>
-
-    <!-- Makes native controls (dropdown list, scrollbars) follow the site theme -->
-    <meta name="color-scheme" content="light dark" />
-    <style>
-      html { color-scheme: light; }
-      html.dark { color-scheme: dark; }
-    </style>
-
     <meta
       name="description"
       content="Portfolio of Farhan Chowdhury, a Computer Science student building web applications and exploring data science and AI."
