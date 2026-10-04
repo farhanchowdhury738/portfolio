@@ -4,11 +4,24 @@
     "title": "Khoja-Khuji",
     "category": "Web Application",
     "technologies": ["PHP", "MVC", "MySQL"],
-    "description": "A Lost & Found Management System designed to help users report, search, and manage lost and found items.",
+    "timeline": {
+      "start": "January 2026",
+      "end": "March 2026"
+    },
+    "details": [
+      "Khoja-Khuji is a web-based Lost & Found Management System designed to make it easier for users to report, search, and manage lost and found items.",
+      "The system follows the MVC architecture and uses PHP for the backend with MySQL for data management."
+    ],
+    "features": [
+      "Report lost and found items",
+      "Search and filter items",
+      "User authentication",
+      "Manage reported items",
+      "Responsive web interface"
+    ],
     "image": "images/projects/khoja-khuji.png",
     "liveDemo": "https://aiub-web-project-khoja-khuji.infy.click/",
     "github": "https://github.com/farhanchowdhury738/WebTech-lost-found-management-system",
-    "caseStudy": "",
     "featured": true
   },
   {
@@ -16,143 +29,225 @@
     "title": "IEEE-AIUB Event Toolkit",
     "category": "Web Application",
     "technologies": ["HTML", "JavaScript", "Tailwind CSS"],
-    "description": "IEEE toolkit with participant management, live preview, and PDF/Word export.",
+    "timeline": {
+      "start": "February 2026",
+      "end": "March 2026"
+    },
+    "details": [
+      "IEEE-AIUB Event Toolkit is a web-based event management utility designed to simplify participant management and attendance sheet generation.",
+      "The application provides a live preview and allows users to export attendance sheets in PDF and Word formats."
+    ],
+    "features": [
+      "Participant management",
+      "Date and time management",
+      "Live attendance sheet preview",
+      "PDF export",
+      "Word document export",
+      "Responsive interface"
+    ],
     "image": "images/projects/ieee-aiub-event-toolkit.png",
     "liveDemo": "https://ieee-aiub-event-toolkit.netlify.app/",
     "github": "https://github.com/farhanchowdhury738/aiub-ieee-attendance-sheet-generator",
-    "caseStudy": "",
     "featured": true
   },
   {
     "id": 3,
-    "title": "E-Commerce Store",
-    "category": "Web Application",
-    "technologies": ["PHP", "MySQL", "MVC", "JavaScript"],
-    "description": "Full-stack e-commerce system with product, cart, authentication, and order management.",
+    "title": "Data Science NLP Analysis",
+    "category": "Data Science",
+    "technologies": ["R", "NLP", "TF-IDF", "Machine Learning"],
+    "timeline": {
+      "start": "June 2026",
+      "end": "August 2026"
+    },
+    "details": [
+      "A Natural Language Processing project focused on text preprocessing, feature extraction, and machine learning-based text classification.",
+      "The project uses TF-IDF for feature extraction and compares different machine learning models based on their classification performance."
+    ],
+    "features": [
+      "Text preprocessing",
+      "Tokenization",
+      "Stopword removal",
+      "TF-IDF feature extraction",
+      "Machine learning model comparison",
+      "Performance evaluation"
+    ],
     "image": "",
     "liveDemo": "",
     "github": "",
-    "caseStudy": "",
     "featured": false
   },
   {
     "id": 4,
-    "title": "Data Science NLP Analysis",
-    "category": "Data Science",
-    "technologies": ["R", "NLP", "TF-IDF", "Machine Learning"],
-    "description": "NLP project using text preprocessing, TF-IDF feature extraction, and machine learning models.",
-    "image": "",
+    "title": "Computer Graphics: Village View",
+    "category": "Computer Graphics",
+    "technologies": ["C++", "OpenGL"],
+    "timeline": {
+      "start": "October 2025",
+      "end": "December 2025"
+    },
+    "details": [
+      "A computer graphics project that creates a graphical village environment using OpenGL.",
+      "The project demonstrates geometric transformations, rendering techniques, and basic animation."
+    ],
+    "features": [
+      "OpenGL rendering",
+      "Geometric transformations",
+      "2D graphical objects",
+      "Scene composition",
+      "Basic animation"
+    ],
+    "image": "images/projects/village_view.png",
     "liveDemo": "",
-    "github": "",
-    "caseStudy": "",
+    "github": "https://github.com/farhanchowdhury738/computer_graphics_VillageView",
     "featured": false
   },
   {
     "id": 5,
-    "title": "Portfolio Website",
-    "category": "Frontend Development",
-    "technologies": ["HTML", "Tailwind CSS", "JavaScript", "JSON"],
-    "description": "Responsive portfolio website showcasing projects, education, certifications, and technical experience.",
-    "image": "",
+    "title": "Hostel Management System",
+    "category": "Software Development",
+    "technologies": ["C#", "OOP"],
+    "timeline": {
+      "start": "January 2025",
+      "end": "March 2025"
+    },
+    "details": [
+      "A role-based hostel management system designed to manage hostel-related operations using object-oriented programming.",
+      "The application follows a modular architecture to organize different management functionalities."
+    ],
+    "features": [
+      "Role-based management",
+      "Hostel information management",
+      "Object-oriented programming",
+      "Modular system design",
+      "Data management"
+    ],
+    "image": "images/projects/hostel-mangement.png",
     "liveDemo": "",
-    "github": "",
-    "caseStudy": "",
+    "github": "https://github.com/farhanchowdhury738/hostel-management-system_OPP2",
     "featured": false
   },
   {
     "id": 6,
-    "title": "Student Management",
+    "title": "Bus Ticket Management System",
     "category": "Software Development",
-    "technologies": ["Java", "MySQL", "OOP"],
-    "description": "Student management application built using object-oriented programming and modular system design.",
+    "technologies": ["Java", "OOP"],
+    "timeline": {
+      "start": "April 2025",
+      "end": "May 2025"
+    },
+    "details": [
+      "A structured bus ticket management application developed using Java and object-oriented programming principles.",
+      "The system focuses on organizing ticket-related operations through a modular application structure."
+    ],
+    "features": [
+      "Ticket management",
+      "Object-oriented design",
+      "Java-based application",
+      "Modular system structure"
+    ],
     "image": "",
     "liveDemo": "",
-    "github": "",
-    "caseStudy": "",
+    "github": "https://github.com/farhanchowdhury738/JAVA_OOP_01",
     "featured": false
   },
   {
     "id": 7,
-    "title": "Computer Graphics: Village View",
-    "category": "Computer Graphics",
-    "technologies": ["C++", "OpenGL"],
-    "description": "Graphical village simulation using OpenGL rendering, geometric transformations, and animation.",
-    "image": "images/projects/village_view.png",
+    "title": "Enhancement on Pathao App",
+    "category": "Software Analysis",
+    "technologies": ["UI/UX", "Product Planning"],
+    "timeline": {
+      "start": "May 2025",
+      "end": "June 2025"
+    },
+    "details": [
+      "A software analysis and product planning project focused on identifying possible improvements for the Pathao mobile application.",
+      "The project proposes new features and user experience improvements to make the application more useful and convenient."
+    ],
+    "features": [
+      "UI/UX analysis",
+      "Feature improvement proposals",
+      "User experience planning",
+      "Product enhancement ideas"
+    ],
+    "image": "images/projects/pathao.jpg",
     "liveDemo": "",
-    "github": "https://github.com/farhanchowdhury738/computer_graphics_VillageView",
-    "caseStudy": "",
-    "featured": false
-  },
-  {
-    "id": 8,
-    "title": "Hostel Management System",
-    "category": "Software Development",
-    "technologies": ["C#", "OOP"],
-    "description": "Role-based hostel management system designed with object-oriented and modular architecture.",
-    "image": "images/projects/hostel-mangement.png",
-    "liveDemo": "",
-    "github": "https://github.com/farhanchowdhury738/hostel-management-system_OPP2",
-    "caseStudy": "",
+    "github": "",
     "featured": false
   },
   {
     "id": 9,
-    "title": "Bus Ticket Management System",
-    "category": "Software Development",
-    "technologies": ["Java", "OOP"],
-    "description": "Structured bus ticket management application developed using object-oriented programming.",
-    "image": "",
+    "title": "Arduino Smart Mop/Brush Cleaner Robot",
+    "category": "Robotics",
+    "technologies": ["Arduino", "C++", "HC-SR04", "L293D"],
+    "timeline": {
+      "start": "March 2025",
+      "end": "May 2025"
+    },
+    "details": [
+      "An autonomous cleaning robot designed to assist with floor cleaning using Arduino-based control.",
+      "The robot uses an ultrasonic sensor to detect obstacles and navigate its environment in real time."
+    ],
+    "features": [
+      "Automatic navigation",
+      "Ultrasonic obstacle detection",
+      "Real-time movement control",
+      "Motor control using L293D",
+      "Arduino-based system"
+    ],
+    "image": "images/projects/Cleaner_Robot.jpeg",
     "liveDemo": "",
-    "github": "https://github.com/farhanchowdhury738/JAVA_OOP_01",
-    "caseStudy": "",
-    "featured": false
+    "github": "",
+    "featured": true
   },
   {
     "id": 10,
-    "title": "Enhancement on Pathao App",
-    "category": "Software Analysis",
-    "technologies": ["UI/UX", "Product Planning"],
-    "description": "Proposed feature enhancements and improvement plans for the Pathao mobile application.",
-    "image": "images/projects/pathao.jpg",
+    "title": "Arduino Fire & Smoke Detection System",
+    "category": "Robotics",
+    "technologies": ["Arduino", "C++", "MQ-2", "Flame Sensor"],
+    "timeline": {
+      "start": "February 2025",
+      "end": "April 2025"
+    },
+    "details": [
+      "A real-time fire and smoke detection system developed using Arduino and multiple sensors.",
+      "The system monitors environmental conditions and provides alerts when fire or smoke is detected."
+    ],
+    "features": [
+      "Smoke detection",
+      "Fire detection",
+      "MQ-2 sensor integration",
+      "Flame sensor integration",
+      "Real-time alerts",
+      "LCD status monitoring"
+    ],
+    "image": "images/projects/Smoke_Detection.jpeg",
     "liveDemo": "",
     "github": "",
-    "caseStudy": "",
     "featured": false
   },
   {
     "id": 11,
-    "title": "Arduino Smart Mop/Brush Cleaner Robot",
-    "category": "Robotics",
-    "technologies": ["Arduino", "C++", "HC-SR04", "L293D"],
-    "description": "Autonomous cleaning robot with ultrasonic obstacle detection and real-time navigation.",
-    "image": "images/projects/Cleaner_Robot.jpeg",
-    "liveDemo": "",
-    "github": "",
-    "caseStudy": "",
-    "featured": true
-  },
-  {
-    "id": 12,
-    "title": "Arduino Fire & Smoke Detection System",
-    "category": "Robotics",
-    "technologies": ["Arduino", "C++", "MQ-2", "Flame Sensor"],
-    "description": "Real-time fire and smoke detection system with sensor-based alerts and LCD status monitoring.",
-    "image": "images/projects/Smoke_Detection.jpeg",
-    "liveDemo": "",
-    "github": "",
-    "caseStudy": "",
-    "featured": false
-  },
-  {
-    "id": 13,
     "title": "DC Mobile Charger with Fast Charging",
     "category": "Robotics",
     "technologies": ["LM555", "Buck-Boost", "Rectifier"],
-    "description": "Adjustable DC mobile charger designed with regulated power conversion and fast-charging control.",
+    "timeline": {
+      "start": "November 2024",
+      "end": "January 2025"
+    },
+    "details": [
+      "An adjustable DC mobile charging system designed to provide regulated power for mobile devices.",
+      "The project focuses on power conversion, voltage regulation, and fast-charging control."
+    ],
+    "features": [
+      "Adjustable DC output",
+      "Voltage regulation",
+      "Power conversion",
+      "Fast-charging control",
+      "Rectifier circuit"
+    ],
     "image": "images/projects/DC_Charger.jpeg",
     "liveDemo": "",
     "github": "",
-    "caseStudy": "",
     "featured": false
   }
 ]
