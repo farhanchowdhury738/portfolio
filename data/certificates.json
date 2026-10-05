@@ -1,5 +1,12 @@
 [
   {
+    "title": "Champion, Idea Generation Segment",
+    "organization": "IEEE SPAVE 2025",
+    "date": "Oct 2025",
+    "logo": "images/ieee.png",
+    "credential": "https://drive.google.com/file/d/1y_m2HcnLGyjW_v5-q7tZoGZsrxWqEWdd/view?usp=sharing"
+  },
+  {
     "title": "MATLAB Onramp",
     "organization": "MathWorks",
     "date": "Dec 2025",
@@ -30,12 +37,5 @@
     "logo": "images/cisco.jpg",
     "credential": "https://drive.google.com/file/d/1-sj-Uew9KL8zYqLb9o2Pg4RvCb4SDqYP/view",
     "skills": "Networking"
-  },
-  {
-    "title": "Champion, Idea Generation Segment",
-    "organization": "IEEE SPAVE 2025",
-    "date": "Oct 2025",
-    "logo": "images/ieee.png",
-    "credential": "https://drive.google.com/file/d/1y_m2HcnLGyjW_v5-q7tZoGZsrxWqEWdd/view?usp=sharing"
   }
 ]

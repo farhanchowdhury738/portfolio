@@ -262,5 +262,82 @@
     "liveDemo": "",
     "github": "",
     "featured": false
-  }
+  },
+  {
+    "id": 12,
+    "title": "Job & Internship Platform",
+    "category": "Cross-Platform Application",
+    "technologies": [
+      "ASP.NET Core MVC",
+      "C#",
+      "SQL Server",
+      "Razor Views",
+      "Tailwind CSS",
+      "JavaScript"
+    ],
+    "timeline": {
+      "start": "September 2026",
+      "end": "Present"
+    },
+    "details": [
+      "A full-stack job and internship platform designed to connect students and job seekers with companies.",
+      "The platform allows users to search for opportunities, apply for jobs, upload resumes, and track application status."
+    ],
+    "features": [
+      "User registration and login",
+      "Role-based access",
+      "Job and internship posting",
+      "Job search and filtering",
+      "Online job application",
+      "Resume upload",
+      "Application tracking",
+      "Recruiter dashboard",
+      "Admin dashboard",
+      "Job bookmarking"
+    ],
+    "image": "",
+    "liveDemo": "",
+    "github": "https://github.com/farhanchowdhury738/job-internship-platform",
+    "featured": true
+  },
+  {
+  "id": 13,
+  "title": "AIUB Faculty Finder",
+  "category": "Web Application",
+  "technologies": [
+    "HTML",
+    "CSS",
+    "JavaScript"
+  ],
+  "timeline": {
+    "start": "2025",
+    "end": "Present"
+  },
+  "details": [
+    "A student-friendly web application that helps AIUB students quickly find faculty room numbers and information.",
+    "The platform also provides faculty Teaching Schedule Form (TSF) information with search, filtering, pagination, and image download features."
+  ],
+  "features": [
+    "Faculty information search",
+    "Faculty room number lookup",
+    "Faculty TSF lookup",
+    "Search by faculty name",
+    "Search by course and room",
+    "Filter by building",
+    "Filter by floor",
+    "Department and designation search",
+    "Faculty email information",
+    "Faculty profile information",
+    "Pagination",
+    "TSF schedule display",
+    "Download faculty information as image",
+    "Download TSF as image",
+    "Responsive design",
+    "Feedback form"
+  ],
+  "image": "../images/projects/aiub-faculty-finder.png",
+  "liveDemo": "https://aiub-faculty-solution.netlify.app/",
+  "github": "https://github.com/farhanchowdhury738/aiubfacultysolution",
+  "featured": true
+}
 ]
