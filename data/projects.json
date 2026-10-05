@@ -5,8 +5,8 @@
     "category": "Web Application",
     "technologies": ["PHP", "MVC", "MySQL"],
     "timeline": {
-      "start": "January 2026",
-      "end": "March 2026"
+      "start": "June 2026",
+      "end": "October 2026"
     },
     "details": [
       "Khoja-Khuji is a web-based Lost & Found Management System designed to make it easier for users to report, search, and manage lost and found items.",
@@ -52,29 +52,42 @@
   },
   {
     "id": 3,
-    "title": "Data Science NLP Analysis",
+    "title": "Data Science — Sleep Health & Bangla LLM Analysis",
     "category": "Data Science",
-    "technologies": ["R", "NLP", "TF-IDF", "Machine Learning"],
+    "technologies": [
+      "R",
+      "Data Analysis",
+      "NLP",
+      "TF-IDF",
+      "Bag-of-Words",
+      "Machine Learning"
+    ],
     "timeline": {
       "start": "June 2026",
-      "end": "August 2026"
+      "end": "September 2026"
     },
     "details": [
-      "A Natural Language Processing project focused on text preprocessing, feature extraction, and machine learning-based text classification.",
-      "The project uses TF-IDF for feature extraction and compares different machine learning models based on their classification performance."
+      "A Data Science project covering data preprocessing, exploratory data analysis, statistical analysis, and machine learning using a Sleep Health dataset.",
+      "The final project focuses on detecting hallucinated Bangla LLM responses using NLP, BoW, TF-IDF, and machine learning classification models."
     ],
     "features": [
-      "Text preprocessing",
-      "Tokenization",
-      "Stopword removal",
-      "TF-IDF feature extraction",
-      "Machine learning model comparison",
-      "Performance evaluation"
+      "Exploratory Data Analysis",
+      "Data cleaning and preprocessing",
+      "Missing value and outlier handling",
+      "Feature engineering",
+      "Statistical analysis",
+      "Bangla text preprocessing",
+      "Tokenization and stopword removal",
+      "Unigram and bigram generation",
+      "Bag-of-Words and TF-IDF",
+      "Naive Bayes, Logistic Regression and SVM",
+      "Model performance comparison",
+      "Accuracy, Precision, Recall and F1-score evaluation"
     ],
     "image": "",
     "liveDemo": "",
-    "github": "",
-    "featured": false
+    "github": "https://github.com/farhanchowdhury738/Data-Science-Summer-2025-26",
+    "featured": true
   },
   {
     "id": 4,
