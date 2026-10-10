@@ -3,7 +3,11 @@
     "id": 1,
     "title": "Khoja-Khuji",
     "category": "Web Application",
-    "technologies": ["PHP", "MVC", "MySQL"],
+    "technologies": [
+      "PHP",
+      "MVC",
+      "MySQL"
+    ],
     "timeline": {
       "start": "June 2026",
       "end": "October 2026"
@@ -28,7 +32,11 @@
     "id": 2,
     "title": "IEEE-AIUB Event Toolkit",
     "category": "Web Application",
-    "technologies": ["HTML", "JavaScript", "Tailwind CSS"],
+    "technologies": [
+      "HTML",
+      "JavaScript",
+      "Tailwind CSS"
+    ],
     "timeline": {
       "start": "February 2026",
       "end": "March 2026"
@@ -93,7 +101,10 @@
     "id": 4,
     "title": "Computer Graphics: Village View",
     "category": "Computer Graphics",
-    "technologies": ["C++", "OpenGL"],
+    "technologies": [
+      "C++",
+      "OpenGL"
+    ],
     "timeline": {
       "start": "October 2025",
       "end": "December 2025"
@@ -118,7 +129,10 @@
     "id": 5,
     "title": "Hostel Management System",
     "category": "Software Development",
-    "technologies": ["C#", "OOP"],
+    "technologies": [
+      "C#",
+      "OOP"
+    ],
     "timeline": {
       "start": "January 2025",
       "end": "March 2025"
@@ -143,7 +157,10 @@
     "id": 6,
     "title": "Bus Ticket Management System",
     "category": "Software Development",
-    "technologies": ["Java", "OOP"],
+    "technologies": [
+      "Java",
+      "OOP"
+    ],
     "timeline": {
       "start": "April 2025",
       "end": "May 2025"
@@ -167,7 +184,10 @@
     "id": 7,
     "title": "Enhancement on Pathao App",
     "category": "Software Analysis",
-    "technologies": ["UI/UX", "Product Planning"],
+    "technologies": [
+      "UI/UX",
+      "Product Planning"
+    ],
     "timeline": {
       "start": "May 2025",
       "end": "June 2025"
@@ -191,7 +211,12 @@
     "id": 9,
     "title": "Arduino Smart Mop/Brush Cleaner Robot",
     "category": "Robotics",
-    "technologies": ["Arduino", "C++", "HC-SR04", "L293D"],
+    "technologies": [
+      "Arduino",
+      "C++",
+      "HC-SR04",
+      "L293D"
+    ],
     "timeline": {
       "start": "March 2025",
       "end": "May 2025"
@@ -216,7 +241,12 @@
     "id": 10,
     "title": "Arduino Fire & Smoke Detection System",
     "category": "Robotics",
-    "technologies": ["Arduino", "C++", "MQ-2", "Flame Sensor"],
+    "technologies": [
+      "Arduino",
+      "C++",
+      "MQ-2",
+      "Flame Sensor"
+    ],
     "timeline": {
       "start": "February 2025",
       "end": "April 2025"
@@ -242,7 +272,11 @@
     "id": 11,
     "title": "DC Mobile Charger with Fast Charging",
     "category": "Robotics",
-    "technologies": ["LM555", "Buck-Boost", "Rectifier"],
+    "technologies": [
+      "LM555",
+      "Buck-Boost",
+      "Rectifier"
+    ],
     "timeline": {
       "start": "November 2024",
       "end": "January 2025"
@@ -301,43 +335,43 @@
     "featured": true
   },
   {
-  "id": 13,
-  "title": "AIUB Faculty Finder",
-  "category": "Web Application",
-  "technologies": [
-    "HTML",
-    "CSS",
-    "JavaScript"
-  ],
-  "timeline": {
-    "start": "2025",
-    "end": "Present"
-  },
-  "details": [
-    "A student-friendly web application that helps AIUB students quickly find faculty room numbers and information.",
-    "The platform also provides faculty Teaching Schedule Form (TSF) information with search, filtering, pagination, and image download features."
-  ],
-  "features": [
-    "Faculty information search",
-    "Faculty room number lookup",
-    "Faculty TSF lookup",
-    "Search by faculty name",
-    "Search by course and room",
-    "Filter by building",
-    "Filter by floor",
-    "Department and designation search",
-    "Faculty email information",
-    "Faculty profile information",
-    "Pagination",
-    "TSF schedule display",
-    "Download faculty information as image",
-    "Download TSF as image",
-    "Responsive design",
-    "Feedback form"
-  ],
-  "image": "../images/projects/aiub-faculty-finder.png",
-  "liveDemo": "https://aiub-faculty-solution.netlify.app/",
-  "github": "https://github.com/farhanchowdhury738/aiubfacultysolution",
-  "featured": true
-}
+    "id": 13,
+    "title": "AIUB Faculty Finder",
+    "category": "Web Application",
+    "technologies": [
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ],
+    "timeline": {
+      "start": "2025",
+      "end": "Present"
+    },
+    "details": [
+      "A student-friendly web application that helps AIUB students quickly find faculty room numbers and information.",
+      "The platform also provides faculty Teaching Schedule Form (TSF) information with search, filtering, pagination, and image download features."
+    ],
+    "features": [
+      "Faculty information search",
+      "Faculty room number lookup",
+      "Faculty TSF lookup",
+      "Search by faculty name",
+      "Search by course and room",
+      "Filter by building",
+      "Filter by floor",
+      "Department and designation search",
+      "Faculty email information",
+      "Faculty profile information",
+      "Pagination",
+      "TSF schedule display",
+      "Download faculty information as image",
+      "Download TSF as image",
+      "Responsive design",
+      "Feedback form"
+    ],
+    "image": "../images/projects/aiub-faculty-finder.png",
+    "liveDemo": "https://aiub-faculty-solution.netlify.app/",
+    "github": "https://github.com/farhanchowdhury738/aiubfacultysolution",
+    "featured": true
+  }
 ]

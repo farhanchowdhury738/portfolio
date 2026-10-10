@@ -26,13 +26,9 @@ async function loadCertificates() {
   if (!container) return;
 
   try {
-    const response = await fetch("data/certificates.json");
-
-    if (!response.ok) {
-      throw new Error("Failed to load certificates.json");
-    }
-
-    const certificates = await response.json();
+    const certificates = window.getPortfolioCertificates
+      ? await window.getPortfolioCertificates()
+      : await (await fetch("data/certificates.json")).json();
 
     container.innerHTML = certificates
       .map(
@@ -107,13 +103,9 @@ async function loadVolunteering() {
   if (!container) return;
 
   try {
-    const response = await fetch("data/volunteering.json");
-
-    if (!response.ok) {
-      throw new Error("Failed to load volunteering.json");
-    }
-
-    const volunteering = await response.json();
+    const volunteering = window.getPortfolioVolunteering
+      ? await window.getPortfolioVolunteering()
+      : await (await fetch("data/volunteering.json")).json();
 
     // Timeline line
     container.innerHTML = `
@@ -425,9 +417,10 @@ function openProjectModal(project, opener) {
 
 async function loadProjects() {
   try {
-    const response = await fetch("data/projects.json");
-    if (!response.ok) throw new Error("Failed to load projects.json");
-    const projects = await response.json();
+    const projects = window.getPortfolioProjects
+      ? await window.getPortfolioProjects()
+      : await (await fetch("data/projects.json")).json();
+    window._currentProjectsList = projects;
     const featured = projects.filter((p) => p.featured === true);
 
     const render = (container, list) => {
@@ -438,11 +431,14 @@ async function loadProjects() {
     };
 
     // One click handler for every "View Details" button (Home + Projects page)
-    document.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-project-details]");
-      if (btn)
-        openProjectModal(projects[Number(btn.dataset.projectDetails)], btn);
-    });
+    if (!window._projectDetailsListenerAttached) {
+      document.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-project-details]");
+        if (btn && window._currentProjectsList)
+          openProjectModal(window._currentProjectsList[Number(btn.dataset.projectDetails)], btn);
+      });
+      window._projectDetailsListenerAttached = true;
+    }
 
     const categorySelect = document.getElementById("project-category");
     const projectsGrid = document.getElementById("projectsGrid");
@@ -492,16 +488,21 @@ async function loadPortfolio() {
     loadFile("resume-section", "sections/resume.html"),
     loadFile("blog-section", "sections/blog.html"),
     loadFile("contact-section", "sections/contact.html"),
+    loadFile("admin-section", "sections/admin.html"),
   ]);
 
   // Load certificates after resume section is loaded
   await loadCertificates();
 
-  // Load loadVolunteering after resume section is loaded
+  // Load volunteering after resume section is loaded
   await loadVolunteering();
 
-  // Load loadVolunteering after resume section is loaded
+  // Load projects
   await loadProjects();
+
+  // Initialize admin panel and apply profile content
+  if (window.initAdminPanel) await window.initAdminPanel();
+  if (window.applyProfileContent) window.applyProfileContent();
 
   // Blog feed (likes / comments)
   if (window.loadBlog) await window.loadBlog();
@@ -567,6 +568,7 @@ function initializePortfolio() {
     resume: "resume-section",
     blog: "blog-section",
     contact: "contact-section",
+    admin: "admin-section",
   };
 
   function showSection(sectionName, updateHash = true) {

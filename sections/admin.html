@@ -1,0 +1,465 @@
+<section class="scroll-mt-24" id="admin">
+  <!-- ========================================================= -->
+  <!-- PASSWORD AUTHENTICATION GATE -->
+  <!-- ========================================================= -->
+  <div id="admin-auth-gate" class="mx-auto max-w-md py-12">
+    <div class="rounded-3xl border border-zinc-200 bg-white p-8 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+        <i class="h-7 w-7" data-lucide="lock"></i>
+      </div>
+      <h3 class="mt-5 text-2xl font-bold tracking-tight">Admin Authentication</h3>
+      <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+        Enter your admin password to access the control panel.
+      </p>
+
+      <form id="admin-login-form" class="mt-6 space-y-4">
+        <div class="relative">
+          <input
+            type="password"
+            id="admin-password-input"
+            required
+            placeholder="Enter admin password"
+            autocomplete="current-password"
+            class="w-full rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 pr-11 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+          />
+          <button
+            type="button"
+            id="admin-toggle-pwd-btn"
+            aria-label="Toggle password visibility"
+            class="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+          >
+            <i class="h-4 w-4" data-lucide="eye"></i>
+          </button>
+        </div>
+
+        <p id="admin-auth-error" class="hidden text-xs font-semibold text-rose-500">
+          Incorrect password. Please try again.
+        </p>
+
+        <button
+          type="submit"
+          class="w-full rounded-2xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500"
+        >
+          Unlock Admin Panel
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- ADMIN DASHBOARD (PROTECTED) -->
+  <!-- ========================================================= -->
+  <div id="admin-dashboard-content" class="hidden">
+    <div class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-500 dark:bg-indigo-500/20">
+            <i class="h-3.5 w-3.5" data-lucide="shield-check"></i> Admin Control Panel
+          </span>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Live File Sync
+          </span>
+        </div>
+        <h2 class="mt-2 text-3xl font-bold tracking-tight">Portfolio Manager</h2>
+        <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          Changes are automatically saved directly to the project's physical JSON data files on disk.
+        </p>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          id="admin-export-all-btn"
+          class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-xs font-semibold text-zinc-700 shadow-sm transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-indigo-400"
+        >
+          <i class="h-4 w-4" data-lucide="download"></i> Download All JSON
+        </button>
+        <button
+          type="button"
+          id="admin-logout-btn"
+          class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+        >
+          <i class="h-4 w-4" data-lucide="lock"></i> Lock Admin
+        </button>
+      </div>
+    </div>
+
+    <!-- Admin Navigation Tabs -->
+    <div class="mb-8 border-b border-zinc-200 dark:border-zinc-800">
+      <nav class="flex flex-wrap gap-2 text-sm font-medium" id="admin-tabs" aria-label="Admin Tabs">
+        <button
+          type="button"
+          data-admin-tab="projects"
+          class="admin-tab-btn inline-flex items-center gap-2 border-b-2 border-indigo-500 px-4 py-3 font-semibold text-indigo-500 transition"
+        >
+          <i class="h-4 w-4" data-lucide="folder-git-2"></i> Projects
+          <span id="admin-projects-count" class="rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300">0</span>
+        </button>
+
+        <button
+          type="button"
+          data-admin-tab="certificates"
+          class="admin-tab-btn inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 font-semibold text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          <i class="h-4 w-4" data-lucide="award"></i> Certificates
+          <span id="admin-certs-count" class="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">0</span>
+        </button>
+
+        <button
+          type="button"
+          data-admin-tab="volunteering"
+          class="admin-tab-btn inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 font-semibold text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          <i class="h-4 w-4" data-lucide="heart-handshake"></i> Volunteering
+          <span id="admin-vol-count" class="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">0</span>
+        </button>
+
+        <button
+          type="button"
+          data-admin-tab="profile"
+          class="admin-tab-btn inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 font-semibold text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          <i class="h-4 w-4" data-lucide="user-cog"></i> Profile &amp; Bio
+        </button>
+
+        <button
+          type="button"
+          data-admin-tab="export"
+          class="admin-tab-btn inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 font-semibold text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          <i class="h-4 w-4" data-lucide="file-json"></i> Export &amp; Backup
+        </button>
+      </nav>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 1: PROJECTS -->
+    <!-- ========================================================= -->
+    <div id="admin-tab-projects" class="admin-tab-pane">
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h3 class="text-xl font-bold tracking-tight">Projects Management</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">Add, edit, or delete projects. Updates write directly to <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">data/projects.json</code>.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            id="admin-add-project-btn"
+            class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500"
+          >
+            <i class="h-4 w-4" data-lucide="plus"></i> Add Project
+          </button>
+
+          <button
+            type="button"
+            id="admin-download-projects-btn"
+            class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+          >
+            <i class="h-4 w-4" data-lucide="download"></i> Download projects.json
+          </button>
+        </div>
+      </div>
+
+      <!-- Projects List Container -->
+      <div id="admin-projects-list" class="space-y-4"></div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 2: CERTIFICATES -->
+    <!-- ========================================================= -->
+    <div id="admin-tab-certificates" class="admin-tab-pane hidden">
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h3 class="text-xl font-bold tracking-tight">Certificates Management</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">Add or edit credentials. Updates write directly to <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">data/certificates.json</code>.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            id="admin-add-cert-btn"
+            class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500"
+          >
+            <i class="h-4 w-4" data-lucide="plus"></i> Add Certificate
+          </button>
+
+          <button
+            type="button"
+            id="admin-download-certs-btn"
+            class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+          >
+            <i class="h-4 w-4" data-lucide="download"></i> Download certificates.json
+          </button>
+        </div>
+      </div>
+
+      <!-- Certificates List Container -->
+      <div id="admin-certs-list" class="space-y-4"></div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 3: VOLUNTEERING -->
+    <!-- ========================================================= -->
+    <div id="admin-tab-volunteering" class="admin-tab-pane hidden">
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h3 class="text-xl font-bold tracking-tight">Volunteering Management</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">Manage volunteer experience. Updates write directly to <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">data/volunteering.json</code>.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            id="admin-add-vol-btn"
+            class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500"
+          >
+            <i class="h-4 w-4" data-lucide="plus"></i> Add Volunteering
+          </button>
+
+          <button
+            type="button"
+            id="admin-download-vol-btn"
+            class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+          >
+            <i class="h-4 w-4" data-lucide="download"></i> Download volunteering.json
+          </button>
+        </div>
+      </div>
+
+      <!-- Volunteering List Container -->
+      <div id="admin-vol-list" class="space-y-4"></div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 4: PROFILE & CONTENT -->
+    <!-- ========================================================= -->
+    <div id="admin-tab-profile" class="admin-tab-pane hidden">
+      <div class="mb-6">
+        <h3 class="text-xl font-bold tracking-tight">Profile &amp; Content Management</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Edit name, headline, bio paragraphs, contact information, and about card details.</p>
+      </div>
+
+      <form id="admin-profile-form" class="space-y-6 rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div class="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Full Name</label>
+            <input type="text" id="admin-prof-name" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Role / Subtitle</label>
+            <input type="text" id="admin-prof-role" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Sidebar Short Description</label>
+          <textarea id="admin-prof-desc" rows="2" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"></textarea>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Email Address</label>
+            <input type="email" id="admin-prof-email" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Location</label>
+            <input type="text" id="admin-prof-location" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">GitHub Profile URL</label>
+            <input type="url" id="admin-prof-github" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">LinkedIn Profile URL</label>
+            <input type="url" id="admin-prof-linkedin" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+        </div>
+
+        <div class="border-t border-zinc-200 pt-6 dark:border-zinc-800">
+          <h4 class="text-base font-bold">Home &amp; About Section Content</h4>
+          <div class="mt-4 space-y-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Hero Intro Text (Home Page)</label>
+              <textarea id="admin-prof-hero-intro" rows="3" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">About Me — Paragraph 1</label>
+              <textarea id="admin-prof-about-p1" rows="3" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">About Me — Paragraph 2</label>
+              <textarea id="admin-prof-about-p2" rows="3" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"></textarea>
+            </div>
+
+            <div class="grid gap-6 sm:grid-cols-3">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Studying (Card)</label>
+                <input type="text" id="admin-prof-studying" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Based In (Card)</label>
+                <input type="text" id="admin-prof-based" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Focus Areas (Card)</label>
+                <input type="text" id="admin-prof-focus" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-4">
+          <button
+            type="submit"
+            class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500"
+          >
+            <i class="h-4 w-4" data-lucide="check"></i> Save Profile Content
+          </button>
+
+          <button
+            type="button"
+            id="admin-download-profile-btn"
+            class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+          >
+            <i class="h-4 w-4" data-lucide="download"></i> Download profile.json
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 5: EXPORT & BACKUP -->
+    <!-- ========================================================= -->
+    <div id="admin-tab-export" class="admin-tab-pane hidden">
+      <div class="mb-6">
+        <h3 class="text-xl font-bold tracking-tight">Export &amp; Backup Data</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Download JSON files to commit directly to git, or copy contents to your clipboard.</p>
+      </div>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        <!-- Projects JSON card -->
+        <div class="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+              <i class="h-5 w-5" data-lucide="folder-git-2"></i>
+            </div>
+            <div>
+              <h4 class="text-base font-bold">projects.json</h4>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Saved at: data/projects.json</p>
+            </div>
+          </div>
+          <div class="mt-5 flex gap-2">
+            <button type="button" data-copy-json="projects" class="flex-1 rounded-xl border border-zinc-200 px-3 py-2 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300">
+              Copy JSON
+            </button>
+            <button type="button" id="admin-export-projects-btn" class="flex-1 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-500">
+              Download File
+            </button>
+          </div>
+        </div>
+
+        <!-- Certificates JSON card -->
+        <div class="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+              <i class="h-5 w-5" data-lucide="award"></i>
+            </div>
+            <div>
+              <h4 class="text-base font-bold">certificates.json</h4>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Saved at: data/certificates.json</p>
+            </div>
+          </div>
+          <div class="mt-5 flex gap-2">
+            <button type="button" data-copy-json="certificates" class="flex-1 rounded-xl border border-zinc-200 px-3 py-2 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300">
+              Copy JSON
+            </button>
+            <button type="button" id="admin-export-certs-btn" class="flex-1 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-500">
+              Download File
+            </button>
+          </div>
+        </div>
+
+        <!-- Volunteering JSON card -->
+        <div class="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+              <i class="h-5 w-5" data-lucide="heart-handshake"></i>
+            </div>
+            <div>
+              <h4 class="text-base font-bold">volunteering.json</h4>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Saved at: data/volunteering.json</p>
+            </div>
+          </div>
+          <div class="mt-5 flex gap-2">
+            <button type="button" data-copy-json="volunteering" class="flex-1 rounded-xl border border-zinc-200 px-3 py-2 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300">
+              Copy JSON
+            </button>
+            <button type="button" id="admin-export-vol-btn" class="flex-1 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-500">
+              Download File
+            </button>
+          </div>
+        </div>
+
+        <!-- Profile JSON card -->
+        <div class="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+              <i class="h-5 w-5" data-lucide="user-cog"></i>
+            </div>
+            <div>
+              <h4 class="text-base font-bold">profile.json</h4>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Saved at: data/profile.json</p>
+            </div>
+          </div>
+          <div class="mt-5 flex gap-2">
+            <button type="button" data-copy-json="profile" class="flex-1 rounded-xl border border-zinc-200 px-3 py-2 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300">
+              Copy JSON
+            </button>
+            <button type="button" id="admin-export-prof-btn" class="flex-1 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-500">
+              Download File
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL FOR ADD / EDIT ITEMS -->
+  <!-- ========================================================= -->
+  <div id="admin-modal" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+    <div class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+      <div class="mb-6 flex items-center justify-between">
+        <h3 id="admin-modal-title" class="text-xl font-bold">Edit Item</h3>
+        <button
+          type="button"
+          id="admin-modal-close-btn"
+          class="rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+        >
+          <i class="h-5 w-5" data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div id="admin-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div
+    id="admin-toast"
+    class="pointer-events-none fixed bottom-6 right-6 z-50 flex translate-y-10 items-center gap-2 rounded-2xl bg-zinc-900 px-5 py-3 text-sm font-semibold text-white opacity-0 shadow-lg transition duration-300 dark:bg-white dark:text-zinc-900"
+  >
+    <i class="h-4 w-4 text-emerald-400 dark:text-emerald-600" data-lucide="check-circle"></i>
+    <span id="admin-toast-msg">Success</span>
+  </div>
+</section>
