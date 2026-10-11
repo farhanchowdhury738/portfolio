@@ -157,6 +157,61 @@ async function loadVolunteering() {
 }
 
 // ============================================================
+// LOAD SKILLS FROM JSON (COMPACT MODERN UI)
+// ============================================================
+
+async function loadSkills() {
+  const container = document.getElementById("skills-list");
+  if (!container) return;
+
+  try {
+    const skillsData = window.getPortfolioSkills
+      ? await window.getPortfolioSkills()
+      : await (await fetch("data/skills.json")).json();
+
+    container.innerHTML = skillsData
+      .map(
+        (group) => `
+        <div class="group relative rounded-2xl border border-zinc-200/90 bg-white/70 p-4 shadow-sm backdrop-blur-xs transition hover:border-indigo-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/60 dark:hover:border-indigo-500/40">
+          <div class="mb-3 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 transition group-hover:bg-indigo-500 group-hover:text-white dark:bg-indigo-950/60 dark:text-indigo-400">
+                <i class="h-3.5 w-3.5" data-lucide="${group.icon || "code-2"}"></i>
+              </div>
+              <h4 class="text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+                ${group.category}
+              </h4>
+            </div>
+            <span class="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+              ${(group.skills || []).length}
+            </span>
+          </div>
+
+          <div class="flex flex-wrap gap-1.5">
+            ${(group.skills || [])
+              .map(
+                (skill) => `
+                <span class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200/80 bg-zinc-50/70 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:border-indigo-300 hover:bg-white hover:text-indigo-600 dark:border-zinc-800/90 dark:bg-zinc-950/60 dark:text-zinc-300 dark:hover:border-indigo-500/40 dark:hover:text-indigo-400">
+                  <span class="h-1.5 w-1.5 rounded-full bg-indigo-500/80"></span>
+                  ${skill}
+                </span>
+              `,
+              )
+              .join("")}
+          </div>
+        </div>
+      `,
+      )
+      .join("");
+
+    if (window.lucide) lucide.createIcons();
+  } catch (error) {
+    console.error("Skills loading error:", error);
+  }
+}
+window.loadSkills = loadSkills;
+
+// ============================================================
 // LOAD PROJECTS FROM JSON
 // ============================================================
 
@@ -497,12 +552,16 @@ async function loadPortfolio() {
   // Load volunteering after resume section is loaded
   await loadVolunteering();
 
+  // Load skills after resume section is loaded
+  await loadSkills();
+
   // Load projects
   await loadProjects();
 
-  // Initialize admin panel and apply profile content
+  // Initialize admin panel and apply profile & about content
   if (window.initAdminPanel) await window.initAdminPanel();
   if (window.applyProfileContent) window.applyProfileContent();
+  if (window.applyAboutContent) window.applyAboutContent();
 
   // Blog feed (likes / comments)
   if (window.loadBlog) await window.loadBlog();

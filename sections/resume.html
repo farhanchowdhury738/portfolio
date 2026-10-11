@@ -124,71 +124,8 @@
       </div>
       <h3 class="text-2xl font-bold tracking-tight">Skills</h3>
     </div>
-    <!-- Skills List -->
-    <div class="ml-14 grid gap-6 sm:grid-cols-2">
-      <div>
-        <p class="mb-3 text-xl font-bold text-zinc-500 dark:text-zinc-400">
-          Programming Languages
-        </p>
-        <div class="flex flex-wrap gap-2">
-          <span
-            class="rounded-full border border-zinc-200 px-4 py-2 text-sm dark:border-zinc-700"
-            >PHP</span
-          ><span
-            class="rounded-full border border-zinc-200 px-4 py-2 text-sm dark:border-zinc-700"
-            >JavaScript</span
-          ><span
-            class="rounded-full border border-zinc-200 px-4 py-2 text-sm dark:border-zinc-700"
-            >Python</span
-          ><span
-            class="rounded-full border border-zinc-200 px-4 py-2 text-sm dark:border-zinc-700"
-            >R</span
-          >
-        </div>
-      </div>
-      <div>
-        <p class="mb-3 text-xl font-bold text-zinc-500 dark:text-zinc-400">
-          Web Technologies
-        </p>
-        <div class="flex flex-wrap gap-2">
-          <span
-            class="rounded-full border border-zinc-200 px-4 py-2 text-sm dark:border-zinc-700"
-            >React</span
-          ><span
-            class="rounded-full border border-zinc-200 px-4 py-2 text-sm dark:border-zinc-700"
-            >Next.js</span
-          ><span
-            class="rounded-full border border-zinc-200 px-4 py-2 text-sm dark:border-zinc-700"
-            >Tailwind CSS</span
-          >
-        </div>
-      </div>
-      <div>
-        <p class="mb-3 text-xl font-bold text-zinc-500 dark:text-zinc-400">
-          Data &amp; AI
-        </p>
-        <div class="flex flex-wrap gap-2">
-          <span
-            class="rounded-full border border-zinc-200 px-4 py-2 text-sm dark:border-zinc-700"
-            >Machine Learning</span
-          >
-        </div>
-      </div>
-      <div>
-        <p class="mb-3 text-xl font-bold text-zinc-500 dark:text-zinc-400">
-          Database &amp; Tools
-        </p>
-        <div class="flex flex-wrap gap-2">
-          <span
-            class="rounded-full border border-zinc-200 px-4 py-2 text-sm dark:border-zinc-700"
-            >MySQL</span
-          ><span
-            class="rounded-full border border-zinc-200 px-4 py-2 text-sm dark:border-zinc-700"
-            >Git &amp; GitHub</span
-          >
-        </div>
-      </div>
-    </div>
+    <!-- Skills List (Loaded dynamically from data/skills.json) -->
+    <div id="skills-list" class="ml-0 sm:ml-14 grid gap-3.5 sm:grid-cols-2"></div>
   </div>
 
   <!-- ==========================================================
@@ -235,10 +172,10 @@
       <h3 class="text-2xl font-bold tracking-tight">Certificates</h3>
     </div>
 
-    <!-- Certificates will load here -->
+    <!-- Certificates will load here (Compact Minimalist Badge Cards) -->
     <div
       id="certificates-list"
-      class="grid grid-cols-1 gap-x-10 gap-y-10 lg:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]"
+      class="ml-0 sm:ml-14 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
     ></div>
   </div>
 

@@ -89,8 +89,16 @@ const server = http.createServer((req, res) => {
       handleSaveFile(req, res, "volunteering.json");
       return;
     }
+    if (req.url === "/api/save-skills") {
+      handleSaveFile(req, res, "skills.json");
+      return;
+    }
     if (req.url === "/api/save-profile") {
       handleSaveFile(req, res, "profile.json");
+      return;
+    }
+    if (req.url === "/api/save-about") {
+      handleSaveFile(req, res, "about.json");
       return;
     }
   }

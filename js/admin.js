@@ -12,13 +12,17 @@
   const KEY_PROJECTS = "portfolio_projects";
   const KEY_CERTS = "portfolio_certificates";
   const KEY_VOL = "portfolio_volunteering";
+  const KEY_SKILLS = "portfolio_skills";
   const KEY_PROFILE = "portfolio_profile";
+  const KEY_ABOUT = "portfolio_about";
 
   // In-memory state
   let projectsState = [];
   let certsState = [];
   let volState = [];
+  let skillsState = [];
   let profileState = {};
+  let aboutState = {};
 
   // Utility: Show Toast Notification
   function showToast(message) {
@@ -101,8 +105,12 @@
         console.error("Cache parse error", e);
       }
     }
-    const res = await fetch("data/projects.json");
-    projectsState = await res.json();
+    try {
+      const res = await fetch("data/projects.json");
+      projectsState = await res.json();
+    } catch (e) {
+      console.error("Error fetching projects.json", e);
+    }
     return projectsState;
   };
 
@@ -116,8 +124,12 @@
         console.error("Cache parse error", e);
       }
     }
-    const res = await fetch("data/certificates.json");
-    certsState = await res.json();
+    try {
+      const res = await fetch("data/certificates.json");
+      certsState = await res.json();
+    } catch (e) {
+      console.error("Error fetching certificates.json", e);
+    }
     return certsState;
   };
 
@@ -131,12 +143,57 @@
         console.error("Cache parse error", e);
       }
     }
-    const res = await fetch("data/volunteering.json");
-    volState = await res.json();
+    try {
+      const res = await fetch("data/volunteering.json");
+      volState = await res.json();
+    } catch (e) {
+      console.error("Error fetching volunteering.json", e);
+    }
     return volState;
   };
 
-  window.getPortfolioProfile = function () {
+  window.getPortfolioSkills = async function () {
+    const cached = localStorage.getItem(KEY_SKILLS);
+    if (cached) {
+      try {
+        skillsState = JSON.parse(cached);
+        return skillsState;
+      } catch (e) {
+        console.error("Skills cache parse error", e);
+      }
+    }
+    try {
+      const res = await fetch("data/skills.json");
+      skillsState = await res.json();
+    } catch (e) {
+      console.error("Error fetching skills.json", e);
+      skillsState = [
+        {
+          category: "Programming Languages",
+          icon: "code-2",
+          skills: ["PHP", "JavaScript", "Python", "R", "C / C++"],
+        },
+        {
+          category: "Web Technologies",
+          icon: "globe",
+          skills: ["React", "Next.js", "Tailwind CSS", "Node.js", "REST APIs", "HTML5 & CSS3"],
+        },
+        {
+          category: "Data Science & AI",
+          icon: "brain",
+          skills: ["Machine Learning", "Data Analysis", "Pandas", "NumPy", "Scikit-Learn", "NLP"],
+        },
+        {
+          category: "Databases & Tools",
+          icon: "database",
+          skills: ["MySQL", "Git & GitHub", "Docker", "VS Code", "Postman", "Linux"],
+        },
+      ];
+    }
+    return skillsState;
+  };
+
+  window.getPortfolioProfile = async function () {
     const cached = localStorage.getItem(KEY_PROFILE);
     if (cached) {
       try {
@@ -146,29 +203,81 @@
         console.error("Profile parse error", e);
       }
     }
-    profileState = {
-      name: "Farhan Chowdhury",
-      role: "Bsc in CSE",
-      desc: "I build practical software projects and explore web development, AI, data science, and modern technologies.",
-      email: "farhanchowdhury7389@gmail.com",
-      location: "Bangladesh",
-      github: "https://github.com/farhanchowdhury738/",
-      linkedin: "https://www.linkedin.com/in/farhanchowdhury738/",
-      heroIntro:
-        "I'm a Computer Science student and developer interested in web development, software engineering, data science, and AI. I enjoy turning ideas into practical solutions and learning by building.",
-      aboutP1:
-        "I'm a Computer Science student at American International University-Bangladesh (AIUB) with a strong interest in software development and modern technology. I enjoy building practical web applications, exploring data science and machine learning, and learning new tools through hands-on projects.",
-      aboutP2:
-        "My approach is simple: learn by building, understand how things work, and turn ideas into useful solutions. I'm continuously improving my skills across web development, software engineering, AI, and data-driven technologies.",
-      studying: "B.Sc. in CSE, AIUB",
-      based: "Bangladesh",
-      focus: "Web, Data Science, AI",
-    };
+    try {
+      const res = await fetch("data/profile.json");
+      profileState = await res.json();
+    } catch (e) {
+      console.error("Error fetching profile.json", e);
+      profileState = {
+        name: "Farhan Chowdhury",
+        role: "Bsc in CSE",
+        desc: "I build practical software projects and explore web development, AI, data science, and modern technologies.",
+        email: "farhanchowdhury7389@gmail.com",
+        location: "Bangladesh",
+        github: "https://github.com/farhanchowdhury738/",
+        linkedin: "https://www.linkedin.com/in/farhanchowdhury738/",
+        heroHeadline: "Exploring technology by building real things.",
+        heroIntro: "I'm a Computer Science student and developer interested in web development, software engineering, data science, and AI. I enjoy turning ideas into practical solutions and learning by building.",
+      };
+    }
     return profileState;
   };
 
-  window.applyProfileContent = function () {
-    const prof = window.getPortfolioProfile();
+  window.getPortfolioAbout = async function () {
+    const cached = localStorage.getItem(KEY_ABOUT);
+    if (cached) {
+      try {
+        aboutState = JSON.parse(cached);
+        return aboutState;
+      } catch (e) {
+        console.error("About parse error", e);
+      }
+    }
+    try {
+      const res = await fetch("data/about.json");
+      aboutState = await res.json();
+    } catch (e) {
+      console.error("Error fetching about.json", e);
+      aboutState = {
+        title: "About me",
+        p1: "I'm a Computer Science student at American International University-Bangladesh (AIUB) with a strong interest in software development and modern technology. I enjoy building practical web applications, exploring data science and machine learning, and learning new tools through hands-on projects.",
+        p2: "My approach is simple: learn by building, understand how things work, and turn ideas into useful solutions. I'm continuously improving my skills across web development, software engineering, AI, and data-driven technologies.",
+        p3: "",
+        studying: "B.Sc. in CSE, AIUB",
+        based: "Bangladesh",
+        focus: "Web, Data Science, AI",
+        interests: [
+          "Software Development",
+          "Web Development",
+          "Data Science",
+          "AI & Machine Learning",
+        ],
+      };
+    }
+    return aboutState;
+  };
+
+  // Synchronous getter for already loaded state or cache
+  function getCachedProfile() {
+    if (profileState && Object.keys(profileState).length > 0) return profileState;
+    const cached = localStorage.getItem(KEY_PROFILE);
+    if (cached) {
+      try { return JSON.parse(cached); } catch (e) {}
+    }
+    return profileState;
+  }
+
+  function getCachedAbout() {
+    if (aboutState && Object.keys(aboutState).length > 0) return aboutState;
+    const cached = localStorage.getItem(KEY_ABOUT);
+    if (cached) {
+      try { return JSON.parse(cached); } catch (e) {}
+    }
+    return aboutState;
+  }
+
+  window.applyProfileContent = async function () {
+    const prof = await window.getPortfolioProfile();
     if (!prof) return;
 
     const nameEl = document.getElementById("profile-name");
@@ -196,23 +305,56 @@
     const inEl = document.getElementById("profile-linkedin");
     if (inEl && prof.linkedin) inEl.href = prof.linkedin;
 
+    const heroHeadlineEl = document.getElementById("profile-hero-headline");
+    if (heroHeadlineEl && prof.heroHeadline) {
+      heroHeadlineEl.innerHTML = `Exploring technology by <span class="text-indigo-500"> building real things. </span>`;
+    }
+
     const heroIntroEl = document.getElementById("profile-hero-intro");
     if (heroIntroEl && prof.heroIntro) heroIntroEl.textContent = prof.heroIntro;
+  };
+
+  window.applyAboutContent = async function () {
+    const about = await window.getPortfolioAbout();
+    if (!about) return;
+
+    const titleEl = document.getElementById("profile-about-title");
+    if (titleEl && about.title) titleEl.textContent = about.title;
 
     const p1El = document.getElementById("profile-about-p1");
-    if (p1El && prof.aboutP1) p1El.textContent = prof.aboutP1;
+    if (p1El && about.p1) p1El.textContent = about.p1;
 
     const p2El = document.getElementById("profile-about-p2");
-    if (p2El && prof.aboutP2) p2El.textContent = prof.aboutP2;
+    if (p2El && about.p2) p2El.textContent = about.p2;
+
+    const p3El = document.getElementById("profile-about-p3");
+    if (p3El) {
+      if (about.p3 && about.p3.trim()) {
+        p3El.textContent = about.p3;
+        p3El.classList.remove("hidden");
+      } else {
+        p3El.classList.add("hidden");
+      }
+    }
 
     const studyingEl = document.getElementById("profile-studying");
-    if (studyingEl && prof.studying) studyingEl.textContent = prof.studying;
+    if (studyingEl && about.studying) studyingEl.textContent = about.studying;
 
     const basedEl = document.getElementById("profile-based");
-    if (basedEl && prof.based) basedEl.textContent = prof.based;
+    if (basedEl && about.based) basedEl.textContent = about.based;
 
     const focusEl = document.getElementById("profile-focus");
-    if (focusEl && prof.focus) focusEl.textContent = prof.focus;
+    if (focusEl && about.focus) focusEl.textContent = about.focus;
+
+    const interestsContainer = document.getElementById("profile-interests");
+    if (interestsContainer && Array.isArray(about.interests)) {
+      interestsContainer.innerHTML = about.interests
+        .map(
+          (tag) =>
+            `<span class="rounded-full border border-zinc-200 bg-zinc-100 px-3 py-1.5 text-xs font-medium dark:border-zinc-800 dark:bg-zinc-900">${tag}</span>`,
+        )
+        .join("");
+    }
   };
 
   // ==========================================================
@@ -331,6 +473,10 @@
     if (window.lucide) lucide.createIcons();
   }
 
+  // ==========================================================
+  // RENDER ADMIN CERTIFICATES (WITH RANK & REORDER)
+  // ==========================================================
+
   function renderAdminCertificates() {
     const container = document.getElementById("admin-certs-list");
     const countBadge = document.getElementById("admin-certs-count");
@@ -343,9 +489,38 @@
     }
 
     container.innerHTML = certsState
-      .map((c, idx) => `
+      .map(
+        (c, idx) => `
         <div class="flex flex-col justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
+            <!-- Rank Indicator & Reorder Arrows -->
+            <div class="flex items-center gap-1.5">
+              <span class="flex h-7 min-w-[28px] items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400" title="Current Rank: #${idx + 1}">
+                #${idx + 1}
+              </span>
+              <div class="flex flex-col gap-0.5">
+                <button
+                  type="button"
+                  data-admin-move-cert-up="${idx}"
+                  ${idx === 0 ? "disabled" : ""}
+                  title="Move Up in Rank"
+                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
+                >
+                  <i class="h-3 w-3" data-lucide="chevron-up"></i>
+                </button>
+                <button
+                  type="button"
+                  data-admin-move-cert-down="${idx}"
+                  ${idx === certsState.length - 1 ? "disabled" : ""}
+                  title="Move Down in Rank"
+                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
+                >
+                  <i class="h-3 w-3" data-lucide="chevron-down"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Logo -->
             <div class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
               ${
                 c.logo
@@ -353,6 +528,8 @@
                   : `<i class="h-5 w-5 text-indigo-500" data-lucide="award"></i>`
               }
             </div>
+
+            <!-- Details -->
             <div>
               <h4 class="text-base font-bold">${c.title}</h4>
               <p class="text-xs text-zinc-500 dark:text-zinc-400">${c.organization} · ${c.date || "No date"}${c.skills ? ` · Skills: ${c.skills}` : ""}</p>
@@ -376,11 +553,16 @@
             </button>
           </div>
         </div>
-      `)
+      `,
+      )
       .join("");
 
     if (window.lucide) lucide.createIcons();
   }
+
+  // ==========================================================
+  // RENDER ADMIN VOLUNTEERING (WITH RANK & REORDER)
+  // ==========================================================
 
   function renderAdminVolunteering() {
     const container = document.getElementById("admin-vol-list");
@@ -394,12 +576,43 @@
     }
 
     container.innerHTML = volState
-      .map((v, idx) => `
+      .map(
+        (v, idx) => `
         <div class="flex flex-col justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
-          <div>
-            <h4 class="text-base font-bold">${v.title}</h4>
-            <p class="text-xs font-medium text-indigo-500 dark:text-indigo-400">${v.time}</p>
-            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">${(v.description || []).length} description point(s)</p>
+          <div class="flex items-center gap-3">
+            <!-- Rank Indicator & Reorder Arrows -->
+            <div class="flex items-center gap-1.5">
+              <span class="flex h-7 min-w-[28px] items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400" title="Current Rank: #${idx + 1}">
+                #${idx + 1}
+              </span>
+              <div class="flex flex-col gap-0.5">
+                <button
+                  type="button"
+                  data-admin-move-vol-up="${idx}"
+                  ${idx === 0 ? "disabled" : ""}
+                  title="Move Up in Rank"
+                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
+                >
+                  <i class="h-3 w-3" data-lucide="chevron-up"></i>
+                </button>
+                <button
+                  type="button"
+                  data-admin-move-vol-down="${idx}"
+                  ${idx === volState.length - 1 ? "disabled" : ""}
+                  title="Move Down in Rank"
+                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
+                >
+                  <i class="h-3 w-3" data-lucide="chevron-down"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Details -->
+            <div>
+              <h4 class="text-base font-bold">${v.title}</h4>
+              <p class="text-xs font-medium text-indigo-500 dark:text-indigo-400">${v.time}</p>
+              <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">${(v.description || []).length} bullet point(s)</p>
+            </div>
           </div>
 
           <div class="flex items-center gap-2 self-end sm:self-center">
@@ -419,14 +632,112 @@
             </button>
           </div>
         </div>
-      `)
+      `,
+      )
       .join("");
 
     if (window.lucide) lucide.createIcons();
   }
 
+  // ==========================================================
+  // RENDER ADMIN SKILLS
+  // ==========================================================
+
+  function renderAdminSkills() {
+    const container = document.getElementById("admin-skills-list");
+    const countBadge = document.getElementById("admin-skills-count");
+    if (countBadge) countBadge.textContent = skillsState.length;
+    if (!container) return;
+
+    if (skillsState.length === 0) {
+      container.innerHTML = `<p class="py-10 text-center text-sm text-zinc-500">No skill categories found. Click "Add Skill Category" to create one.</p>`;
+      return;
+    }
+
+    container.innerHTML = skillsState
+      .map(
+        (group, idx) => `
+        <div class="flex flex-col justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
+          <div class="flex items-start gap-3">
+            <!-- Rank / Position & Reorder Arrows -->
+            <div class="flex items-center gap-1.5">
+              <span class="flex h-7 min-w-[28px] items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+                #${idx + 1}
+              </span>
+              <div class="flex flex-col gap-0.5">
+                <button
+                  type="button"
+                  data-admin-move-skill-up="${idx}"
+                  ${idx === 0 ? "disabled" : ""}
+                  title="Move Up"
+                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
+                >
+                  <i class="h-3 w-3" data-lucide="chevron-up"></i>
+                </button>
+                <button
+                  type="button"
+                  data-admin-move-skill-down="${idx}"
+                  ${idx === skillsState.length - 1 ? "disabled" : ""}
+                  title="Move Down"
+                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
+                >
+                  <i class="h-3 w-3" data-lucide="chevron-down"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Icon -->
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+              <i class="h-5 w-5" data-lucide="${group.icon || "code-2"}"></i>
+            </div>
+
+            <!-- Details -->
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="text-base font-bold">${group.category}</h4>
+                <span class="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">${(group.skills || []).length} skills</span>
+              </div>
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                ${(group.skills || [])
+                  .map(
+                    (s) =>
+                      `<span class="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">${s}</span>`,
+                  )
+                  .join("")}
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 self-end sm:self-center">
+            <button
+              type="button"
+              data-admin-edit-skill="${idx}"
+              class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              data-admin-delete-skill="${idx}"
+              class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      `,
+      )
+      .join("");
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // ==========================================================
+  // POPULATE FORMS
+  // ==========================================================
+
   function populateProfileForm() {
-    const prof = window.getPortfolioProfile();
+    const prof = getCachedProfile();
     const setVal = (id, val) => {
       const el = document.getElementById(id);
       if (el) el.value = val || "";
@@ -439,12 +750,28 @@
     setVal("admin-prof-location", prof.location);
     setVal("admin-prof-github", prof.github);
     setVal("admin-prof-linkedin", prof.linkedin);
+    setVal("admin-prof-hero-headline", prof.heroHeadline);
     setVal("admin-prof-hero-intro", prof.heroIntro);
-    setVal("admin-prof-about-p1", prof.aboutP1);
-    setVal("admin-prof-about-p2", prof.aboutP2);
-    setVal("admin-prof-studying", prof.studying);
-    setVal("admin-prof-based", prof.based);
-    setVal("admin-prof-focus", prof.focus);
+  }
+
+  function populateAboutForm() {
+    const about = getCachedAbout();
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val || "";
+    };
+
+    setVal("admin-about-title", about.title || "About me");
+    setVal("admin-about-p1", about.p1);
+    setVal("admin-about-p2", about.p2);
+    setVal("admin-about-p3", about.p3);
+    setVal("admin-about-studying", about.studying);
+    setVal("admin-about-based", about.based);
+    setVal("admin-about-focus", about.focus);
+    setVal(
+      "admin-about-interests",
+      Array.isArray(about.interests) ? about.interests.join(", ") : "",
+    );
   }
 
   // ==========================================================
@@ -504,29 +831,29 @@
             <input name="liveDemo" type="url" value="${p.liveDemo || ""}" placeholder="https://..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
           <div>
-            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">GitHub Repository URL</label>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">GitHub URL</label>
             <input name="github" type="url" value="${p.github || ""}" placeholder="https://github.com/..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Image Path or URL</label>
-          <input name="image" value="${p.image || ""}" placeholder="images/projects/your-image.png" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Image Path / URL</label>
+          <input name="image" value="${p.image || ""}" placeholder="images/project.png" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
         </div>
 
         <div>
-          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Overview / Details (1 paragraph or separate by newline)</label>
-          <textarea name="details" rows="2" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${(p.details || []).join("\n")}</textarea>
+          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Detailed Description (One paragraph per line)</label>
+          <textarea name="details" rows="3" placeholder="Paragraph 1...&#10;Paragraph 2..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${(p.details || []).join("\n")}</textarea>
         </div>
 
         <div>
           <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Key Features (One feature per line)</label>
-          <textarea name="features" rows="3" placeholder="User authentication&#10;Real-time dashboard&#10;Responsive UI" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${(p.features || []).join("\n")}</textarea>
+          <textarea name="features" rows="3" placeholder="Feature 1&#10;Feature 2" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${(p.features || []).join("\n")}</textarea>
         </div>
 
-        <div class="flex items-center gap-2 pt-2">
-          <input type="checkbox" name="featured" id="modal-project-featured" ${p.featured ? "checked" : ""} class="h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500" />
-          <label for="modal-project-featured" class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Feature this project on the Home Page</label>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="admin-proj-featured" name="featured" ${p.featured ? "checked" : ""} class="h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500" />
+          <label for="admin-proj-featured" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Feature this project on the Home page</label>
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-4">
@@ -592,12 +919,14 @@
   }
 
   // ==========================================================
-  // CERTIFICATE FORM MODAL
+  // CERTIFICATE FORM MODAL (WITH DIRECT RANK MODIFICATION)
   // ==========================================================
 
   function openCertFormModal(cert = null, editIndex = -1) {
     const isEdit = editIndex >= 0;
     const title = isEdit ? `Edit Certificate: ${cert.title}` : "Add New Certificate";
+    const maxRank = isEdit ? certsState.length : certsState.length + 1;
+    const currentRank = isEdit ? editIndex + 1 : 1;
 
     const c = cert || {
       title: "",
@@ -615,20 +944,28 @@
           <input name="title" required value="${c.title || ""}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div>
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div class="sm:col-span-2">
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Issuing Organization *</label>
             <input name="organization" required value="${c.organization || ""}" placeholder="e.g. HackerRank, MathWorks, Cisco" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Display Rank (1 = Top)</label>
+            <input name="rank" type="number" min="1" max="${maxRank}" value="${currentRank}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 font-semibold" />
+          </div>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Issue Date</label>
             <input name="date" value="${c.date || ""}" placeholder="e.g. May 2025" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
-        </div>
 
-        <div>
-          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Skills / Topics Covered</label>
-          <input name="skills" value="${c.skills || ""}" placeholder="e.g. Java, C++, Machine Learning" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Skills / Topics Covered</label>
+            <input name="skills" value="${c.skills || ""}" placeholder="e.g. Java, C++, Networking" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
         </div>
 
         <div>
@@ -661,27 +998,34 @@
 
       if (!newCert.title || !newCert.organization) return false;
 
+      const targetRank = Math.max(1, Math.min(parseInt(fd.get("rank"), 10) || 1, maxRank));
+      const targetIndex = targetRank - 1;
+
       if (isEdit) {
-        certsState[editIndex] = newCert;
+        certsState.splice(editIndex, 1);
+        certsState.splice(targetIndex, 0, newCert);
       } else {
-        certsState.unshift(newCert);
+        certsState.splice(targetIndex, 0, newCert);
       }
 
       await saveToServer("save-certificates", "certificates.json", certsState, KEY_CERTS);
       renderAdminCertificates();
 
       if (window.loadCertificates) await window.loadCertificates();
+      showToast(`Saved "${newCert.title}" at Rank #${targetRank}`);
       return true;
     });
   }
 
   // ==========================================================
-  // VOLUNTEERING FORM MODAL
+  // VOLUNTEERING FORM MODAL (WITH DIRECT RANK MODIFICATION)
   // ==========================================================
 
   function openVolFormModal(vol = null, editIndex = -1) {
     const isEdit = editIndex >= 0;
     const title = isEdit ? `Edit Volunteering: ${vol.title}` : "Add Volunteering Experience";
+    const maxRank = isEdit ? volState.length : volState.length + 1;
+    const currentRank = isEdit ? editIndex + 1 : 1;
 
     const v = vol || {
       title: "",
@@ -696,9 +1040,16 @@
           <input name="title" required value="${v.title || ""}" placeholder="e.g. IEEE AIUB Student Branch" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Time Period *</label>
-          <input name="time" required value="${v.time || ""}" placeholder="e.g. Mar 2025 — Present" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Time Period *</label>
+            <input name="time" required value="${v.time || ""}" placeholder="e.g. Mar 2025 — Present" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Display Rank (1 = Top)</label>
+            <input name="rank" type="number" min="1" max="${maxRank}" value="${currentRank}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 font-semibold" />
+          </div>
         </div>
 
         <div>
@@ -729,16 +1080,92 @@
 
       if (!newVol.title || !newVol.time) return false;
 
+      const targetRank = Math.max(1, Math.min(parseInt(fd.get("rank"), 10) || 1, maxRank));
+      const targetIndex = targetRank - 1;
+
       if (isEdit) {
-        volState[editIndex] = newVol;
+        volState.splice(editIndex, 1);
+        volState.splice(targetIndex, 0, newVol);
       } else {
-        volState.unshift(newVol);
+        volState.splice(targetIndex, 0, newVol);
       }
 
       await saveToServer("save-volunteering", "volunteering.json", volState, KEY_VOL);
       renderAdminVolunteering();
 
       if (window.loadVolunteering) await window.loadVolunteering();
+      showToast(`Saved "${newVol.title}" at Rank #${targetRank}`);
+      return true;
+    });
+  }
+
+  // ==========================================================
+  // SKILL FORM MODAL
+  // ==========================================================
+
+  function openSkillFormModal(skill = null, editIndex = -1) {
+    const isEdit = editIndex >= 0;
+    const title = isEdit ? `Edit Skill Category: ${skill.category}` : "Add Skill Category";
+
+    const s = skill || {
+      category: "",
+      icon: "code-2",
+      skills: [],
+    };
+
+    const formHtml = `
+      <form class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Category Name *</label>
+          <input name="category" required value="${s.category || ""}" placeholder="e.g. Cloud & DevOps, Mobile Development" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Lucide Icon Name</label>
+          <input name="icon" value="${s.icon || "code-2"}" placeholder="code-2, globe, brain, database, terminal, cpu, layers..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <p class="mt-1 text-xs text-zinc-400">Standard Lucide icon identifier (e.g. code-2, globe, brain, database, terminal, shield)</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Skills (Comma-separated)</label>
+          <textarea name="skills" rows="3" placeholder="React, Node.js, Express, Next.js" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${(s.skills || []).join(", ")}</textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4">
+          <button type="button" data-admin-cancel class="rounded-xl border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800">Cancel</button>
+          <button type="submit" class="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">${isEdit ? "Update Category" : "Add Category"}</button>
+        </div>
+      </form>
+    `;
+
+    openAdminModal(title, formHtml, async (form) => {
+      const fd = new FormData(form);
+      const categoryVal = fd.get("category").trim();
+      if (!categoryVal) return false;
+
+      const skillsArr = fd
+        .get("skills")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const newGroup = {
+        category: categoryVal,
+        icon: fd.get("icon").trim() || "code-2",
+        skills: skillsArr,
+      };
+
+      if (isEdit) {
+        skillsState[editIndex] = newGroup;
+      } else {
+        skillsState.push(newGroup);
+      }
+
+      await saveToServer("save-skills", "skills.json", skillsState, KEY_SKILLS);
+      renderAdminSkills();
+
+      if (window.loadSkills) await window.loadSkills();
+      showToast(`Saved "${newGroup.category}"`);
       return true;
     });
   }
@@ -764,7 +1191,9 @@
       renderAdminProjects();
       renderAdminCertificates();
       renderAdminVolunteering();
+      renderAdminSkills();
       populateProfileForm();
+      populateAboutForm();
     } else {
       gate.classList.remove("hidden");
       content.classList.add("hidden");
@@ -786,10 +1215,14 @@
       window.getPortfolioProjects(),
       window.getPortfolioCertificates(),
       window.getPortfolioVolunteering(),
+      window.getPortfolioSkills(),
+      window.getPortfolioProfile(),
+      window.getPortfolioAbout(),
     ]);
 
-    // Apply saved profile content to site
-    window.applyProfileContent();
+    // Apply saved profile and about content to site
+    await window.applyProfileContent();
+    await window.applyAboutContent();
 
     // Setup password login form
     const loginForm = document.getElementById("admin-login-form");
@@ -861,7 +1294,7 @@
       };
     });
 
-    // Profile Form Submit
+    // Profile Form Submit (Direct to data/profile.json)
     const profileForm = document.getElementById("admin-profile-form");
     if (profileForm) {
       profileForm.onsubmit = async (e) => {
@@ -874,17 +1307,41 @@
           location: document.getElementById("admin-prof-location")?.value.trim(),
           github: document.getElementById("admin-prof-github")?.value.trim(),
           linkedin: document.getElementById("admin-prof-linkedin")?.value.trim(),
+          heroHeadline: document.getElementById("admin-prof-hero-headline")?.value.trim() || "Exploring technology by building real things.",
           heroIntro: document.getElementById("admin-prof-hero-intro")?.value.trim(),
-          aboutP1: document.getElementById("admin-prof-about-p1")?.value.trim(),
-          aboutP2: document.getElementById("admin-prof-about-p2")?.value.trim(),
-          studying: document.getElementById("admin-prof-studying")?.value.trim(),
-          based: document.getElementById("admin-prof-based")?.value.trim(),
-          focus: document.getElementById("admin-prof-focus")?.value.trim(),
         };
 
         profileState = updated;
         await saveToServer("save-profile", "profile.json", profileState, KEY_PROFILE);
         window.applyProfileContent();
+      };
+    }
+
+    // About Form Submit (Direct to data/about.json)
+    const aboutForm = document.getElementById("admin-about-form");
+    if (aboutForm) {
+      aboutForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const interestsRaw = document.getElementById("admin-about-interests")?.value.trim() || "";
+        const interestsArr = interestsRaw
+          .split(",")
+          .map((i) => i.trim())
+          .filter(Boolean);
+
+        const updatedAbout = {
+          title: document.getElementById("admin-about-title")?.value.trim() || "About me",
+          p1: document.getElementById("admin-about-p1")?.value.trim(),
+          p2: document.getElementById("admin-about-p2")?.value.trim(),
+          p3: document.getElementById("admin-about-p3")?.value.trim() || "",
+          studying: document.getElementById("admin-about-studying")?.value.trim(),
+          based: document.getElementById("admin-about-based")?.value.trim(),
+          focus: document.getElementById("admin-about-focus")?.value.trim(),
+          interests: interestsArr,
+        };
+
+        aboutState = updatedAbout;
+        await saveToServer("save-about", "about.json", aboutState, KEY_ABOUT);
+        window.applyAboutContent();
       };
     }
 
@@ -899,6 +1356,10 @@
 
     document.getElementById("admin-add-vol-btn")?.addEventListener("click", () => {
       openVolFormModal();
+    });
+
+    document.getElementById("admin-add-skill-btn")?.addEventListener("click", () => {
+      openSkillFormModal();
     });
 
     // Global click delegate for dynamic list items
@@ -923,7 +1384,37 @@
         return;
       }
 
-      // Edit / Delete Certificate
+      // Reorder / Move Certificate Up
+      const moveCertUpBtn = e.target.closest("[data-admin-move-cert-up]");
+      if (moveCertUpBtn) {
+        const idx = Number(moveCertUpBtn.dataset.adminMoveCertUp);
+        if (idx > 0) {
+          const item = certsState.splice(idx, 1)[0];
+          certsState.splice(idx - 1, 0, item);
+          await saveToServer("save-certificates", "certificates.json", certsState, KEY_CERTS);
+          renderAdminCertificates();
+          if (window.loadCertificates) await window.loadCertificates();
+          showToast(`Moved "${item.title}" up to Rank #${idx}`);
+        }
+        return;
+      }
+
+      // Reorder / Move Certificate Down
+      const moveCertDownBtn = e.target.closest("[data-admin-move-cert-down]");
+      if (moveCertDownBtn) {
+        const idx = Number(moveCertDownBtn.dataset.adminMoveCertDown);
+        if (idx < certsState.length - 1) {
+          const item = certsState.splice(idx, 1)[0];
+          certsState.splice(idx + 1, 0, item);
+          await saveToServer("save-certificates", "certificates.json", certsState, KEY_CERTS);
+          renderAdminCertificates();
+          if (window.loadCertificates) await window.loadCertificates();
+          showToast(`Moved "${item.title}" down to Rank #${idx + 2}`);
+        }
+        return;
+      }
+
+      // Edit Certificate
       const editCertBtn = e.target.closest("[data-admin-edit-cert]");
       if (editCertBtn) {
         const idx = Number(editCertBtn.dataset.adminEditCert);
@@ -931,6 +1422,7 @@
         return;
       }
 
+      // Delete Certificate
       const delCertBtn = e.target.closest("[data-admin-delete-cert]");
       if (delCertBtn) {
         const idx = Number(delCertBtn.dataset.adminDeleteCert);
@@ -943,7 +1435,37 @@
         return;
       }
 
-      // Edit / Delete Volunteering
+      // Reorder / Move Volunteering Up
+      const moveVolUpBtn = e.target.closest("[data-admin-move-vol-up]");
+      if (moveVolUpBtn) {
+        const idx = Number(moveVolUpBtn.dataset.adminMoveVolUp);
+        if (idx > 0) {
+          const item = volState.splice(idx, 1)[0];
+          volState.splice(idx - 1, 0, item);
+          await saveToServer("save-volunteering", "volunteering.json", volState, KEY_VOL);
+          renderAdminVolunteering();
+          if (window.loadVolunteering) await window.loadVolunteering();
+          showToast(`Moved "${item.title}" up to Rank #${idx}`);
+        }
+        return;
+      }
+
+      // Reorder / Move Volunteering Down
+      const moveVolDownBtn = e.target.closest("[data-admin-move-vol-down]");
+      if (moveVolDownBtn) {
+        const idx = Number(moveVolDownBtn.dataset.adminMoveVolDown);
+        if (idx < volState.length - 1) {
+          const item = volState.splice(idx, 1)[0];
+          volState.splice(idx + 1, 0, item);
+          await saveToServer("save-volunteering", "volunteering.json", volState, KEY_VOL);
+          renderAdminVolunteering();
+          if (window.loadVolunteering) await window.loadVolunteering();
+          showToast(`Moved "${item.title}" down to Rank #${idx + 2}`);
+        }
+        return;
+      }
+
+      // Edit Volunteering
       const editVolBtn = e.target.closest("[data-admin-edit-vol]");
       if (editVolBtn) {
         const idx = Number(editVolBtn.dataset.adminEditVol);
@@ -951,6 +1473,7 @@
         return;
       }
 
+      // Delete Volunteering
       const delVolBtn = e.target.closest("[data-admin-delete-vol]");
       if (delVolBtn) {
         const idx = Number(delVolBtn.dataset.adminDeleteVol);
@@ -963,6 +1486,57 @@
         return;
       }
 
+      // Move Skill Up
+      const moveSkillUpBtn = e.target.closest("[data-admin-move-skill-up]");
+      if (moveSkillUpBtn) {
+        const idx = Number(moveSkillUpBtn.dataset.adminMoveSkillUp);
+        if (idx > 0) {
+          const item = skillsState.splice(idx, 1)[0];
+          skillsState.splice(idx - 1, 0, item);
+          await saveToServer("save-skills", "skills.json", skillsState, KEY_SKILLS);
+          renderAdminSkills();
+          if (window.loadSkills) await window.loadSkills();
+          showToast(`Moved "${item.category}" up`);
+        }
+        return;
+      }
+
+      // Move Skill Down
+      const moveSkillDownBtn = e.target.closest("[data-admin-move-skill-down]");
+      if (moveSkillDownBtn) {
+        const idx = Number(moveSkillDownBtn.dataset.adminMoveSkillDown);
+        if (idx < skillsState.length - 1) {
+          const item = skillsState.splice(idx, 1)[0];
+          skillsState.splice(idx + 1, 0, item);
+          await saveToServer("save-skills", "skills.json", skillsState, KEY_SKILLS);
+          renderAdminSkills();
+          if (window.loadSkills) await window.loadSkills();
+          showToast(`Moved "${item.category}" down`);
+        }
+        return;
+      }
+
+      // Edit Skill Category
+      const editSkillBtn = e.target.closest("[data-admin-edit-skill]");
+      if (editSkillBtn) {
+        const idx = Number(editSkillBtn.dataset.adminEditSkill);
+        openSkillFormModal(skillsState[idx], idx);
+        return;
+      }
+
+      // Delete Skill Category
+      const delSkillBtn = e.target.closest("[data-admin-delete-skill]");
+      if (delSkillBtn) {
+        const idx = Number(delSkillBtn.dataset.adminDeleteSkill);
+        if (confirm(`Are you sure you want to delete category "${skillsState[idx]?.category}"?`)) {
+          skillsState.splice(idx, 1);
+          await saveToServer("save-skills", "skills.json", skillsState, KEY_SKILLS);
+          renderAdminSkills();
+          if (window.loadSkills) await window.loadSkills();
+        }
+        return;
+      }
+
       // Copy JSON
       const copyJsonBtn = e.target.closest("[data-copy-json]");
       if (copyJsonBtn) {
@@ -970,7 +1544,9 @@
         if (type === "projects") copyToClipboard(JSON.stringify(projectsState, null, 2), "Projects JSON");
         else if (type === "certificates") copyToClipboard(JSON.stringify(certsState, null, 2), "Certificates JSON");
         else if (type === "volunteering") copyToClipboard(JSON.stringify(volState, null, 2), "Volunteering JSON");
+        else if (type === "skills") copyToClipboard(JSON.stringify(skillsState, null, 2), "Skills JSON");
         else if (type === "profile") copyToClipboard(JSON.stringify(profileState, null, 2), "Profile JSON");
+        else if (type === "about") copyToClipboard(JSON.stringify(aboutState, null, 2), "About JSON");
         return;
       }
     });
@@ -988,15 +1564,21 @@
     bindDownload("admin-export-certs-btn", "certificates.json", () => certsState);
     bindDownload("admin-download-vol-btn", "volunteering.json", () => volState);
     bindDownload("admin-export-vol-btn", "volunteering.json", () => volState);
+    bindDownload("admin-download-skills-btn", "skills.json", () => skillsState);
+    bindDownload("admin-export-skills-btn", "skills.json", () => skillsState);
     bindDownload("admin-download-profile-btn", "profile.json", () => profileState);
     bindDownload("admin-export-prof-btn", "profile.json", () => profileState);
+    bindDownload("admin-download-about-btn", "about.json", () => aboutState);
+    bindDownload("admin-export-about-btn", "about.json", () => aboutState);
 
     // Export All JSON
     document.getElementById("admin-export-all-btn")?.addEventListener("click", () => {
       downloadJSON("projects.json", projectsState);
       setTimeout(() => downloadJSON("certificates.json", certsState), 200);
       setTimeout(() => downloadJSON("volunteering.json", volState), 400);
-      setTimeout(() => downloadJSON("profile.json", profileState), 600);
+      setTimeout(() => downloadJSON("skills.json", skillsState), 600);
+      setTimeout(() => downloadJSON("profile.json", profileState), 800);
+      setTimeout(() => downloadJSON("about.json", aboutState), 1000);
     });
 
     if (window.lucide) lucide.createIcons();

@@ -19,7 +19,12 @@ A modern and responsive personal portfolio website showcasing my education, proj
 
 ```text
 portfolio/
-├── index.html
 ├── components/
+├── data/
+├── images/
+├── js/
 ├── sections/
-└── js/
+├── Farhan-chowdhury-CV.pdf
+├── index.html
+├── README.md
+└── server.js

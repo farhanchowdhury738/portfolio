@@ -1,0 +1,49 @@
+[
+  {
+    "category": "Programming Languages",
+    "icon": "code-2",
+    "skills": [
+      "PHP",
+      "JavaScript",
+      "Python",
+      "R",
+      "C / C++"
+    ]
+  },
+  {
+    "category": "Web Technologies",
+    "icon": "globe",
+    "skills": [
+      "React",
+      "Next.js",
+      "Tailwind CSS",
+      "Node.js",
+      "REST APIs",
+      "HTML5 & CSS3"
+    ]
+  },
+  {
+    "category": "Data Science & AI",
+    "icon": "brain",
+    "skills": [
+      "Machine Learning",
+      "Data Analysis",
+      "Pandas",
+      "NumPy",
+      "Scikit-Learn",
+      "NLP"
+    ]
+  },
+  {
+    "category": "Databases & Tools",
+    "icon": "database",
+    "skills": [
+      "MySQL",
+      "Git & GitHub",
+      "Docker",
+      "VS Code",
+      "Postman",
+      "Linux"
+    ]
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "title": "About me",
+  "p1": "I'm a Computer Science student at American International University-Bangladesh (AIUB) with a strong interest in software development and modern technology. I enjoy building practical web applications, exploring data science and machine learning, and learning new tools through hands-on projects.",
+  "p2": "My approach is simple: learn by building, understand how things work, and turn ideas into useful solutions. I'm continuously improving my skills across web development, software engineering, AI, and data-driven technologies.",
+  "p3": "",
+  "studying": "B.Sc. in CSE, AIUB",
+  "based": "Bangladesh",
+  "focus": "Web, Data Science, AI",
+  "interests": [
+    "Software Development",
+    "Web Development",
+    "Data Science",
+    "AI & Machine Learning"
+  ]
+}
