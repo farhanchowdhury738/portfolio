@@ -108,6 +108,15 @@
 
         <button
           type="button"
+          data-admin-tab="experience"
+          class="admin-tab-btn inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 font-semibold text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          <i class="h-4 w-4" data-lucide="briefcase"></i> Experience
+          <span id="admin-exp-count" class="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">0</span>
+        </button>
+
+        <button
+          type="button"
           data-admin-tab="volunteering"
           class="admin-tab-btn inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 font-semibold text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
@@ -217,7 +226,40 @@
     </div>
 
     <!-- ========================================================= -->
-    <!-- TAB 3: VOLUNTEERING -->
+    <!-- TAB 3: EXPERIENCE -->
+    <!-- ========================================================= -->
+    <div id="admin-tab-experience" class="admin-tab-pane hidden">
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h3 class="text-xl font-bold tracking-tight">Experience Management</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">Add, edit, or rank work experience. Updates write directly to <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">data/experience.json</code>.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            id="admin-add-exp-btn"
+            class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500"
+          >
+            <i class="h-4 w-4" data-lucide="plus"></i> Add Experience
+          </button>
+
+          <button
+            type="button"
+            id="admin-download-exp-btn"
+            class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+          >
+            <i class="h-4 w-4" data-lucide="download"></i> Download experience.json
+          </button>
+        </div>
+      </div>
+
+      <!-- Experience List Container -->
+      <div id="admin-exp-list" class="space-y-4"></div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 4: VOLUNTEERING -->
     <!-- ========================================================= -->
     <div id="admin-tab-volunteering" class="admin-tab-pane hidden">
       <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -346,6 +388,41 @@
               <textarea id="admin-prof-hero-intro" rows="3" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"></textarea>
             </div>
           </div>
+        </div>
+
+        <div class="border-t border-zinc-200 pt-6 dark:border-zinc-800">
+          <div class="flex items-center justify-between">
+            <div>
+              <h4 class="text-base font-bold">Curriculum Vitae (CV / Resume PDF)</h4>
+              <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                Upload a new PDF to replace <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">Farhan-chowdhury-CV.pdf</code> across the site.
+              </p>
+            </div>
+            <a
+              href="Farhan-chowdhury-CV.pdf"
+              target="_blank"
+              class="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+            >
+              <i class="h-3.5 w-3.5" data-lucide="file-text"></i> View Current CV
+            </a>
+          </div>
+
+          <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <input
+              type="file"
+              id="admin-cv-file-input"
+              accept=".pdf,application/pdf"
+              class="block w-full text-xs text-zinc-500 file:mr-4 file:rounded-xl file:border-0 file:bg-indigo-50 file:px-4 file:py-2.5 file:text-xs file:font-semibold file:text-indigo-600 hover:file:bg-indigo-100 dark:file:bg-indigo-950 dark:file:text-indigo-300"
+            />
+            <button
+              type="button"
+              id="admin-upload-cv-btn"
+              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
+            >
+              <i class="h-3.5 w-3.5" data-lucide="upload"></i> Replace CV File
+            </button>
+          </div>
+          <p id="admin-cv-status" class="mt-2 hidden text-xs font-medium"></p>
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-3 pt-4">
@@ -491,6 +568,27 @@
               Copy JSON
             </button>
             <button type="button" id="admin-export-certs-btn" class="flex-1 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-500">
+              Download File
+            </button>
+          </div>
+        </div>
+
+        <!-- Experience JSON card -->
+        <div class="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+              <i class="h-5 w-5" data-lucide="briefcase"></i>
+            </div>
+            <div>
+              <h4 class="text-base font-bold">experience.json</h4>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">data/experience.json</p>
+            </div>
+          </div>
+          <div class="mt-5 flex gap-2">
+            <button type="button" data-copy-json="experience" class="flex-1 rounded-xl border border-zinc-200 px-3 py-2 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300">
+              Copy JSON
+            </button>
+            <button type="button" id="admin-export-exp-btn" class="flex-1 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-500">
               Download File
             </button>
           </div>

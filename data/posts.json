@@ -1,29 +1,41 @@
 [
   {
-    "slug": "php-mvc-project",
-    "date": "2026-10-03",
+    "slug": "php-mvc-faculty-finder",
+    "date": "2026-03-15",
     "category": "Web Development",
-    "title": "What I Learned Building a PHP MVC Project",
-    "text": ["Coming soon."],
+    "title": "Building a Faculty Finder with PHP & MVC Architecture",
+    "text": [
+      "During my coursework at AIUB, finding teacher schedules, office hours, and room locations across departments was often confusing for new students. I decided to build 'Faculty Finder' to solve this problem by organizing faculty profiles, consultations, and department listings in one clean interface.",
+      "Instead of writing spaghetti PHP, I structured the application using the Model-View-Controller (MVC) pattern. Separating the database models (handling MySQL queries via PDO with prepared statements) from views and controllers made adding features much easier and eliminated SQL injection vulnerabilities.",
+      "The biggest challenge was architecting dynamic search filters with AJAX so students could instantly query professors by department, designation, or available days without full page reloads. This project taught me how production-grade backends handle routing, session auth, and data normalization."
+    ],
     "image": "",
-    "link": ""
+    "link": "https://github.com/farhan254"
   },
   {
-    "slug": "nlp-tfidf-project",
-    "date": "2026-10-02",
-    "category": "Data Science",
-    "title": "My First NLP & TF-IDF Project",
-    "text": ["Coming soon."],
+    "slug": "nlp-machine-learning-aiub",
+    "date": "2026-02-20",
+    "category": "Data Science & AI",
+    "title": "Machine Learning & NLP Basics I Learned at AIUB",
+    "text": [
+      "Natural Language Processing always fascinated me because human language is messy, nuanced, and full of ambiguity. In our AI & Data Science coursework at AIUB, I transitioned from theoretical math to building hands-on predictive models with Python, Pandas, and Scikit-Learn.",
+      "My first text classification project explored sentiment and topic detection using TF-IDF (Term Frequency - Inverse Document Frequency) paired with Naive Bayes and Logistic Regression. Learning to clean raw text—tokenization, stopword removal, and lemmatization—revealed that 80% of data science success depends on thoughtful data preprocessing.",
+      "Evaluating models using Confusion Matrices, Precision, Recall, and F1-Scores rather than just raw accuracy was an eye-opener. It showed me how models behave when classes are imbalanced and gave me a solid foundation for exploring modern LLMs and Transformers."
+    ],
     "image": "",
-    "link": ""
+    "link": "https://github.com/farhan254"
   },
   {
-    "slug": "react-nextjs-learning",
-    "date": "2026-10-01",
-    "category": "Frontend",
-    "title": "Learning React and Next.js Through Projects",
-    "text": ["Coming soon."],
+    "slug": "react-nextjs-learning-journey",
+    "date": "2026-01-10",
+    "category": "Frontend Engineering",
+    "title": "Mastering React and Next.js Through Project-Driven Learning",
+    "text": [
+      "Moving from vanilla JavaScript and server-rendered templates to React and Next.js completely shifted how I think about user interface architecture. Rather than manipulating DOM nodes directly, UI becomes a direct function of state.",
+      "Building full-stack projects with Next.js App Router taught me the nuances between Server Components and Client Components. Server components provide blazing fast initial renders with zero client-side JavaScript bloat, while client components deliver rich interactivity where needed.",
+      "Pairing Next.js with Tailwind CSS enabled me to build clean, responsive, and dark-mode-first designs rapidly. My biggest takeaway for fellow university students: don't get trapped in tutorial hell. Build real apps, break things, debug console errors, and deploy them on Vercel."
+    ],
     "image": "",
-    "link": ""
+    "link": "https://github.com/farhan254"
   }
 ]

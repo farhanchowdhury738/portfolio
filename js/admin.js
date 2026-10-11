@@ -11,6 +11,7 @@
   // Storage Keys
   const KEY_PROJECTS = "portfolio_projects";
   const KEY_CERTS = "portfolio_certificates";
+  const KEY_EXP = "portfolio_experience";
   const KEY_VOL = "portfolio_volunteering";
   const KEY_SKILLS = "portfolio_skills";
   const KEY_PROFILE = "portfolio_profile";
@@ -19,6 +20,7 @@
   // In-memory state
   let projectsState = [];
   let certsState = [];
+  let expState = [];
   let volState = [];
   let skillsState = [];
   let profileState = {};
@@ -131,6 +133,25 @@
       console.error("Error fetching certificates.json", e);
     }
     return certsState;
+  };
+
+  window.getPortfolioExperience = async function () {
+    const cached = localStorage.getItem(KEY_EXP);
+    if (cached) {
+      try {
+        expState = JSON.parse(cached);
+        return expState;
+      } catch (e) {
+        console.error("Experience cache parse error", e);
+      }
+    }
+    try {
+      const res = await fetch("data/experience.json");
+      expState = await res.json();
+    } catch (e) {
+      console.error("Error fetching experience.json", e);
+    }
+    return expState;
   };
 
   window.getPortfolioVolunteering = async function () {
@@ -547,6 +568,85 @@
             <button
               type="button"
               data-admin-delete-cert="${idx}"
+              class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      `,
+      )
+      .join("");
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // ==========================================================
+  // RENDER ADMIN EXPERIENCE (WITH RANK & REORDER)
+  // ==========================================================
+
+  function renderAdminExperience() {
+    const container = document.getElementById("admin-exp-list");
+    const countBadge = document.getElementById("admin-exp-count");
+    if (countBadge) countBadge.textContent = expState.length;
+    if (!container) return;
+
+    if (expState.length === 0) {
+      container.innerHTML = `<p class="py-10 text-center text-sm text-zinc-500">No experience entries found. Click "Add Experience" to create one.</p>`;
+      return;
+    }
+
+    container.innerHTML = expState
+      .map(
+        (v, idx) => `
+        <div class="flex flex-col justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
+          <div class="flex items-center gap-3">
+            <!-- Rank Indicator & Reorder Arrows -->
+            <div class="flex items-center gap-1.5">
+              <span class="flex h-7 min-w-[28px] items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400" title="Current Rank: #${idx + 1}">
+                #${idx + 1}
+              </span>
+              <div class="flex flex-col gap-0.5">
+                <button
+                  type="button"
+                  data-admin-move-exp-up="${idx}"
+                  ${idx === 0 ? "disabled" : ""}
+                  title="Move Up in Rank"
+                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
+                >
+                  <i class="h-3 w-3" data-lucide="chevron-up"></i>
+                </button>
+                <button
+                  type="button"
+                  data-admin-move-exp-down="${idx}"
+                  ${idx === expState.length - 1 ? "disabled" : ""}
+                  title="Move Down in Rank"
+                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
+                >
+                  <i class="h-3 w-3" data-lucide="chevron-down"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Details -->
+            <div>
+              <h4 class="text-base font-bold">${v.title}${v.company ? ` <span class="font-normal text-zinc-500">|</span> ${v.company}` : ""}</h4>
+              <p class="text-xs font-medium text-indigo-500 dark:text-indigo-400">${v.time}</p>
+              <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">${(v.description || []).length} bullet point(s)</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 self-end sm:self-center">
+            <button
+              type="button"
+              data-admin-edit-exp="${idx}"
+              class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              data-admin-delete-exp="${idx}"
               class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400"
             >
               Delete
@@ -1100,6 +1200,95 @@
   }
 
   // ==========================================================
+  // EXPERIENCE FORM MODAL (WITH DIRECT RANK MODIFICATION)
+  // ==========================================================
+
+  function openExpFormModal(exp = null, editIndex = -1) {
+    const isEdit = editIndex >= 0;
+    const title = isEdit ? `Edit Experience: ${exp.title}` : "Add Work Experience";
+    const maxRank = isEdit ? expState.length : expState.length + 1;
+    const currentRank = isEdit ? editIndex + 1 : 1;
+
+    const v = exp || {
+      title: "",
+      company: "",
+      time: "",
+      description: [""],
+    };
+
+    const formHtml = `
+      <form class="space-y-4">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Job Title / Role *</label>
+            <input name="title" required value="${v.title || ""}" placeholder="e.g. Web Team Member" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Company / Organization *</label>
+            <input name="company" required value="${v.company || ""}" placeholder="e.g. IEEE AIUB Student Branch" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Time Period *</label>
+            <input name="time" required value="${v.time || ""}" placeholder="e.g. Mar 2025 — Present" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Display Rank (1 = Top)</label>
+            <input name="rank" type="number" min="1" max="${maxRank}" value="${currentRank}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 font-semibold" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Description Points (One bullet per line)</label>
+          <textarea name="description" rows="4" placeholder="Maintain and support the branch website&#10;Coordinate events with the Event Team" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${(v.description || []).join("\n")}</textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4">
+          <button type="button" data-admin-cancel class="rounded-xl border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800">Cancel</button>
+          <button type="submit" class="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">${isEdit ? "Update Experience" : "Add Experience"}</button>
+        </div>
+      </form>
+    `;
+
+    openAdminModal(title, formHtml, async (form) => {
+      const fd = new FormData(form);
+      const descArr = fd
+        .get("description")
+        .split("\n")
+        .map((d) => d.trim())
+        .filter(Boolean);
+
+      const newExp = {
+        title: fd.get("title").trim(),
+        company: fd.get("company").trim(),
+        time: fd.get("time").trim(),
+        description: descArr,
+      };
+
+      if (!newExp.title || !newExp.company || !newExp.time) return false;
+
+      const targetRank = Math.max(1, Math.min(parseInt(fd.get("rank"), 10) || 1, maxRank));
+      const targetIndex = targetRank - 1;
+
+      if (isEdit) {
+        expState.splice(editIndex, 1);
+        expState.splice(targetIndex, 0, newExp);
+      } else {
+        expState.splice(targetIndex, 0, newExp);
+      }
+
+      await saveToServer("save-experience", "experience.json", expState, KEY_EXP);
+      renderAdminExperience();
+
+      if (window.loadExperience) await window.loadExperience();
+      showToast(`Saved "${newExp.title}" at Rank #${targetRank}`);
+      return true;
+    });
+  }
+
+  // ==========================================================
   // SKILL FORM MODAL
   // ==========================================================
 
@@ -1190,6 +1379,7 @@
       content.classList.remove("hidden");
       renderAdminProjects();
       renderAdminCertificates();
+      renderAdminExperience();
       renderAdminVolunteering();
       renderAdminSkills();
       populateProfileForm();
@@ -1214,6 +1404,7 @@
     await Promise.all([
       window.getPortfolioProjects(),
       window.getPortfolioCertificates(),
+      window.getPortfolioExperience(),
       window.getPortfolioVolunteering(),
       window.getPortfolioSkills(),
       window.getPortfolioProfile(),
@@ -1317,6 +1508,81 @@
       };
     }
 
+    // CV Upload & Replace Handler
+    const cvFileInput = document.getElementById("admin-cv-file-input");
+    const uploadCvBtn = document.getElementById("admin-upload-cv-btn");
+    const cvStatus = document.getElementById("admin-cv-status");
+
+    if (uploadCvBtn && cvFileInput) {
+      uploadCvBtn.onclick = async () => {
+        const file = cvFileInput.files && cvFileInput.files[0];
+        if (!file) {
+          showToast("Please choose a PDF file first.");
+          if (cvStatus) {
+            cvStatus.textContent = "Please select a PDF file first.";
+            cvStatus.className = "mt-2 text-xs font-semibold text-rose-500 block";
+          }
+          return;
+        }
+
+        if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+          showToast("Only PDF files are supported!");
+          if (cvStatus) {
+            cvStatus.textContent = "Please select a valid PDF file.";
+            cvStatus.className = "mt-2 text-xs font-semibold text-rose-500 block";
+          }
+          return;
+        }
+
+        uploadCvBtn.disabled = true;
+        const originalText = uploadCvBtn.innerHTML;
+        uploadCvBtn.innerHTML = `<i class="h-3.5 w-3.5 animate-spin" data-lucide="loader-2"></i> Uploading...`;
+        if (window.lucide) lucide.createIcons();
+
+        try {
+          const reader = new FileReader();
+          reader.onload = async (event) => {
+            const base64Data = event.target.result;
+            try {
+              const res = await fetch("/api/upload-cv", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ data: base64Data, filename: "Farhan-chowdhury-CV.pdf" }),
+              });
+              const json = await res.json();
+              if (res.ok && json.success) {
+                showToast("CV replaced successfully!");
+                if (cvStatus) {
+                  cvStatus.textContent = `Successfully updated Farhan-chowdhury-CV.pdf (${(file.size / 1024).toFixed(1)} KB)`;
+                  cvStatus.className = "mt-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 block";
+                }
+                cvFileInput.value = "";
+              } else {
+                throw new Error(json.error || "Upload failed");
+              }
+            } catch (err) {
+              console.error(err);
+              showToast("Failed to upload CV file.");
+              if (cvStatus) {
+                cvStatus.textContent = `Upload error: ${err.message}`;
+                cvStatus.className = "mt-2 text-xs font-semibold text-rose-500 block";
+              }
+            } finally {
+              uploadCvBtn.disabled = false;
+              uploadCvBtn.innerHTML = originalText;
+              if (window.lucide) lucide.createIcons();
+            }
+          };
+          reader.readAsDataURL(file);
+        } catch (e) {
+          uploadCvBtn.disabled = false;
+          uploadCvBtn.innerHTML = originalText;
+          if (window.lucide) lucide.createIcons();
+          showToast("Error reading file.");
+        }
+      };
+    }
+
     // About Form Submit (Direct to data/about.json)
     const aboutForm = document.getElementById("admin-about-form");
     if (aboutForm) {
@@ -1352,6 +1618,10 @@
 
     document.getElementById("admin-add-cert-btn")?.addEventListener("click", () => {
       openCertFormModal();
+    });
+
+    document.getElementById("admin-add-exp-btn")?.addEventListener("click", () => {
+      openExpFormModal();
     });
 
     document.getElementById("admin-add-vol-btn")?.addEventListener("click", () => {
@@ -1431,6 +1701,57 @@
           await saveToServer("save-certificates", "certificates.json", certsState, KEY_CERTS);
           renderAdminCertificates();
           if (window.loadCertificates) await window.loadCertificates();
+        }
+        return;
+      }
+
+      // Reorder / Move Experience Up
+      const moveExpUpBtn = e.target.closest("[data-admin-move-exp-up]");
+      if (moveExpUpBtn) {
+        const idx = Number(moveExpUpBtn.dataset.adminMoveExpUp);
+        if (idx > 0) {
+          const item = expState.splice(idx, 1)[0];
+          expState.splice(idx - 1, 0, item);
+          await saveToServer("save-experience", "experience.json", expState, KEY_EXP);
+          renderAdminExperience();
+          if (window.loadExperience) await window.loadExperience();
+          showToast(`Moved "${item.title}" up to Rank #${idx}`);
+        }
+        return;
+      }
+
+      // Reorder / Move Experience Down
+      const moveExpDownBtn = e.target.closest("[data-admin-move-exp-down]");
+      if (moveExpDownBtn) {
+        const idx = Number(moveExpDownBtn.dataset.adminMoveExpDown);
+        if (idx < expState.length - 1) {
+          const item = expState.splice(idx, 1)[0];
+          expState.splice(idx + 1, 0, item);
+          await saveToServer("save-experience", "experience.json", expState, KEY_EXP);
+          renderAdminExperience();
+          if (window.loadExperience) await window.loadExperience();
+          showToast(`Moved "${item.title}" down to Rank #${idx + 2}`);
+        }
+        return;
+      }
+
+      // Edit Experience
+      const editExpBtn = e.target.closest("[data-admin-edit-exp]");
+      if (editExpBtn) {
+        const idx = Number(editExpBtn.dataset.adminEditExp);
+        openExpFormModal(expState[idx], idx);
+        return;
+      }
+
+      // Delete Experience
+      const delExpBtn = e.target.closest("[data-admin-delete-exp]");
+      if (delExpBtn) {
+        const idx = Number(delExpBtn.dataset.adminDeleteExp);
+        if (confirm(`Are you sure you want to delete "${expState[idx]?.title}"?`)) {
+          expState.splice(idx, 1);
+          await saveToServer("save-experience", "experience.json", expState, KEY_EXP);
+          renderAdminExperience();
+          if (window.loadExperience) await window.loadExperience();
         }
         return;
       }
@@ -1547,6 +1868,7 @@
         else if (type === "skills") copyToClipboard(JSON.stringify(skillsState, null, 2), "Skills JSON");
         else if (type === "profile") copyToClipboard(JSON.stringify(profileState, null, 2), "Profile JSON");
         else if (type === "about") copyToClipboard(JSON.stringify(aboutState, null, 2), "About JSON");
+        else if (type === "experience") copyToClipboard(JSON.stringify(expState, null, 2), "Experience JSON");
         return;
       }
     });
@@ -1562,6 +1884,8 @@
     bindDownload("admin-export-projects-btn", "projects.json", () => projectsState);
     bindDownload("admin-download-certs-btn", "certificates.json", () => certsState);
     bindDownload("admin-export-certs-btn", "certificates.json", () => certsState);
+    bindDownload("admin-download-exp-btn", "experience.json", () => expState);
+    bindDownload("admin-export-exp-btn", "experience.json", () => expState);
     bindDownload("admin-download-vol-btn", "volunteering.json", () => volState);
     bindDownload("admin-export-vol-btn", "volunteering.json", () => volState);
     bindDownload("admin-download-skills-btn", "skills.json", () => skillsState);
@@ -1575,6 +1899,7 @@
     document.getElementById("admin-export-all-btn")?.addEventListener("click", () => {
       downloadJSON("projects.json", projectsState);
       setTimeout(() => downloadJSON("certificates.json", certsState), 200);
+      setTimeout(() => downloadJSON("experience.json", expState), 300);
       setTimeout(() => downloadJSON("volunteering.json", volState), 400);
       setTimeout(() => downloadJSON("skills.json", skillsState), 600);
       setTimeout(() => downloadJSON("profile.json", profileState), 800);

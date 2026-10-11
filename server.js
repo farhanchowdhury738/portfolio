@@ -62,6 +62,43 @@ function handleSaveFile(req, res, targetFilename) {
     }
   });
 }
+function handleSaveCV(req, res) {
+  let body = "";
+  req.on("data", (chunk) => {
+    body += chunk;
+  });
+
+  req.on("end", () => {
+    try {
+      const parsed = JSON.parse(body);
+      if (!parsed.data) {
+        sendJSON(res, 400, { success: false, error: "Missing CV file data" });
+        return;
+      }
+
+      // parsed.data is base64 encoded string (data:application/pdf;base64,.... or raw base64)
+      const base64Data = parsed.data.replace(/^data:application\/pdf;base64,/, "").replace(/^data:.*;base64,/, "");
+      const buffer = Buffer.from(base64Data, "base64");
+      const targetPath = path.join(__dirname, "Farhan-chowdhury-CV.pdf");
+
+      fs.writeFile(targetPath, buffer, (err) => {
+        if (err) {
+          console.error("Error saving CV file:", err);
+          sendJSON(res, 500, { success: false, error: err.message });
+          return;
+        }
+        console.log("Successfully replaced Farhan-chowdhury-CV.pdf");
+        sendJSON(res, 200, {
+          success: true,
+          message: "CV file replaced successfully!",
+        });
+      });
+    } catch (err) {
+      console.error("Error processing CV upload:", err);
+      sendJSON(res, 400, { success: false, error: "Invalid upload request" });
+    }
+  });
+}
 
 const server = http.createServer((req, res) => {
   // Handle CORS preflight
@@ -89,6 +126,10 @@ const server = http.createServer((req, res) => {
       handleSaveFile(req, res, "volunteering.json");
       return;
     }
+    if (req.url === "/api/save-experience") {
+      handleSaveFile(req, res, "experience.json");
+      return;
+    }
     if (req.url === "/api/save-skills") {
       handleSaveFile(req, res, "skills.json");
       return;
@@ -99,6 +140,10 @@ const server = http.createServer((req, res) => {
     }
     if (req.url === "/api/save-about") {
       handleSaveFile(req, res, "about.json");
+      return;
+    }
+    if (req.url === "/api/upload-cv") {
+      handleSaveCV(req, res);
       return;
     }
   }

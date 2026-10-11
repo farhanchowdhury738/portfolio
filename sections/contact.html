@@ -1,35 +1,99 @@
-<section
-  class="scroll-mt-24 border-zinc-200 py-20 dark:border-zinc-800"
-  id="contact"
->
-  <div
-    class="rounded-3xl bg-zinc-900 p-7 text-white sm:p-10 dark:bg-white dark:text-zinc-900"
-  >
-    <p
-      class="text-sm font-semibold uppercase tracking-[0.18em] text-indigo-400 dark:text-indigo-600"
+<section class="scroll-mt-24" id="contact">
+  <div class="mx-auto max-w-xl">
+    <!-- Header -->
+    <div class="mb-8 text-center sm:text-left">
+      <div
+        class="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50/70 px-3 py-1 text-xs font-semibold text-indigo-600 dark:border-indigo-900/60 dark:bg-indigo-950/50 dark:text-indigo-400"
+      >
+        <i class="h-3.5 w-3.5" data-lucide="mail"></i>
+        <span>Get In Touch</span>
+      </div>
+      <h2 class="mt-3 text-3xl font-bold tracking-tight sm:text-2xl">
+        Have a project idea, question, or opportunity?
+      </h2>
+      <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+        Drop me a message
+      </p>
+    </div>
+
+    <!-- Centered Minimal Card Form -->
+    <div
+      class="relative overflow-hidden rounded-3xl border border-zinc-200/90 bg-white/80 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/70 dark:hover:border-zinc-700 sm:p-8"
     >
-      Get in touch
-    </p>
-    <h2 class="mt-3 max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
-      Let's build something useful.
-    </h2>
-    <p class="mt-4 max-w-xl text-sm leading-6 text-zinc-300 dark:text-zinc-600">
-      Have a project idea, collaboration opportunity, or just want to say hello?
-      Feel free to reach out.
-    </p>
-    <div class="mt-7 flex flex-wrap gap-3">
-      <a
-        class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-zinc-900 transition hover:bg-indigo-500 hover:text-white dark:bg-zinc-900 dark:text-white dark:hover:bg-indigo-500"
-        href="mailto:farhanchowdhury7389@gmail.com"
-      >
-        Email Me <i class="h-4 w-4" data-lucide="arrow-up-right"></i>
-      </a>
-      <a
-        class="inline-flex items-center gap-2 rounded-full border border-zinc-600 px-5 py-3 text-sm font-semibold transition hover:border-indigo-400 hover:text-indigo-400 dark:border-zinc-300 dark:hover:border-indigo-500 dark:hover:text-indigo-600"
-        href="https://github.com/farhanchowdhury738/" target="_blank" rel="noopener noreferrer"
-      >
-        GitHub <i class="h-4 w-4" data-lucide="arrow-up-right"></i>
-      </a>
+      <form id="contact-form" class="space-y-5">
+        <!-- Name -->
+        <div>
+          <label
+            for="contact-name"
+            class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400"
+          >
+            Name
+          </label>
+          <div class="relative mt-1.5">
+            <input
+              type="text"
+              id="contact-name"
+              name="name"
+              required
+              placeholder="Your name"
+              class="w-full rounded-xl border border-zinc-200 bg-zinc-50/70 px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 transition-all focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-800 dark:bg-zinc-950/60 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-indigo-500 dark:focus:bg-zinc-900"
+            />
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label
+            for="contact-email"
+            class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400"
+          >
+            Email
+          </label>
+          <div class="relative mt-1.5">
+            <input
+              type="email"
+              id="contact-email"
+              name="email"
+              required
+              placeholder="your.email@example.com"
+              class="w-full rounded-xl border border-zinc-200 bg-zinc-50/70 px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 transition-all focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-800 dark:bg-zinc-950/60 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-indigo-500 dark:focus:bg-zinc-900"
+            />
+          </div>
+        </div>
+
+        <!-- Description / Message -->
+        <div>
+          <label
+            for="contact-message"
+            class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400"
+          >
+            Description
+          </label>
+          <div class="relative mt-1.5">
+            <textarea
+              id="contact-message"
+              name="message"
+              rows="4"
+              required
+              placeholder="What would you like to build or discuss?"
+              class="w-full resize-y rounded-xl border border-zinc-200 bg-zinc-50/70 px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 transition-all focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-800 dark:bg-zinc-950/60 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-indigo-500 dark:focus:bg-zinc-900"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          id="contact-submit-btn"
+          class="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-indigo-500 hover:shadow-md hover:shadow-indigo-500/20 active:scale-[0.99]"
+        >
+          <span>Send Message</span>
+          <i
+            class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            data-lucide="send"
+          ></i>
+        </button>
+      </form>
     </div>
   </div>
 </section>

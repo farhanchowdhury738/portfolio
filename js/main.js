@@ -18,6 +18,8 @@ async function loadFile(targetId, file) {
 // ============================================================
 // LOAD CERTIFICATES FROM JSON
 // ============================================================
+// LOAD CERTIFICATES FROM JSON (COMPACT MINIMALIST BADGE CARDS)
+// ============================================================
 
 async function loadCertificates() {
   const container = document.getElementById("certificates-list");
@@ -31,59 +33,107 @@ async function loadCertificates() {
       : await (await fetch("data/certificates.json")).json();
 
     container.innerHTML = certificates
-      .map(
-        (certificate) => `
-          <div class="ml-7">
+      .map((certificate) => {
+        const skillsList = certificate.skills
+          ? certificate.skills
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [];
 
-            <!-- Title + Logo -->
-            <div class="flex items-center gap-3">
-              <img
-                src="${certificate.logo}"
-                alt="${certificate.organization} logo" loading="lazy" width="40" height="40"
-                class="h-10 w-10 shrink-0 rounded-lg object-contain"
-              />
+        return `
+          <article
+            class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200/80 bg-white/70 p-4 shadow-sm backdrop-blur-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-indigo-400/80 hover:bg-white hover:shadow-md hover:shadow-indigo-500/5 dark:border-zinc-800/80 dark:bg-zinc-900/60 dark:hover:border-indigo-500/60 dark:hover:bg-zinc-900/90 dark:hover:shadow-indigo-500/10"
+          >
+            <!-- Top Subtle Indigo Gradient Highlight on Hover -->
+            <div
+              class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-indigo-500/0 to-transparent transition-all duration-300 group-hover:via-indigo-500"
+            ></div>
 
-              <h4 class="text-lg font-bold">
+            <div>
+              <!-- Header: Logo, Issuer, Date -->
+              <div class="flex items-center justify-between gap-2.5">
+                <div class="flex min-w-0 items-center gap-2.5">
+                  <div
+                    class="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-zinc-200/70 bg-zinc-50/80 p-1 transition-transform duration-300 group-hover:scale-105 group-hover:border-indigo-200 dark:border-zinc-800 dark:bg-zinc-800/80 dark:group-hover:border-indigo-800"
+                  >
+                    ${
+                      certificate.logo
+                        ? `<img src="${certificate.logo}" alt="${certificate.organization}" loading="lazy" class="h-full w-full object-contain" />`
+                        : `<i class="h-4 w-4 text-indigo-500" data-lucide="award"></i>`
+                    }
+                  </div>
+                  <span
+                    class="truncate text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
+                  >
+                    ${certificate.organization}
+                  </span>
+                </div>
+
+                <span
+                  class="shrink-0 rounded-full bg-zinc-100/90 px-2 py-0.5 text-[10px] font-medium text-zinc-500 dark:bg-zinc-800/80 dark:text-zinc-400"
+                >
+                  ${certificate.date}
+                </span>
+              </div>
+
+              <!-- Title -->
+              <h4
+                class="mt-3 text-sm font-bold leading-snug tracking-tight text-zinc-900 transition-colors duration-200 group-hover:text-indigo-600 dark:text-zinc-100 dark:group-hover:text-indigo-400"
+              >
                 ${certificate.title}
               </h4>
+
+              <!-- Skills / Topics Tags -->
+              ${
+                skillsList.length
+                  ? `
+                    <div class="mt-2.5 flex flex-wrap gap-1">
+                      ${skillsList
+                        .map(
+                          (skill) => `
+                          <span
+                            class="inline-flex items-center gap-1 rounded-md border border-zinc-200/70 bg-zinc-50/80 px-2 py-0.5 text-[11px] font-medium text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950/60 dark:text-zinc-300"
+                          >
+                            <span class="h-1 w-1 rounded-full bg-indigo-500/70"></span>
+                            ${skill}
+                          </span>
+                        `,
+                        )
+                        .join("")}
+                    </div>
+                  `
+                  : ""
+              }
             </div>
 
-            <!-- Organization -->
-            <p class="mt-1 text-base text-zinc-500 dark:text-zinc-400">
-              ${certificate.organization}
-            </p>
-
-            <!-- Date -->
-            <p class="mt-1 text-base font-medium text-indigo-500 dark:text-indigo-400">
-              ${certificate.date}
-            </p>
-
-            <!-- Credential -->
-            <a
-              href="${certificate.credential}"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="mt-4 inline-flex items-center gap-1.5 rounded-full border border-zinc-400 px-3.5 py-1.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-500 dark:text-zinc-300 dark:hover:border-indigo-400 dark:hover:text-indigo-400"
+            <!-- Footer: Credential Link -->
+            <div
+              class="mt-3.5 flex items-center justify-end border-t border-zinc-100/80 pt-2.5 dark:border-zinc-800/60"
             >
-              Show credential
-              <i class="h-4 w-4" data-lucide="external-link"></i>
-            </a>
-
-            <!-- Skills -->
-            ${
-              certificate.skills
-                ? `
-                  <p class="mt-4 text-sm text-zinc-700 dark:text-zinc-300">
-                    <span class="font-bold">Skills:</span>
-                    ${certificate.skills}
-                  </p>
-                `
-                : ""
-            }
-
-          </div>
-        `,
-      )
+              ${
+                certificate.credential
+                  ? `
+                    <a
+                      href="${certificate.credential}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 transition-colors hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+                      aria-label="View credential for ${certificate.title}"
+                    >
+                      <span>Show Credential</span>
+                      <i
+                        class="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                        data-lucide="arrow-up-right"
+                      ></i>
+                    </a>
+                  `
+                  : ""
+              }
+            </div>
+          </article>
+        `;
+      })
       .join("");
 
     // Render Lucide icons after certificates are created
@@ -157,6 +207,79 @@ async function loadVolunteering() {
 }
 
 // ============================================================
+// LOAD EXPERIENCE FROM JSON
+// ============================================================
+
+async function loadExperience() {
+  const container = document.getElementById("experience-list");
+
+  if (!container) return;
+
+  try {
+    const experience = window.getPortfolioExperience
+      ? await window.getPortfolioExperience()
+      : await (await fetch("data/experience.json")).json();
+
+    if (!experience || experience.length === 0) {
+      container.innerHTML = `
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">No experience added yet.</p>
+      `;
+      return;
+    }
+
+    // Timeline line
+    container.innerHTML = `
+      <div
+        class="absolute left-[6px] top-[7px] bottom-[7px] w-px bg-zinc-300 dark:bg-zinc-700"
+      ></div>
+
+      ${experience
+        .map(
+          (item, index) => `
+            <div
+              class="relative ${
+                index !== experience.length - 1 ? "pb-10" : ""
+              } pl-12"
+            >
+
+              <!-- Timeline Dot -->
+              <div
+                class="absolute left-0 top-1 h-3.5 w-3.5 rounded-full border-4 border-zinc-50 bg-indigo-400 dark:border-zinc-950 shadow-[0_0_0_2px_rgba(129,140,248,0.12)]"
+              ></div>
+
+              <!-- Title -->
+              <h4 class="text-lg font-bold">
+                ${item.title}${item.company ? ` <span class="font-normal text-zinc-500 dark:text-zinc-400">|</span> <span class="font-semibold text-zinc-700 dark:text-zinc-300">${item.company}</span>` : ""}
+              </h4>
+
+              <!-- Time -->
+              <p class="mt-2 text-base font-medium text-indigo-500 dark:text-indigo-400">
+                ${item.time}
+              </p>
+
+              <!-- Description -->
+              <ul
+                class="mt-4 space-y-1 text-sm leading-6 text-zinc-600 dark:text-zinc-400"
+              >
+                ${(item.description || [])
+                  .map((desc) => `<li>• ${desc}</li>`)
+                  .join("")}
+              </ul>
+
+            </div>
+          `,
+        )
+        .join("")}
+    `;
+  } catch (error) {
+    console.error("Experience Error:", error);
+    container.innerHTML = `
+      <p class="text-sm text-zinc-500 dark:text-zinc-400">Experience could not be loaded.</p>
+    `;
+  }
+}
+
+// ============================================================
 // LOAD SKILLS FROM JSON (COMPACT MODERN UI)
 // ============================================================
 
@@ -210,6 +333,9 @@ async function loadSkills() {
   }
 }
 window.loadSkills = loadSkills;
+window.loadExperience = loadExperience;
+window.loadVolunteering = loadVolunteering;
+window.loadCertificates = loadCertificates;
 
 // ============================================================
 // LOAD PROJECTS FROM JSON
@@ -549,6 +675,9 @@ async function loadPortfolio() {
   // Load certificates after resume section is loaded
   await loadCertificates();
 
+  // Load experience after resume section is loaded
+  await loadExperience();
+
   // Load volunteering after resume section is loaded
   await loadVolunteering();
 
@@ -709,6 +838,25 @@ function initializePortfolio() {
     const name = window.location.hash.replace("#", "").split("/")[0];
     showSection(sectionMap[name] ? name : "home", false);
   });
+
+  // ==========================================================
+  // CONTACT FORM SUBMISSION
+  // ==========================================================
+
+  const contactForm = document.getElementById("contact-form");
+  if (contactForm) {
+    contactForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("contact-name")?.value.trim() || "";
+      const email = document.getElementById("contact-email")?.value.trim() || "";
+      const message = document.getElementById("contact-message")?.value.trim() || "";
+
+      const subject = encodeURIComponent(`Portfolio Message from ${name}`);
+      const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+      
+      window.location.href = `mailto:farhanchowdhury7389@gmail.com?subject=${subject}&body=${body}`;
+    });
+  }
 }
 
 // ============================================================
