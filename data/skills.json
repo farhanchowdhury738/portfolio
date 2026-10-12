@@ -11,18 +11,6 @@
     ]
   },
   {
-    "category": "Web Technologies",
-    "icon": "globe",
-    "skills": [
-      "React",
-      "Next.js",
-      "Tailwind CSS",
-      "Node.js",
-      "REST APIs",
-      "HTML5 & CSS3"
-    ]
-  },
-  {
     "category": "Data Science & AI",
     "icon": "brain",
     "skills": [
@@ -32,6 +20,18 @@
       "NumPy",
       "NLP",
       "R"
+    ]
+  },
+  {
+    "category": "Web Technologies",
+    "icon": "globe",
+    "skills": [
+      "React",
+      "Next.js",
+      "Tailwind CSS",
+      "Node.js",
+      "REST APIs",
+      "HTML5 & CSS3"
     ]
   },
   {

@@ -116,7 +116,7 @@
     if (cached) {
       try {
         projectsState = JSON.parse(cached);
-      } catch (e) {}
+      } catch (e) { }
     }
     return projectsState;
   };
@@ -136,7 +136,7 @@
     if (cached) {
       try {
         certsState = JSON.parse(cached);
-      } catch (e) {}
+      } catch (e) { }
     }
     return certsState;
   };
@@ -156,7 +156,7 @@
     if (cached) {
       try {
         expState = JSON.parse(cached);
-      } catch (e) {}
+      } catch (e) { }
     }
     return expState;
   };
@@ -176,7 +176,7 @@
     if (cached) {
       try {
         volState = JSON.parse(cached);
-      } catch (e) {}
+      } catch (e) { }
     }
     return volState;
   };
@@ -197,7 +197,7 @@
       try {
         skillsState = JSON.parse(cached);
         return skillsState;
-      } catch (e) {}
+      } catch (e) { }
     }
     try {
       const res = await fetch("data/skills.json");
@@ -246,7 +246,7 @@
       try {
         profileState = JSON.parse(cached);
         return profileState;
-      } catch (e) {}
+      } catch (e) { }
     }
     try {
       const res = await fetch("data/profile.json");
@@ -284,7 +284,7 @@
       try {
         aboutState = JSON.parse(cached);
         return aboutState;
-      } catch (e) {}
+      } catch (e) { }
     }
     try {
       const res = await fetch("data/about.json");
@@ -315,7 +315,7 @@
     if (profileState && Object.keys(profileState).length > 0) return profileState;
     const cached = localStorage.getItem(KEY_PROFILE);
     if (cached) {
-      try { return JSON.parse(cached); } catch (e) {}
+      try { return JSON.parse(cached); } catch (e) { }
     }
     return profileState;
   }
@@ -324,7 +324,7 @@
     if (aboutState && Object.keys(aboutState).length > 0) return aboutState;
     const cached = localStorage.getItem(KEY_ABOUT);
     if (cached) {
-      try { return JSON.parse(cached); } catch (e) {}
+      try { return JSON.parse(cached); } catch (e) { }
     }
     return aboutState;
   }
@@ -479,21 +479,46 @@
         return `
         <div class="flex flex-col justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
           <div class="flex items-start gap-4">
+            <!-- Rank Indicator & Reorder Arrows -->
+            <div class="flex items-center gap-1.5">
+              <span class="flex h-7 min-w-[28px] items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400" title="Current Rank: #${idx + 1}">
+                #${idx + 1}
+              </span>
+              <div class="flex flex-col gap-0.5">
+                <button
+                  type="button"
+                  data-admin-move-project-up="${idx}"
+                  ${idx === 0 ? "disabled" : ""}
+                  title="Move Up in Rank"
+                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
+                >
+                  <i class="h-3 w-3" data-lucide="chevron-up"></i>
+                </button>
+                <button
+                  type="button"
+                  data-admin-move-project-down="${idx}"
+                  ${idx === projectsState.length - 1 ? "disabled" : ""}
+                  title="Move Down in Rank"
+                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
+                >
+                  <i class="h-3 w-3" data-lucide="chevron-down"></i>
+                </button>
+              </div>
+            </div>
+
             <div class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-              ${
-                p.image
-                  ? `<img src="${p.image}" alt="${p.title}" class="h-full w-full object-cover" />`
-                  : `<span class="text-xs font-bold text-zinc-400">#${idx + 1}</span>`
-              }
+              ${p.image
+            ? `<img src="${p.image}" alt="${p.title}" class="h-full w-full object-cover" />`
+            : `<span class="text-xs font-bold text-zinc-400">#${idx + 1}</span>`
+          }
             </div>
             <div>
               <div class="flex flex-wrap items-center gap-2">
                 <h4 class="text-base font-bold">${p.title}</h4>
-                ${
-                  p.featured
-                    ? `<span class="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">Featured</span>`
-                    : ""
-                }
+                ${p.featured
+            ? `<span class="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">Featured</span>`
+            : ""
+          }
                 <span class="rounded-full border border-zinc-200 px-2 py-0.5 text-xs text-zinc-500 dark:border-zinc-800">${p.category || "General"}</span>
               </div>
               <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
@@ -575,11 +600,10 @@
 
             <!-- Logo -->
             <div class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-              ${
-                c.logo
-                  ? `<img src="${c.logo}" alt="${c.organization}" class="h-8 w-8 object-contain" />`
-                  : `<i class="h-5 w-5 text-indigo-500" data-lucide="award"></i>`
-              }
+              ${c.logo
+            ? `<img src="${c.logo}" alt="${c.organization}" class="h-8 w-8 object-contain" />`
+            : `<i class="h-5 w-5 text-indigo-500" data-lucide="award"></i>`
+          }
             </div>
 
             <!-- Details -->
@@ -831,11 +855,11 @@
               </div>
               <div class="mt-2 flex flex-wrap gap-1.5">
                 ${(group.skills || [])
-                  .map(
-                    (s) =>
-                      `<span class="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">${s}</span>`,
-                  )
-                  .join("")}
+            .map(
+              (s) =>
+                `<span class="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">${s}</span>`,
+            )
+            .join("")}
               </div>
             </div>
           </div>
@@ -913,6 +937,8 @@
   function openProjectFormModal(project = null, editIndex = -1) {
     const isEdit = editIndex >= 0;
     const title = isEdit ? `Edit Project: ${project.title}` : "Add New Project";
+    const maxRank = isEdit ? projectsState.length : projectsState.length + 1;
+    const currentRank = isEdit ? editIndex + 1 : 1;
 
     const p = project || {
       title: "",
@@ -929,7 +955,7 @@
 
     const formHtml = `
       <form class="space-y-4">
-        <div class="grid gap-4 sm:grid-cols-2">
+        <div class="grid gap-4 sm:grid-cols-3">
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Project Title *</label>
             <input name="title" required value="${p.title || ""}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
@@ -938,6 +964,11 @@
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Category *</label>
             <input name="category" required value="${p.category || "Web Application"}" placeholder="e.g. Web Application, Data Science, Robotics" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Display Rank (1 = Top)</label>
+            <input name="rank" type="number" min="1" max="${maxRank}" value="${currentRank}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 font-semibold" />
           </div>
         </div>
 
@@ -1035,10 +1066,14 @@
         featured: fd.get("featured") === "on",
       };
 
+      const targetRank = Math.max(1, Math.min(parseInt(fd.get("rank"), 10) || 1, maxRank));
+      const targetIndex = targetRank - 1;
+
       if (isEdit) {
-        projectsState[editIndex] = newProj;
+        projectsState.splice(editIndex, 1);
+        projectsState.splice(targetIndex, 0, newProj);
       } else {
-        projectsState.unshift(newProj);
+        projectsState.splice(targetIndex, 0, newProj);
       }
 
       await saveToServer("save-projects", "projects.json", projectsState, KEY_PROJECTS);
@@ -1046,6 +1081,7 @@
 
       // Refresh live portfolio views
       if (window.loadProjects) await window.loadProjects();
+      showToast(`Saved "${newProj.title}" at Rank #${targetRank}`);
       return true;
     });
   }
@@ -1682,6 +1718,36 @@
           await saveToServer("save-projects", "projects.json", projectsState, KEY_PROJECTS);
           renderAdminProjects();
           if (window.loadProjects) await window.loadProjects();
+        }
+        return;
+      }
+
+      // Reorder / Move Project Up
+      const moveProjectUpBtn = e.target.closest("[data-admin-move-project-up]");
+      if (moveProjectUpBtn) {
+        const idx = Number(moveProjectUpBtn.dataset.adminMoveProjectUp);
+        if (idx > 0) {
+          const item = projectsState.splice(idx, 1)[0];
+          projectsState.splice(idx - 1, 0, item);
+          await saveToServer("save-projects", "projects.json", projectsState, KEY_PROJECTS);
+          renderAdminProjects();
+          if (window.loadProjects) await window.loadProjects();
+          showToast(`Moved "${item.title}" up to Rank #${idx}`);
+        }
+        return;
+      }
+
+      // Reorder / Move Project Down
+      const moveProjectDownBtn = e.target.closest("[data-admin-move-project-down]");
+      if (moveProjectDownBtn) {
+        const idx = Number(moveProjectDownBtn.dataset.adminMoveProjectDown);
+        if (idx < projectsState.length - 1) {
+          const item = projectsState.splice(idx, 1)[0];
+          projectsState.splice(idx + 1, 0, item);
+          await saveToServer("save-projects", "projects.json", projectsState, KEY_PROJECTS);
+          renderAdminProjects();
+          if (window.loadProjects) await window.loadProjects();
+          showToast(`Moved "${item.title}" down to Rank #${idx + 2}`);
         }
         return;
       }
