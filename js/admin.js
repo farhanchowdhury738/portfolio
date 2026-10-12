@@ -84,13 +84,17 @@
       if (response.ok) {
         showToast(`Saved to data/${filename}!`);
         return true;
+      } else {
+        const errText = await response.text();
+        console.error(`Failed to save to server (/api/${endpoint}):`, response.status, errText);
+        showToast(`Server error ${response.status}: not saved to disk`);
+        return false;
       }
     } catch (error) {
-      console.warn("Server save API unreachable, saved to browser cache:", error);
+      console.warn("Server save API unreachable (check if node server.js is running):", error);
+      showToast(`Saved in browser only (server offline)`);
+      return false;
     }
-
-    showToast(`Saved in browser cache.`);
-    return false;
   }
 
   // ==========================================================
@@ -98,90 +102,102 @@
   // ==========================================================
 
   window.getPortfolioProjects = async function () {
+    try {
+      const res = await fetch("data/projects.json", { cache: "no-store" });
+      if (res.ok) {
+        projectsState = await res.json();
+        localStorage.setItem(KEY_PROJECTS, JSON.stringify(projectsState));
+        return projectsState;
+      }
+    } catch (e) {
+      console.warn("Could not fetch fresh projects.json, checking cache...", e);
+    }
     const cached = localStorage.getItem(KEY_PROJECTS);
     if (cached) {
       try {
         projectsState = JSON.parse(cached);
-        return projectsState;
-      } catch (e) {
-        console.error("Cache parse error", e);
-      }
-    }
-    try {
-      const res = await fetch("data/projects.json");
-      projectsState = await res.json();
-    } catch (e) {
-      console.error("Error fetching projects.json", e);
+      } catch (e) {}
     }
     return projectsState;
   };
 
   window.getPortfolioCertificates = async function () {
+    try {
+      const res = await fetch("data/certificates.json", { cache: "no-store" });
+      if (res.ok) {
+        certsState = await res.json();
+        localStorage.setItem(KEY_CERTS, JSON.stringify(certsState));
+        return certsState;
+      }
+    } catch (e) {
+      console.warn("Could not fetch fresh certificates.json, checking cache...", e);
+    }
     const cached = localStorage.getItem(KEY_CERTS);
     if (cached) {
       try {
         certsState = JSON.parse(cached);
-        return certsState;
-      } catch (e) {
-        console.error("Cache parse error", e);
-      }
-    }
-    try {
-      const res = await fetch("data/certificates.json");
-      certsState = await res.json();
-    } catch (e) {
-      console.error("Error fetching certificates.json", e);
+      } catch (e) {}
     }
     return certsState;
   };
 
   window.getPortfolioExperience = async function () {
+    try {
+      const res = await fetch("data/experience.json", { cache: "no-store" });
+      if (res.ok) {
+        expState = await res.json();
+        localStorage.setItem(KEY_EXP, JSON.stringify(expState));
+        return expState;
+      }
+    } catch (e) {
+      console.warn("Could not fetch fresh experience.json, checking cache...", e);
+    }
     const cached = localStorage.getItem(KEY_EXP);
     if (cached) {
       try {
         expState = JSON.parse(cached);
-        return expState;
-      } catch (e) {
-        console.error("Experience cache parse error", e);
-      }
-    }
-    try {
-      const res = await fetch("data/experience.json");
-      expState = await res.json();
-    } catch (e) {
-      console.error("Error fetching experience.json", e);
+      } catch (e) {}
     }
     return expState;
   };
 
   window.getPortfolioVolunteering = async function () {
+    try {
+      const res = await fetch("data/volunteering.json", { cache: "no-store" });
+      if (res.ok) {
+        volState = await res.json();
+        localStorage.setItem(KEY_VOL, JSON.stringify(volState));
+        return volState;
+      }
+    } catch (e) {
+      console.warn("Could not fetch fresh volunteering.json, checking cache...", e);
+    }
     const cached = localStorage.getItem(KEY_VOL);
     if (cached) {
       try {
         volState = JSON.parse(cached);
-        return volState;
-      } catch (e) {
-        console.error("Cache parse error", e);
-      }
-    }
-    try {
-      const res = await fetch("data/volunteering.json");
-      volState = await res.json();
-    } catch (e) {
-      console.error("Error fetching volunteering.json", e);
+      } catch (e) {}
     }
     return volState;
   };
 
   window.getPortfolioSkills = async function () {
+    try {
+      const res = await fetch("data/skills.json", { cache: "no-store" });
+      if (res.ok) {
+        skillsState = await res.json();
+        localStorage.setItem(KEY_SKILLS, JSON.stringify(skillsState));
+        return skillsState;
+      }
+    } catch (e) {
+      console.warn("Could not fetch fresh skills.json, checking cache...", e);
+    }
     const cached = localStorage.getItem(KEY_SKILLS);
     if (cached) {
       try {
         skillsState = JSON.parse(cached);
         return skillsState;
-      } catch (e) {
-        console.error("Skills cache parse error", e);
-      }
+      } catch (e) {}
     }
     try {
       const res = await fetch("data/skills.json");
@@ -215,14 +231,22 @@
   };
 
   window.getPortfolioProfile = async function () {
+    try {
+      const res = await fetch("data/profile.json", { cache: "no-store" });
+      if (res.ok) {
+        profileState = await res.json();
+        localStorage.setItem(KEY_PROFILE, JSON.stringify(profileState));
+        return profileState;
+      }
+    } catch (e) {
+      console.warn("Could not fetch fresh profile.json, checking cache...", e);
+    }
     const cached = localStorage.getItem(KEY_PROFILE);
     if (cached) {
       try {
         profileState = JSON.parse(cached);
         return profileState;
-      } catch (e) {
-        console.error("Profile parse error", e);
-      }
+      } catch (e) {}
     }
     try {
       const res = await fetch("data/profile.json");
@@ -245,14 +269,22 @@
   };
 
   window.getPortfolioAbout = async function () {
+    try {
+      const res = await fetch("data/about.json", { cache: "no-store" });
+      if (res.ok) {
+        aboutState = await res.json();
+        localStorage.setItem(KEY_ABOUT, JSON.stringify(aboutState));
+        return aboutState;
+      }
+    } catch (e) {
+      console.warn("Could not fetch fresh about.json, checking cache...", e);
+    }
     const cached = localStorage.getItem(KEY_ABOUT);
     if (cached) {
       try {
         aboutState = JSON.parse(cached);
         return aboutState;
-      } catch (e) {
-        console.error("About parse error", e);
-      }
+      } catch (e) {}
     }
     try {
       const res = await fetch("data/about.json");
@@ -1858,17 +1890,104 @@
         return;
       }
 
-      // Copy JSON
-      const copyJsonBtn = e.target.closest("[data-copy-json]");
-      if (copyJsonBtn) {
-        const type = copyJsonBtn.dataset.copyJson;
-        if (type === "projects") copyToClipboard(JSON.stringify(projectsState, null, 2), "Projects JSON");
-        else if (type === "certificates") copyToClipboard(JSON.stringify(certsState, null, 2), "Certificates JSON");
-        else if (type === "volunteering") copyToClipboard(JSON.stringify(volState, null, 2), "Volunteering JSON");
-        else if (type === "skills") copyToClipboard(JSON.stringify(skillsState, null, 2), "Skills JSON");
-        else if (type === "profile") copyToClipboard(JSON.stringify(profileState, null, 2), "Profile JSON");
-        else if (type === "about") copyToClipboard(JSON.stringify(aboutState, null, 2), "About JSON");
-        else if (type === "experience") copyToClipboard(JSON.stringify(expState, null, 2), "Experience JSON");
+      // View JSON — open modal with syntax-highlighted file content
+      const viewJsonBtn = e.target.closest("[data-view-json]");
+      if (viewJsonBtn) {
+        const type = viewJsonBtn.dataset.viewJson;
+        const dataMap = {
+          projects: { data: projectsState, file: "projects.json", icon: "folder-git-2" },
+          certificates: { data: certsState, file: "certificates.json", icon: "award" },
+          experience: { data: expState, file: "experience.json", icon: "briefcase" },
+          volunteering: { data: volState, file: "volunteering.json", icon: "heart-handshake" },
+          skills: { data: skillsState, file: "skills.json", icon: "code-2" },
+          profile: { data: profileState, file: "profile.json", icon: "user" },
+          about: { data: aboutState, file: "about.json", icon: "file-text" },
+        };
+        const entry = dataMap[type];
+        if (!entry) return;
+
+        const jsonStr = JSON.stringify(entry.data, null, 2);
+        const itemCount = Array.isArray(entry.data) ? entry.data.length : Object.keys(entry.data).length;
+        const sizeKB = (new Blob([jsonStr]).size / 1024).toFixed(1);
+
+        // Syntax highlight JSON
+        function highlightJSON(json) {
+          const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          return esc(json).replace(
+            /("(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+            (match) => {
+              let cls = "text-amber-600 dark:text-amber-400";       // number
+              if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                  cls = "text-indigo-600 dark:text-indigo-400 font-semibold"; // key
+                  match = match.replace(/:$/, "") + ":";
+                } else {
+                  cls = "text-emerald-600 dark:text-emerald-400";   // string
+                }
+              } else if (/true|false/.test(match)) {
+                cls = "text-violet-600 dark:text-violet-400";       // boolean
+              } else if (/null/.test(match)) {
+                cls = "text-rose-500 dark:text-rose-400 italic";    // null
+              }
+              return `<span class="${cls}">${match}</span>`;
+            }
+          );
+        }
+
+        const highlighted = highlightJSON(jsonStr);
+
+        const viewHtml = `
+          <div class="space-y-4">
+            <!-- File info bar -->
+            <div class="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50/80 px-4 py-2.5 dark:border-zinc-700 dark:bg-zinc-800/60">
+              <div class="flex items-center gap-2.5">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+                  <i class="h-4 w-4" data-lucide="${entry.icon}"></i>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">data/${entry.file}</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">${itemCount} ${Array.isArray(entry.data) ? "item" : "field"}${itemCount !== 1 ? "s" : ""} · ${sizeKB} KB</p>
+                </div>
+              </div>
+              <button type="button" id="admin-view-json-copy-btn" class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-indigo-500 dark:hover:text-indigo-400">
+                <i class="h-3.5 w-3.5" data-lucide="copy"></i> Copy
+              </button>
+            </div>
+
+            <!-- JSON content -->
+            <pre class="max-h-[60vh] overflow-auto rounded-2xl border border-zinc-200 bg-white p-5 text-[13px] leading-6 dark:border-zinc-700 dark:bg-zinc-950" style="tab-size:2"><code>${highlighted}</code></pre>
+          </div>
+        `;
+
+        const modal = document.getElementById("admin-modal");
+        const titleEl = document.getElementById("admin-modal-title");
+        const bodyEl = document.getElementById("admin-modal-body");
+        const closeBtn = document.getElementById("admin-modal-close-btn");
+
+        if (!modal || !bodyEl) return;
+
+        titleEl.textContent = entry.file;
+        bodyEl.innerHTML = viewHtml;
+        modal.classList.remove("hidden");
+        document.body.classList.add("overflow-hidden");
+
+        // Copy button inside modal
+        document.getElementById("admin-view-json-copy-btn")?.addEventListener("click", () => {
+          copyToClipboard(jsonStr, entry.file);
+        });
+
+        closeBtn.onclick = () => {
+          modal.classList.add("hidden");
+          document.body.classList.remove("overflow-hidden");
+        };
+        modal.onclick = (ev) => {
+          if (ev.target === modal) {
+            modal.classList.add("hidden");
+            document.body.classList.remove("overflow-hidden");
+          }
+        };
+
+        if (window.lucide) lucide.createIcons();
         return;
       }
     });

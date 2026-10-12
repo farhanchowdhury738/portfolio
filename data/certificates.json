@@ -7,20 +7,20 @@
     "credential": "https://drive.google.com/file/d/1y_m2HcnLGyjW_v5-q7tZoGZsrxWqEWdd/view?usp=sharing"
   },
   {
-    "title": "MATLAB Onramp",
-    "organization": "MathWorks",
-    "date": "Dec 2025",
-    "logo": "images/matlab.jpg",
-    "credential": "https://matlabacademy.mathworks.com/progress/share/certificate.html?id=65147af2-9d43-4c48-90a5-5da45d4689ff&",
-    "skills": "MATLAB"
-  },
-  {
     "title": "Problem Solving Certificate",
     "organization": "HackerRank",
     "date": "May 2025",
     "logo": "images/hackerrank.png",
     "credential": "https://www.hackerrank.com/certificates/b1faaa632bcb",
     "skills": "C, C++, C#, Java"
+  },
+  {
+    "title": "MATLAB Onramp",
+    "organization": "MathWorks",
+    "date": "Dec 2025",
+    "logo": "images/matlab.jpg",
+    "credential": "https://matlabacademy.mathworks.com/progress/share/certificate.html?id=65147af2-9d43-4c48-90a5-5da45d4689ff&",
+    "skills": "MATLAB"
   },
   {
     "title": "Java Certificate",
