@@ -108,6 +108,30 @@ function slugify(name) {
     .replace(/^-+|-+$/g, "") || "post";
 }
 
+function handleUploadProfilePic(req, res) {
+  let body = "";
+  req.on("data", (chunk) => { body += chunk; });
+  req.on("end", () => {
+    try {
+      const parsed = JSON.parse(body);
+      if (!parsed.data || !String(parsed.data).startsWith("data:image/")) {
+        sendJSON(res, 400, { success: false, error: "Missing or invalid image data" });
+        return;
+      }
+      const ext = getImageExtension(parsed.data, parsed.filename || "profile.png");
+      const dir = path.join(__dirname, "images");
+      fs.mkdirSync(dir, { recursive: true });
+      const base64Data = String(parsed.data).replace(/^data:image\/[^;]+;base64,/, "");
+      fs.writeFile(path.join(dir, `profile-picture.${ext}`), Buffer.from(base64Data, "base64"), (err) => {
+        if (err) return sendJSON(res, 500, { success: false, error: err.message });
+        sendJSON(res, 200, { success: true, path: `images/profile-picture.${ext}` });
+      });
+    } catch (err) {
+      sendJSON(res, 400, { success: false, error: "Invalid upload request" });
+    }
+  });
+}
+
 function handleUploadBlogImages(req, res) {
   let body = "";
   req.on("data", (chunk) => {
@@ -274,6 +298,10 @@ const server = http.createServer((req, res) => {
     }
     if (req.url === "/api/upload-cv") {
       handleSaveCV(req, res);
+      return;
+    }
+    if (req.url === "/api/upload-profile-pic") {
+      handleUploadProfilePic(req, res);
       return;
     }
     if (req.url.startsWith("/api/upload-blog-images")) {

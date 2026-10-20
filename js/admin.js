@@ -435,6 +435,22 @@
       }
     }
 
+    // Render any additional About paragraphs while keeping the first two fixed.
+    const aboutContainer = document.getElementById("profile-about-p1")?.parentElement;
+    const extraParagraphs = Array.isArray(about.paragraphs) ? about.paragraphs.slice(2) : (about.p3 ? [about.p3] : []);
+    if (aboutContainer) {
+      aboutContainer.querySelectorAll("[data-extra-about-paragraph]").forEach((el) => el.remove());
+      const anchor = document.getElementById("profile-about-p3");
+      extraParagraphs.forEach((paragraph) => {
+        if (!paragraph || !paragraph.trim()) return;
+        const p = document.createElement("p");
+        p.dataset.extraAboutParagraph = "true";
+        p.className = "mt-4 text-base leading-8 text-justify text-zinc-600 dark:text-zinc-400";
+        p.textContent = paragraph;
+        (anchor || document.getElementById("profile-about-p2"))?.after(p);
+      });
+    }
+
     const studyingEl = document.getElementById("profile-studying");
     if (studyingEl && about.studying) studyingEl.textContent = about.studying;
 
@@ -734,29 +750,53 @@
     setVal("admin-prof-hero-intro", prof.heroIntro);
   }
 
+  function renderAboutDynamicFields(about) {
+    const paragraphHost = document.getElementById("admin-about-paragraphs-container");
+    if (paragraphHost) {
+      const paragraphs = Array.isArray(about.paragraphs) && about.paragraphs.length
+        ? about.paragraphs
+        : [about.p1 || "", about.p2 || "", ...(about.p3 ? [about.p3] : [])];
+      paragraphHost.innerHTML = paragraphs.map((value, index) => `
+        <div class="about-paragraph-item">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Paragraph ${index + 1}</label>
+          <textarea data-about-paragraph="${index}" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" rows="3">${String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</textarea>
+          ${index > 1 ? `<button type="button" data-remove-paragraph="${index}" class="mt-2 text-xs font-semibold text-rose-500">Remove paragraph</button>` : ""}
+        </div>`).join("");
+    }
+    const cardsHost = document.getElementById("admin-quick-details-container");
+    if (cardsHost) {
+      const cards = Array.isArray(about.quickDetails) && about.quickDetails.length
+        ? about.quickDetails
+        : [
+          { label: "Studying (Card)", value: about.studying || "", key: "studying" },
+          { label: "Based In (Card)", value: about.based || "", key: "based" },
+          { label: "Focus Areas (Card)", value: about.focus || "", key: "focus" }
+        ];
+      cardsHost.innerHTML = cards.map((card, index) => `
+        <div class="grid gap-3 sm:grid-cols-[1fr_2fr_auto] items-end rounded-xl border border-zinc-200 p-3 dark:border-zinc-700">
+          <div><label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Card ${index + 1} Title</label>
+          <input data-quick-detail-label="${index}" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" value="${String(card.label || "").replace(/&/g,"&amp;").replace(/"/g,"&quot;")}" /></div>
+          <div><label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Card Value</label>
+          <input data-quick-detail-value="${index}" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" value="${String(card.value || "").replace(/&/g,"&amp;").replace(/"/g,"&quot;")}" /></div>
+          ${index > 2 ? `<button type="button" data-remove-quick-detail="${index}" class="mb-2 text-xs font-semibold text-rose-500">Remove</button>` : `<span></span>`}
+        </div>`).join("");
+    }
+  }
+
   function populateAboutForm() {
     const about = getCachedAbout();
     const setVal = (id, val) => {
       const el = document.getElementById(id);
       if (el) el.value = val || "";
     };
-
     setVal("admin-about-title", about.title || "About me");
-    setVal("admin-about-p1", about.p1);
-    setVal("admin-about-p2", about.p2);
-    setVal("admin-about-p3", about.p3);
     setVal("admin-about-studying", about.studying);
     setVal("admin-about-based", about.based);
     setVal("admin-about-focus", about.focus);
-    setVal(
-      "admin-about-interests",
-      Array.isArray(about.interests) ? about.interests.join(", ") : "",
-    );
+    setVal("admin-about-interests", Array.isArray(about.interests) ? about.interests.join(", ") : "");
+    renderAboutDynamicFields(about);
   }
 
-  // ==========================================================
-  // PROJECT FORM MODAL
-  // ==========================================================
 
   function openProjectFormModal(project = null, editIndex = -1) {
     const isEdit = editIndex >= 0;
@@ -1701,12 +1741,11 @@
     // Check current auth status
     updateAuthUI();
 
-    // Setup Tabs
+    // Top-level Admin tabs
     const tabButtons = document.querySelectorAll("[data-admin-tab]");
     tabButtons.forEach((btn) => {
       btn.onclick = () => {
         const targetTab = btn.dataset.adminTab;
-
         tabButtons.forEach((b) => {
           const isActive = b === btn;
           b.classList.toggle("border-indigo-500", isActive);
@@ -1714,13 +1753,50 @@
           b.classList.toggle("border-transparent", !isActive);
           b.classList.toggle("text-zinc-500", !isActive);
         });
-
         document.querySelectorAll(".admin-tab-pane").forEach((pane) => {
           pane.classList.toggle("hidden", pane.id !== `admin-tab-${targetTab}`);
         });
-
+        if (targetTab === "resume") activateResumeTab("certificates");
+        if (targetTab === "profile") activateProfileTab("sidebar");
         if (window.lucide) lucide.createIcons();
       };
+    });
+
+    // Resume sub-tabs keep Certificates, Experience, Volunteering and Skills under one parent.
+    function activateResumeTab(target) {
+      document.querySelectorAll("[data-admin-resume-tab]").forEach((btn) => {
+        const active = btn.dataset.adminResumeTab === target;
+        btn.classList.toggle("border-indigo-500", active);
+        btn.classList.toggle("text-indigo-500", active);
+        btn.classList.toggle("border-transparent", !active);
+        btn.classList.toggle("text-zinc-500", !active);
+      });
+      document.querySelectorAll(".admin-resume-pane").forEach((pane) => {
+        pane.classList.toggle("hidden", pane.id !== `admin-tab-${target}`);
+      });
+      if (window.lucide) lucide.createIcons();
+    }
+    document.querySelectorAll("[data-admin-resume-tab]").forEach((btn) => {
+      btn.addEventListener("click", () => activateResumeTab(btn.dataset.adminResumeTab));
+    });
+
+
+    // Profile sub-tabs: Sidebar and About.
+    function activateProfileTab(target) {
+      document.querySelectorAll("[data-admin-profile-tab]").forEach((btn) => {
+        const active = btn.dataset.adminProfileTab === target;
+        btn.classList.toggle("border-indigo-500", active);
+        btn.classList.toggle("text-indigo-500", active);
+        btn.classList.toggle("border-transparent", !active);
+        btn.classList.toggle("text-zinc-500", !active);
+      });
+      document.querySelectorAll(".admin-profile-pane").forEach((pane) => {
+        pane.classList.toggle("hidden", pane.id !== `admin-profile-pane-${target}`);
+      });
+      if (window.lucide) lucide.createIcons();
+    }
+    document.querySelectorAll("[data-admin-profile-tab]").forEach((btn) => {
+      btn.addEventListener("click", () => activateProfileTab(btn.dataset.adminProfileTab));
     });
 
     // Profile Form Submit (Direct to data/profile.json)
@@ -1744,6 +1820,44 @@
         await saveToServer("save-profile", "profile.json", profileState, KEY_PROFILE);
         window.applyProfileContent();
       };
+    }
+
+    // Profile picture upload handler
+    const profilePicInput = document.getElementById("admin-profile-pic-input");
+    const profilePicBtn = document.getElementById("admin-upload-profile-pic-btn");
+    const profilePicStatus = document.getElementById("admin-profile-pic-status");
+    if (profilePicBtn && profilePicInput) {
+      profilePicBtn.addEventListener("click", async () => {
+        const file = profilePicInput.files?.[0];
+        if (!file) { showToast("Please choose an image first."); return; }
+        if (!file.type.startsWith("image/")) { showToast("Please select a valid image."); return; }
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const response = await fetch("/api/upload-profile-pic", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ data: event.target.result, filename: file.name })
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.error || "Upload failed");
+            showToast("Profile picture replaced!");
+            if (profilePicStatus) {
+              profilePicStatus.textContent = "Profile picture replaced successfully.";
+              profilePicStatus.className = "mt-2 text-xs font-semibold text-emerald-600 block";
+            }
+            profilePicInput.value = "";
+          } catch (error) {
+            console.error(error);
+            showToast("Profile picture upload failed. Check server support.");
+            if (profilePicStatus) {
+              profilePicStatus.textContent = error.message;
+              profilePicStatus.className = "mt-2 text-xs font-semibold text-rose-500 block";
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     }
 
     // CV Upload & Replace Handler
@@ -1821,6 +1935,40 @@
       };
     }
 
+    document.getElementById("admin-add-paragraph-btn")?.addEventListener("click", () => {
+      const values = Array.from(document.querySelectorAll("[data-about-paragraph]")).map((el) => el.value);
+      values.push("");
+      renderAboutDynamicFields({ ...getCachedAbout(), paragraphs: values });
+      if (window.lucide) lucide.createIcons();
+    });
+    document.getElementById("admin-about-paragraphs-container")?.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-remove-paragraph]");
+      if (!button) return;
+      const index = Number(button.dataset.removeParagraph);
+      const values = Array.from(document.querySelectorAll("[data-about-paragraph]")).map((el) => el.value);
+      if (index > 1) values.splice(index, 1);
+      renderAboutDynamicFields({ ...getCachedAbout(), paragraphs: values });
+    });
+    document.getElementById("admin-add-quick-detail-btn")?.addEventListener("click", () => {
+      const cards = Array.from(document.querySelectorAll("[data-quick-detail-label]")).map((el, index) => ({
+        label: el.value,
+        value: document.querySelector(`[data-quick-detail-value="${index}"]`)?.value || ""
+      }));
+      cards.push({ label: "", value: "" });
+      renderAboutDynamicFields({ ...getCachedAbout(), quickDetails: cards });
+    });
+    document.getElementById("admin-quick-details-container")?.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-remove-quick-detail]");
+      if (!button) return;
+      const index = Number(button.dataset.removeQuickDetail);
+      const cards = Array.from(document.querySelectorAll("[data-quick-detail-label]")).map((el, i) => ({
+        label: el.value,
+        value: document.querySelector(`[data-quick-detail-value="${i}"]`)?.value || ""
+      }));
+      if (index > 2) cards.splice(index, 1);
+      renderAboutDynamicFields({ ...getCachedAbout(), quickDetails: cards });
+    });
+
     // About Form Submit (Direct to data/about.json)
     const aboutForm = document.getElementById("admin-about-form");
     if (aboutForm) {
@@ -1832,14 +1980,21 @@
           .map((i) => i.trim())
           .filter(Boolean);
 
+        const paragraphs = Array.from(document.querySelectorAll("[data-about-paragraph]")).map((el) => el.value.trim());
+        const quickDetails = Array.from(document.querySelectorAll("[data-quick-detail-label]")).map((el, index) => ({
+          label: el.value.trim(),
+          value: document.querySelector(`[data-quick-detail-value="${index}"]`)?.value.trim() || ""
+        })).filter((card) => card.label || card.value);
         const updatedAbout = {
           title: document.getElementById("admin-about-title")?.value.trim() || "About me",
-          p1: document.getElementById("admin-about-p1")?.value.trim(),
-          p2: document.getElementById("admin-about-p2")?.value.trim(),
-          p3: document.getElementById("admin-about-p3")?.value.trim() || "",
-          studying: document.getElementById("admin-about-studying")?.value.trim(),
-          based: document.getElementById("admin-about-based")?.value.trim(),
-          focus: document.getElementById("admin-about-focus")?.value.trim(),
+          p1: paragraphs[0] || "",
+          p2: paragraphs[1] || "",
+          p3: paragraphs[2] || "",
+          paragraphs,
+          studying: quickDetails[0]?.value || "",
+          based: quickDetails[1]?.value || "",
+          focus: quickDetails[2]?.value || "",
+          quickDetails,
           interests: interestsArr,
         };
 
