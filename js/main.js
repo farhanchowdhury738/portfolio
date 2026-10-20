@@ -796,8 +796,8 @@ function initializePortfolio() {
     // UPDATE URL HASH
     // ========================================================
 
-    if (updateHash && window.location.hash !== `#${activeName}`) {
-      history.pushState(null, "", `#${activeName}`);
+    if (updateHash && window.location.pathname !== `/${activeName}`) {
+      history.pushState(null, "", `/${activeName}`);
     }
 
     // ========================================================
@@ -830,13 +830,17 @@ function initializePortfolio() {
   // INITIAL SECTION
   // ==========================================================
 
-  const initialSection = window.location.hash.replace("#", "").split("/")[0];
+  const getPathSection = () => {
+    const parts = window.location.pathname.split("/").filter(Boolean);
+    return parts[0] || "home";
+  };
 
+  const initialSection = getPathSection();
   showSection(sectionMap[initialSection] ? initialSection : "home", false);
 
-  // Back / forward buttons and manual hash changes
-  window.addEventListener("hashchange", () => {
-    const name = window.location.hash.replace("#", "").split("/")[0];
+  // Back / forward navigation for clean path URLs.
+  window.addEventListener("popstate", () => {
+    const name = getPathSection();
     showSection(sectionMap[name] ? name : "home", false);
   });
 

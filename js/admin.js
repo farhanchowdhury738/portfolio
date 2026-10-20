@@ -2313,18 +2313,6 @@
     bindDownload("admin-export-about-btn", "about.json", () => aboutState);
     bindDownload("admin-export-posts-btn", "posts.json", () => postsState);
 
-    // Export All JSON
-    document.getElementById("admin-export-all-btn")?.addEventListener("click", () => {
-      downloadJSON("projects.json", projectsState);
-      setTimeout(() => downloadJSON("certificates.json", certsState), 200);
-      setTimeout(() => downloadJSON("experience.json", expState), 300);
-      setTimeout(() => downloadJSON("volunteering.json", volState), 400);
-      setTimeout(() => downloadJSON("skills.json", skillsState), 600);
-      setTimeout(() => downloadJSON("profile.json", profileState), 800);
-      setTimeout(() => downloadJSON("about.json", aboutState), 1000);
-      setTimeout(() => downloadJSON("posts.json", postsState), 1200);
-    });
-
     if (window.lucide) lucide.createIcons();
   };
 })();

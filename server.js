@@ -290,7 +290,12 @@ const server = http.createServer((req, res) => {
   let reqPath = decodeURI(req.url.split("?")[0].split("#")[0]);
   if (reqPath === "/") reqPath = "/index.html";
 
-  const filePath = path.join(__dirname, reqPath);
+  let filePath = path.join(__dirname, reqPath);
+  // Client-side routes (for example /projects and /blog/post-slug)
+  // should serve the portfolio shell when no physical file exists.
+  if (!path.extname(reqPath) && !reqPath.startsWith("/api/")) {
+    filePath = path.join(__dirname, "index.html");
+  }
 
   // Security: prevent path traversal outside project root
   if (!filePath.startsWith(__dirname)) {

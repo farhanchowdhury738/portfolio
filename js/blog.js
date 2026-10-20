@@ -178,7 +178,7 @@ function renderList(page) {
                 </span>
 
                 <a
-                  href="#blog/${esc(p.slug || "")}"
+                  href="/blog/${esc(p.slug || "")}"
                   data-blog-viewmore
                   class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
                 >
@@ -222,10 +222,10 @@ function renderList(page) {
   function renderDetail(post) {
     const imgs = Array.isArray(post.images) ? post.images.filter(Boolean) : (post.image ? [post.image] : []);
     const desc = post.description || (Array.isArray(post.text) ? post.text.join("\n\n") : post.text || "");
-    const url = `${location.origin}${location.pathname}#blog/${post.slug || ""}`;
+    const url = `${location.origin}/blog/${post.slug || ""}`;
     return `
       <div class="mb-6">
-        <a href="#blog" data-blog-back class="inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-600 transition hover:text-indigo-500 dark:text-zinc-400">
+        <a href="/blog" data-blog-back class="inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-600 transition hover:text-indigo-500 dark:text-zinc-400">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back to Blog
         </a>
       </div>
@@ -256,8 +256,8 @@ function renderList(page) {
   }
 
   function render() {
-    const hash = window.location.hash || "";
-    const m = hash.match(/^#blog\/(.+)$/);
+    const path = window.location.pathname || "/";
+    const m = path.match(/^\/blog\/(.+)\/?$/);
     if (m) {
       const slug = decodeURIComponent(m[1]);
       const post = allPosts.find((p) => p.slug === slug) || allPosts.find((p) => p.id && String(p.id) === slug);
@@ -266,17 +266,27 @@ function renderList(page) {
         window.lucide && window.lucide.createIcons && window.lucide.createIcons();
         root.querySelector("[data-blog-share]")?.addEventListener("click", async (e) => {
           const btn = e.currentTarget;
-          const url = `${location.origin}${location.pathname}#blog/${post.slug}`;
+          const url = `${location.origin}/blog/${post.slug}`;
           try {
-            if (navigator.share) {
-              await navigator.share({ title: post.title, url });
-            } else {
-              await navigator.clipboard.writeText(url);
+            await navigator.clipboard.writeText(url);
+            const old = btn.innerHTML;
+            btn.textContent = "Link Copied!";
+            setTimeout(() => (btn.innerHTML = old), 1800);
+          } catch (err) {
+            const fallback = document.createElement("textarea");
+            fallback.value = url;
+            fallback.style.position = "fixed";
+            fallback.style.opacity = "0";
+            document.body.appendChild(fallback);
+            fallback.select();
+            const copied = document.execCommand("copy");
+            fallback.remove();
+            if (copied) {
               const old = btn.innerHTML;
-              btn.innerHTML = "Link Copied";
-              setTimeout(() => (btn.innerHTML = old), 1500);
+              btn.textContent = "Link Copied!";
+              setTimeout(() => (btn.innerHTML = old), 1800);
             }
-          } catch (err) {}
+          }
         });
         root.querySelectorAll("[data-blog-detail-img]").forEach((btn) => {
           btn.addEventListener("click", () => {
@@ -321,8 +331,24 @@ function renderList(page) {
   }
 
   render();
-  window.addEventListener("hashchange", render);
+  window.addEventListener("popstate", render);
   document.addEventListener("click", (e) => {
+    const viewMore = e.target.closest("[data-blog-viewmore]");
+    if (viewMore) {
+      e.preventDefault();
+      history.pushState(null, "", viewMore.getAttribute("href"));
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    const back = e.target.closest("[data-blog-back]");
+    if (back) {
+      e.preventDefault();
+      history.pushState(null, "", "/blog");
+      currentPage = 1;
+      render();
+      return;
+    }
     if (e.target.closest('[data-section-link="blog"]')) {
       setTimeout(() => { currentPage = 1; render(); }, 0);
     }
