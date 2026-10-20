@@ -29,6 +29,36 @@
     "featured": true
   },
   {
+    "id": 2,
+    "title": "IEEE-AIUB Event Toolkit",
+    "category": "Web Application",
+    "technologies": [
+      "HTML",
+      "JavaScript",
+      "Tailwind CSS"
+    ],
+    "timeline": {
+      "start": "February 2026",
+      "end": "March 2026"
+    },
+    "details": [
+      "IEEE-AIUB Event Toolkit is a web-based event management utility designed to simplify participant management and attendance sheet generation.",
+      "The application provides a live preview and allows users to export attendance sheets in PDF and Word formats."
+    ],
+    "features": [
+      "Participant management",
+      "Date and time management",
+      "Live attendance sheet preview",
+      "PDF export",
+      "Word document export",
+      "Responsive interface"
+    ],
+    "image": "images/projects/ieee-aiub-event-toolkit.png",
+    "liveDemo": "https://ieee-aiub-event-toolkit.netlify.app/",
+    "github": "https://github.com/farhanchowdhury738/aiub-ieee-attendance-sheet-generator",
+    "featured": true
+  },
+  {
     "id": 13,
     "title": "AIUB Faculty Finder",
     "category": "Web Application",
@@ -66,36 +96,6 @@
     "image": "../images/projects/aiub-faculty-finder.png",
     "liveDemo": "https://aiub-faculty-solution.netlify.app/",
     "github": "https://github.com/farhanchowdhury738/aiubfacultysolution",
-    "featured": true
-  },
-  {
-    "id": 2,
-    "title": "IEEE-AIUB Event Toolkit",
-    "category": "Web Application",
-    "technologies": [
-      "HTML",
-      "JavaScript",
-      "Tailwind CSS"
-    ],
-    "timeline": {
-      "start": "February 2026",
-      "end": "March 2026"
-    },
-    "details": [
-      "IEEE-AIUB Event Toolkit is a web-based event management utility designed to simplify participant management and attendance sheet generation.",
-      "The application provides a live preview and allows users to export attendance sheets in PDF and Word formats."
-    ],
-    "features": [
-      "Participant management",
-      "Date and time management",
-      "Live attendance sheet preview",
-      "PDF export",
-      "Word document export",
-      "Responsive interface"
-    ],
-    "image": "images/projects/ieee-aiub-event-toolkit.png",
-    "liveDemo": "https://ieee-aiub-event-toolkit.netlify.app/",
-    "github": "https://github.com/farhanchowdhury738/aiub-ieee-attendance-sheet-generator",
     "featured": true
   },
   {

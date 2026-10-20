@@ -151,6 +151,14 @@
 
         <button
           type="button"
+          data-admin-tab="blog"
+          class="admin-tab-btn inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 font-semibold text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          <i class="h-4 w-4" data-lucide="newspaper"></i> Blog
+          <span id="admin-posts-count" class="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">0</span>
+        </button>
+        <button
+          type="button"
           data-admin-tab="export"
           class="admin-tab-btn inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 font-semibold text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
@@ -520,7 +528,28 @@
     </div>
 
     <!-- ========================================================= -->
-    <!-- TAB 7: EXPORT & BACKUP -->
+    <!-- TAB 7: BLOG -->
+    <!-- ========================================================= -->
+    <div id="admin-tab-blog" class="admin-tab-pane hidden">
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h3 class="text-xl font-bold tracking-tight">Blog Management</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">Create, edit, publish/unpublish, and delete blog posts. Updates write directly to <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">data/posts.json</code>.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" id="admin-add-post-btn" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">
+            <i class="h-4 w-4" data-lucide="plus"></i> Add Post
+          </button>
+          <button type="button" id="admin-download-posts-btn" class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+            <i class="h-4 w-4" data-lucide="download"></i> Download posts.json
+          </button>
+        </div>
+      </div>
+      <div id="admin-posts-list" class="space-y-4"></div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 8: EXPORT & BACKUP -->
     <!-- ========================================================= -->
     <div id="admin-tab-export" class="admin-tab-pane hidden">
       <div class="mb-6">
@@ -650,6 +679,27 @@
               View JSON
             </button>
             <button type="button" id="admin-export-prof-btn" class="flex-1 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-500">
+              Download File
+            </button>
+          </div>
+        </div>
+
+        <!-- Posts JSON card -->
+        <div class="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+              <i class="h-5 w-5" data-lucide="newspaper"></i>
+            </div>
+            <div>
+              <h4 class="text-base font-bold">posts.json</h4>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">data/posts.json</p>
+            </div>
+          </div>
+          <div class="mt-5 flex gap-2">
+            <button type="button" data-view-json="posts" class="flex-1 rounded-xl border border-zinc-200 px-3 py-2 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300">
+              View JSON
+            </button>
+            <button type="button" id="admin-export-posts-btn" class="flex-1 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-500">
               Download File
             </button>
           </div>

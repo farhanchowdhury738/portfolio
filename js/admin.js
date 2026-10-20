@@ -16,6 +16,7 @@
   const KEY_SKILLS = "portfolio_skills";
   const KEY_PROFILE = "portfolio_profile";
   const KEY_ABOUT = "portfolio_about";
+  const KEY_POSTS = "portfolio_posts";
 
   // In-memory state
   let projectsState = [];
@@ -25,6 +26,7 @@
   let skillsState = [];
   let profileState = {};
   let aboutState = {};
+  let postsState = [];
 
   // Utility: Show Toast Notification
   function showToast(message) {
@@ -310,6 +312,37 @@
     return aboutState;
   };
 
+  window.getPortfolioPosts = async function () {
+    try {
+      const res = await fetch("data/posts.json", { cache: "no-store" });
+      if (res.ok) {
+        postsState = await res.json();
+        if (!Array.isArray(postsState)) postsState = [];
+        localStorage.setItem(KEY_POSTS, JSON.stringify(postsState));
+        return postsState;
+      }
+    } catch (e) {
+      console.warn("Could not fetch fresh posts.json, checking cache...", e);
+    }
+    const cached = localStorage.getItem(KEY_POSTS);
+    if (cached) {
+      try {
+        postsState = JSON.parse(cached);
+        if (!Array.isArray(postsState)) postsState = [];
+        return postsState;
+      } catch (e) { }
+    }
+    try {
+      const res = await fetch("data/posts.json");
+      postsState = await res.json();
+      if (!Array.isArray(postsState)) postsState = [];
+    } catch (e) {
+      console.error("Error fetching posts.json", e);
+      postsState = [];
+    }
+    return postsState;
+  };
+
   // Synchronous getter for already loaded state or cache
   function getCachedProfile() {
     if (profileState && Object.keys(profileState).length > 0) return profileState;
@@ -327,6 +360,18 @@
       try { return JSON.parse(cached); } catch (e) { }
     }
     return aboutState;
+  }
+
+  function getCachedPosts() {
+    if (postsState && Array.isArray(postsState)) return postsState;
+    const cached = localStorage.getItem(KEY_POSTS);
+    if (cached) {
+      try { 
+        const parsed = JSON.parse(cached);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) { }
+    }
+    return [];
   }
 
   window.applyProfileContent = async function () {
@@ -1428,6 +1473,318 @@
   }
 
   // ==========================================================
+  // BLOG POST FORM MODAL
+  // ==========================================================
+
+  function openPostFormModal(post = null, editIndex = -1) {
+    const isEdit = editIndex >= 0;
+    const title = isEdit ? `Edit Post: ${post.title}` : "Add New Blog Post";
+    const maxRank = isEdit ? postsState.length : postsState.length + 1;
+    const currentRank = isEdit ? editIndex + 1 : 1;
+
+    const p = post || {
+      id: Date.now(),
+      slug: "",
+      title: "",
+      date: new Date().toISOString().split("T")[0],
+      category: "General",
+      description: "",
+      images: [],
+      visibility: "public",
+      featured: false,
+      projectUrl: "",
+    };
+
+    const formHtml = `
+      <form class="space-y-4" id="admin-post-form">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Post Title *</label>
+          <input name="title" required value="${esc(p.title || "")}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Category</label>
+            <input name="category" value="${esc(p.category || "General")}" placeholder="e.g. Web Development, Data Science" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Publication Date</label>
+            <input name="date" type="date" value="${esc(p.date || "")}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Display Rank (1 = Top)</label>
+            <input name="rank" type="number" min="1" max="${maxRank}" value="${currentRank}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 font-semibold" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Description (Full content for detail page)</label>
+          <textarea name="description" rows="5" placeholder="Write your full blog post content here..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${esc(p.description || "")}</textarea>
+        </div>
+
+        <div class="border-t border-zinc-200 pt-4 dark:border-zinc-800">
+          <div class="flex items-center justify-between mb-3">
+            <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Images</label>
+            <input type="file" id="admin-post-images" name="images" accept="image/*" multiple class="block w-full text-xs text-zinc-500 file:mr-4 file:rounded-xl file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-indigo-600 hover:file:bg-indigo-100 dark:file:bg-indigo-950 dark:file:text-indigo-300" />
+          </div>
+          <div id="admin-post-image-previews" class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 max-h-60 overflow-auto"></div>
+          <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Select multiple images. They will be saved as sequential files (1.jpg, 2.jpg, etc.) in images/blog/[slug]/</p>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Visibility</label>
+            <select name="visibility" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">
+              <option value="public" ${p.visibility === "public" ? "selected" : ""}>Public</option>
+              <option value="private" ${p.visibility === "private" ? "selected" : ""}>Private</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Featured</label>
+            <select name="featured" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">
+              <option value="false" ${p.featured === false ? "selected" : ""}>No</option>
+              <option value="true" ${p.featured === true ? "selected" : ""}>Yes</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Project URL (Optional)</label>
+            <input name="projectUrl" type="url" value="${esc(p.projectUrl || "")}" placeholder="https://..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          </div>
+        </div>
+
+        <div id="admin-post-form-status" class="hidden text-xs font-medium"></div>
+
+        <div class="flex items-center justify-end gap-3 pt-4">
+          <button type="button" data-admin-cancel class="rounded-xl border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800">Cancel</button>
+          <button type="submit" class="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">${isEdit ? "Update Post" : "Add Post"}</button>
+        </div>
+      </form>
+    `;
+
+    openAdminModal(title, formHtml, async (form) => {
+      const fd = new FormData(form);
+      const titleVal = fd.get("title").trim();
+      if (!titleVal) return false;
+
+      const newImages = [];
+      const fileInput = form.querySelector("#admin-post-images");
+      if (fileInput && fileInput.files.length > 0) {
+        for (const file of fileInput.files) {
+          if (!file.type.startsWith("image/")) continue;
+          const reader = new FileReader();
+          await new Promise((resolve) => {
+            reader.onload = () => resolve();
+            reader.readAsDataURL(file);
+          });
+          const base64Data = reader.result.replace(/^data:.*?;base64,/, "");
+          const ext = getImageExtension(reader.result, file.name);
+          newImages.push({ data: base64Data, name: `${newImages.length + 1}.${ext}`, originalName: file.name });
+        }
+      }
+
+      const slug = slugify(titleVal);
+      const newPost = {
+        id: isEdit ? (p.id || editIndex + 1) : Date.now(),
+        slug: slug,
+        title: titleVal,
+        date: fd.get("date") || new Date().toISOString().split("T")[0],
+        category: fd.get("category").trim() || "General",
+        description: fd.get("description").trim(),
+        images: [], // will be populated after upload
+        visibility: fd.get("visibility") || "public",
+        featured: fd.get("featured") === "true",
+        projectUrl: fd.get("projectUrl").trim(),
+      };
+
+      const targetRank = Math.max(1, Math.min(parseInt(fd.get("rank"), 10) || 1, maxRank));
+      const targetIndex = targetRank - 1;
+
+      // Upload new images if any
+      let uploadedPaths = [...(p.images || [])];
+      if (newImages.length > 0) {
+        try {
+          const statusEl = document.getElementById("admin-post-form-status");
+          if (statusEl) {
+            statusEl.textContent = "Uploading images...";
+            statusEl.className = "text-xs font-medium text-indigo-600 dark:text-indigo-400 block";
+          }
+          const res = await fetch("/api/upload-blog-images", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ slug: newPost.slug, title: newPost.title, images: newImages }),
+          });
+          const json = await res.json();
+          if (res.ok && json.success && json.paths) {
+            uploadedPaths = json.paths;
+            if (statusEl) {
+              statusEl.textContent = `Uploaded ${json.paths.length} image(s)`;
+              statusEl.className = "text-xs font-medium text-emerald-600 dark:text-emerald-400 block";
+            }
+          } else {
+            throw new Error(json.error || "Image upload failed");
+          }
+        } catch (e) {
+          console.error("Image upload error:", e);
+          const statusEl = document.getElementById("admin-post-form-status");
+          if (statusEl) {
+            statusEl.textContent = `Image upload failed: ${e.message}`;
+            statusEl.className = "text-xs font-medium text-rose-500 block";
+          }
+          return false;
+        }
+      }
+
+      newPost.images = uploadedPaths;
+
+      if (isEdit) {
+        // Delete old images if slug changed
+        if (p.slug && p.slug !== newPost.slug) {
+          try {
+            await fetch("/api/delete-blog-images", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ slug: p.slug }),
+            });
+          } catch (e) { console.warn("Old images cleanup failed:", e); }
+        }
+        postsState.splice(editIndex, 1);
+        postsState.splice(targetIndex, 0, newPost);
+      } else {
+        postsState.splice(targetIndex, 0, newPost);
+      }
+
+      await saveToServer("save-posts", "posts.json", postsState, KEY_POSTS);
+      renderAdminPosts();
+
+      if (window.loadBlog) await window.loadBlog();
+      showToast(`Saved "${newPost.title}" at Rank #${targetRank}`);
+      return true;
+    });
+  }
+
+  function slugify(name) {
+    return String(name)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "post";
+  }
+
+  function getImageExtension(dataUrl, name) {
+    const match = String(dataUrl).match(/^data:(image\/[^;]+);base64,/);
+    if (match) {
+      const mime = match[1];
+      if (mime === "image/png") return "png";
+      if (mime === "image/jpeg" || mime === "image/jpg") return "jpg";
+      if (mime === "image/webp") return "webp";
+      if (mime === "image/gif") return "gif";
+    }
+    const ext = name ? name.split(".").pop().toLowerCase() : "";
+    if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) return ext === "jpeg" ? "jpg" : ext;
+    return "jpg";
+  }
+
+  function esc(s) {
+    return String(s ?? "").replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]
+    );
+  }
+
+  // ==========================================================
+  // RENDER ADMIN POSTS LIST
+  // ==========================================================
+
+  function renderAdminPosts() {
+    const container = document.getElementById("admin-posts-list");
+    const countBadge = document.getElementById("admin-posts-count");
+    if (countBadge) countBadge.textContent = postsState.length;
+    if (!container) return;
+
+    if (postsState.length === 0) {
+      container.innerHTML = `<p class="py-10 text-center text-sm text-zinc-500">No posts found. Click "Add Post" to create one.</p>`;
+      return;
+    }
+
+    container.innerHTML = postsState
+      .map((p, idx) => {
+        const imgs = Array.isArray(p.images) ? p.images.filter(Boolean) : [];
+        return `
+        <div class="flex flex-col justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
+          <div class="flex items-start gap-4">
+            <div class="flex items-center gap-1.5">
+              <span class="flex h-7 min-w-[28px] items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400" title="Current Rank: #${idx + 1}">
+                #${idx + 1}
+              </span>
+              <div class="flex flex-col gap-0.5">
+                <button
+                  type="button"
+                  data-admin-move-post-up="${idx}"
+                  ${idx === 0 ? "disabled" : ""}
+                  title="Move Up in Rank"
+                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
+                >
+                  <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </button>
+                <button
+                  type="button"
+                  data-admin-move-post-down="${idx}"
+                  ${idx === postsState.length - 1 ? "disabled" : ""}
+                  title="Move Down in Rank"
+                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
+                >
+                  <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+              ${imgs.length > 0
+                ? `<img src="${esc(imgs[0])}" alt="${esc(p.title)}" class="h-full w-full object-cover" />`
+                : `<svg class="h-6 w-6 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`
+              }
+            </div>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <h4 class="text-base font-bold truncate">${esc(p.title)}</h4>
+                ${p.featured
+                  ? `<span class="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">Featured</span>`
+                  : ""
+                }
+                <span class="rounded-full border border-zinc-200 px-2 py-0.5 text-xs text-zinc-500 dark:border-zinc-800">${esc(p.category || "General")}</span>
+                <span class="rounded-full ${p.visibility === "private" ? "bg-rose-500/10 px-2 py-0.5 text-xs font-semibold text-rose-600 dark:text-rose-400" : "bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400"}">
+                  ${p.visibility === "private" ? "Private" : "Public"}
+                </span>
+              </div>
+              <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                ${esc(p.date)} · ${imgs.length} image${imgs.length !== 1 ? "s" : ""}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 self-end sm:self-center">
+            <button
+              type="button"
+              data-admin-edit-post="${idx}"
+              class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              data-admin-delete-post="${idx}"
+              class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      `;
+      })
+      .join("");
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // ==========================================================
   // AUTHENTICATION LOGIC
   // ==========================================================
 
@@ -1450,6 +1807,7 @@
       renderAdminExperience();
       renderAdminVolunteering();
       renderAdminSkills();
+      renderAdminPosts();
       populateProfileForm();
       populateAboutForm();
     } else {
@@ -1468,22 +1826,9 @@
     const adminSection = document.getElementById("admin");
     if (!adminSection) return;
 
-    // Load initial states
-    await Promise.all([
-      window.getPortfolioProjects(),
-      window.getPortfolioCertificates(),
-      window.getPortfolioExperience(),
-      window.getPortfolioVolunteering(),
-      window.getPortfolioSkills(),
-      window.getPortfolioProfile(),
-      window.getPortfolioAbout(),
-    ]);
-
-    // Apply saved profile and about content to site
-    await window.applyProfileContent();
-    await window.applyAboutContent();
-
-    // Setup password login form
+    // Bind authentication controls BEFORE loading data.
+    // If any JSON fetch or profile hydration fails, login and password visibility
+    // still remain functional instead of leaving the form with its default reload behavior.
     const loginForm = document.getElementById("admin-login-form");
     const pwdInput = document.getElementById("admin-password-input");
     const authError = document.getElementById("admin-auth-error");
@@ -1492,33 +1837,74 @@
     if (loginForm) {
       loginForm.onsubmit = (e) => {
         e.preventDefault();
-        const entered = pwdInput?.value;
 
+        const entered = pwdInput?.value ?? "";
         if (entered === ADMIN_PASSWORD) {
           sessionStorage.setItem(AUTH_KEY, "true");
-          if (authError) authError.classList.add("hidden");
-          if (pwdInput) pwdInput.value = "";
+          if (authError) {
+            authError.textContent = "";
+            authError.classList.add("hidden");
+          }
+          if (pwdInput) {
+            pwdInput.classList.remove("border-rose-500");
+            pwdInput.value = "";
+          }
           updateAuthUI();
           showToast("Admin access granted!");
         } else {
-          if (authError) authError.classList.remove("hidden");
+          if (authError) {
+            authError.textContent = "Incorrect password. Please try again.";
+            authError.classList.remove("hidden");
+          }
           if (pwdInput) {
             pwdInput.classList.add("border-rose-500");
             pwdInput.focus();
+            pwdInput.select();
           }
         }
       };
     }
 
     if (togglePwdBtn && pwdInput) {
-      togglePwdBtn.onclick = () => {
-        const isPwd = pwdInput.type === "password";
-        pwdInput.type = isPwd ? "text" : "password";
-        togglePwdBtn.innerHTML = isPwd
-          ? `<i class="h-4 w-4" data-lucide="eye-off"></i>`
-          : `<i class="h-4 w-4" data-lucide="eye"></i>`;
-        if (window.lucide) lucide.createIcons();
+      togglePwdBtn.onclick = (e) => {
+        e.preventDefault();
+        const showPassword = pwdInput.type === "password";
+        pwdInput.type = showPassword ? "text" : "password";
+        togglePwdBtn.setAttribute("aria-pressed", String(showPassword));
+        togglePwdBtn.setAttribute(
+          "aria-label",
+          showPassword ? "Hide password" : "Show password"
+        );
+        togglePwdBtn.innerHTML = showPassword
+          ? '<i class="h-4 w-4" data-lucide="eye-off"></i>'
+          : '<i class="h-4 w-4" data-lucide="eye"></i>';
+        if (window.lucide) window.lucide.createIcons();
       };
+    }
+
+    // Load initial data without allowing a data-loading error to disable login.
+    try {
+      await Promise.all([
+        window.getPortfolioProjects(),
+        window.getPortfolioCertificates(),
+        window.getPortfolioExperience(),
+        window.getPortfolioVolunteering(),
+        window.getPortfolioSkills(),
+        window.getPortfolioProfile(),
+        window.getPortfolioAbout(),
+        window.getPortfolioPosts(),
+      ]);
+
+      // Apply saved profile and about content to the site.
+      await window.applyProfileContent();
+      await window.applyAboutContent();
+    } catch (error) {
+      console.error("Admin panel data initialization failed:", error);
+      if (authError) {
+        authError.textContent =
+          "Some admin data could not load. Check the local server and JSON files.";
+        authError.classList.remove("hidden");
+      }
     }
 
     // Logout button
@@ -1698,6 +2084,10 @@
 
     document.getElementById("admin-add-skill-btn")?.addEventListener("click", () => {
       openSkillFormModal();
+    });
+
+    document.getElementById("admin-add-post-btn")?.addEventListener("click", () => {
+      openPostFormModal();
     });
 
     // Global click delegate for dynamic list items
@@ -1956,6 +2346,68 @@
         return;
       }
 
+      // Reorder / Move Post Up
+      const movePostUpBtn = e.target.closest("[data-admin-move-post-up]");
+      if (movePostUpBtn) {
+        const idx = Number(movePostUpBtn.dataset.adminMovePostUp);
+        if (idx > 0) {
+          const item = postsState.splice(idx, 1)[0];
+          postsState.splice(idx - 1, 0, item);
+          await saveToServer("save-posts", "posts.json", postsState, KEY_POSTS);
+          renderAdminPosts();
+          if (window.loadBlog) await window.loadBlog();
+          showToast(`Moved "${item.title}" up to Rank #${idx}`);
+        }
+        return;
+      }
+
+      // Reorder / Move Post Down
+      const movePostDownBtn = e.target.closest("[data-admin-move-post-down]");
+      if (movePostDownBtn) {
+        const idx = Number(movePostDownBtn.dataset.adminMovePostDown);
+        if (idx < postsState.length - 1) {
+          const item = postsState.splice(idx, 1)[0];
+          postsState.splice(idx + 1, 0, item);
+          await saveToServer("save-posts", "posts.json", postsState, KEY_POSTS);
+          renderAdminPosts();
+          if (window.loadBlog) await window.loadBlog();
+          showToast(`Moved "${item.title}" down to Rank #${idx + 2}`);
+        }
+        return;
+      }
+
+      // Edit Post
+      const editPostBtn = e.target.closest("[data-admin-edit-post]");
+      if (editPostBtn) {
+        const idx = Number(editPostBtn.dataset.adminEditPost);
+        openPostFormModal(postsState[idx], idx);
+        return;
+      }
+
+      // Delete Post
+      const delPostBtn = e.target.closest("[data-admin-delete-post]");
+      if (delPostBtn) {
+        const idx = Number(delPostBtn.dataset.adminDeletePost);
+        const post = postsState[idx];
+        if (confirm(`Are you sure you want to delete "${post?.title}"? This will also delete its images.`)) {
+          // Delete images from server
+          if (post?.slug) {
+            try {
+              await fetch("/api/delete-blog-images", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ slug: post.slug }),
+              });
+            } catch (e) { console.warn("Image deletion failed:", e); }
+          }
+          postsState.splice(idx, 1);
+          await saveToServer("save-posts", "posts.json", postsState, KEY_POSTS);
+          renderAdminPosts();
+          if (window.loadBlog) await window.loadBlog();
+        }
+        return;
+      }
+
       // View JSON — open modal with syntax-highlighted file content
       const viewJsonBtn = e.target.closest("[data-view-json]");
       if (viewJsonBtn) {
@@ -1968,6 +2420,7 @@
           skills: { data: skillsState, file: "skills.json", icon: "code-2" },
           profile: { data: profileState, file: "profile.json", icon: "user" },
           about: { data: aboutState, file: "about.json", icon: "file-text" },
+          posts: { data: postsState, file: "posts.json", icon: "newspaper" },
         };
         const entry = dataMap[type];
         if (!entry) return;
@@ -2079,6 +2532,8 @@
     bindDownload("admin-export-prof-btn", "profile.json", () => profileState);
     bindDownload("admin-download-about-btn", "about.json", () => aboutState);
     bindDownload("admin-export-about-btn", "about.json", () => aboutState);
+    bindDownload("admin-download-posts-btn", "posts.json", () => postsState);
+    bindDownload("admin-export-posts-btn", "posts.json", () => postsState);
 
     // Export All JSON
     document.getElementById("admin-export-all-btn")?.addEventListener("click", () => {

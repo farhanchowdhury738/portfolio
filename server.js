@@ -15,6 +15,7 @@ const MIME_TYPES = {
   ".svg": "image/svg+xml",
   ".ico": "image/x-icon",
   ".pdf": "application/pdf",
+  ".webp": "image/webp",
 };
 
 function sendJSON(res, statusCode, data) {
@@ -100,6 +101,116 @@ function handleSaveCV(req, res) {
   });
 }
 
+function slugify(name) {
+  return String(name)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "post";
+}
+
+function handleUploadBlogImages(req, res) {
+  let body = "";
+  req.on("data", (chunk) => {
+    body += chunk;
+  });
+
+  req.on("end", () => {
+    try {
+      const parsed = JSON.parse(body);
+      const slug = slugify(parsed.slug || parsed.title || "post");
+      const images = Array.isArray(parsed.images) ? parsed.images : [];
+      if (images.length === 0) {
+        sendJSON(res, 400, { success: false, error: "No images provided" });
+        return;
+      }
+
+      const blogDir = path.join(__dirname, "images", "blog", slug);
+      if (!fs.existsSync(blogDir)) {
+        fs.mkdirSync(blogDir, { recursive: true });
+      }
+
+      const savedPaths = [];
+      let index = 1;
+      for (const img of images) {
+        if (!img.data) continue;
+        const base64Data = String(img.data).replace(/^data:.*?;base64,/, "");
+        const ext = getImageExtension(img.data, img.name);
+        const filename = `${index}.${ext}`;
+        const filePath = path.join(blogDir, filename);
+        try {
+          const buffer = Buffer.from(base64Data, "base64");
+          fs.writeFileSync(filePath, buffer);
+          savedPaths.push(`images/blog/${slug}/${filename}`);
+          index++;
+        } catch (e) {
+          console.error("Error writing blog image:", e);
+        }
+      }
+
+      sendJSON(res, 200, { success: true, paths: savedPaths, slug });
+    } catch (err) {
+      console.error("Error processing blog image upload:", err);
+      sendJSON(res, 400, { success: false, error: "Invalid upload request" });
+    }
+  });
+}
+
+function getImageExtension(dataUrl, name) {
+  const match = String(dataUrl).match(/^data:(image\/[^;]+);base64,/);
+  if (match) {
+    const mime = match[1];
+    if (mime === "image/png") return "png";
+    if (mime === "image/jpeg" || mime === "image/jpg") return "jpg";
+    if (mime === "image/webp") return "webp";
+    if (mime === "image/gif") return "gif";
+  }
+  const ext = name ? path.extname(name).toLowerCase().replace(".", "") : "";
+  if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) return ext === "jpeg" ? "jpg" : ext;
+  return "jpg";
+}
+
+function handleDeleteBlogImages(req, res) {
+  let body = "";
+  req.on("data", (chunk) => {
+    body += chunk;
+  });
+
+  req.on("end", () => {
+    try {
+      const parsed = JSON.parse(body);
+      const slug = slugify(parsed.slug || "");
+      if (!slug) {
+        sendJSON(res, 400, { success: false, error: "Missing slug" });
+        return;
+      }
+      const blogDir = path.join(__dirname, "images", "blog", slug);
+      if (fs.existsSync(blogDir)) {
+        try {
+          const entries = fs.readdirSync(blogDir);
+          for (const entry of entries) {
+            const p = path.join(blogDir, entry);
+            const stat = fs.statSync(p);
+            if (stat.isFile()) {
+              fs.unlinkSync(p);
+            }
+          }
+          try {
+            fs.rmdirSync(blogDir);
+          } catch (e) {
+            // ignore if not empty
+          }
+        } catch (e) {
+          console.error("Error deleting blog images:", e);
+        }
+      }
+      sendJSON(res, 200, { success: true });
+    } catch (err) {
+      console.error("Error processing blog image deletion:", err);
+      sendJSON(res, 400, { success: false, error: "Invalid request" });
+    }
+  });
+}
+
 const server = http.createServer((req, res) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -142,8 +253,20 @@ const server = http.createServer((req, res) => {
       handleSaveFile(req, res, "about.json");
       return;
     }
+    if (req.url === "/api/save-posts") {
+      handleSaveFile(req, res, "posts.json");
+      return;
+    }
     if (req.url === "/api/upload-cv") {
       handleSaveCV(req, res);
+      return;
+    }
+    if (req.url.startsWith("/api/upload-blog-images")) {
+      handleUploadBlogImages(req, res);
+      return;
+    }
+    if (req.url.startsWith("/api/delete-blog-images")) {
+      handleDeleteBlogImages(req, res);
       return;
     }
   }
