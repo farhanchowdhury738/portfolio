@@ -75,57 +75,126 @@ window.loadBlog = async function () {
     return html;
   }
 
-  function renderList(page) {
-    const posts = getPostsForPage(page);
-    if (allPosts.length === 0) {
-      return '<p class="text-sm text-zinc-500 dark:text-zinc-400">No posts yet.</p>';
-    }
-    return `
-      <div class="grid gap-6 md:grid-cols-2">
-        ${posts
-          .map((p) => {
-            const imgs = Array.isArray(p.images) ? p.images.filter(Boolean) : [];
-            const desc = p.description || (Array.isArray(p.text) ? p.text.join(" ") : p.text || "");
-            const preview = desc.length > 200 ? desc.substring(0, 197) + "..." : desc;
-            return `
+function renderList(page) {
+  const posts = getPostsForPage(page);
+
+  if (allPosts.length === 0) {
+    return '<p class="text-sm text-zinc-500 dark:text-zinc-400">No posts yet.</p>';
+  }
+
+  return `
+    <div class="grid gap-6 md:grid-cols-2">
+      ${posts
+        .map((p) => {
+          const imgs = Array.isArray(p.images)
+            ? p.images.filter(Boolean)
+            : [];
+
+          const desc =
+            p.description ||
+            (Array.isArray(p.text) ? p.text.join(" ") : p.text || "");
+
+          const preview =
+            desc.length > 200 ? desc.substring(0, 197) + "..." : desc;
+
+          return `
             <article class="group flex h-full flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
+
               <header class="flex items-center gap-3 p-5 pb-0">
                 <span class="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
-                  <img src="images/farhan.png" alt="Farhan Chowdhury" class="h-full w-full origin-[51%_52%] scale-[1.7] object-cover object-top" />
+                  <img
+                    src="images/farhan.png"
+                    alt="Farhan Chowdhury"
+                    class="h-full w-full origin-[51%_52%] scale-[1.7] object-cover object-top"
+                  />
                 </span>
+
                 <div class="min-w-0">
                   <p class="text-sm font-semibold">Farhan Chowdhury</p>
-                  <p class="text-xs text-zinc-500 dark:text-zinc-400">${when(p.date)} · <span class="inline-flex items-center gap-1"><svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Public</span></p>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                    ${when(p.date)} ·
+                    <span class="inline-flex items-center gap-1">
+                      <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                      </svg>
+                      Public
+                    </span>
+                  </p>
                 </div>
-                ${p.featured ? '<span class="ml-auto rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">Featured</span>' : ""}
+
+                ${
+                  p.featured
+                    ? '<span class="ml-auto rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">Featured</span>'
+                    : ""
+                }
               </header>
+
               <div class="p-5">
                 <h3 class="text-lg font-bold leading-snug">${esc(p.title)}</h3>
                 <p class="mt-2 line-clamp-3 text-sm leading-6 text-zinc-600 dark:text-zinc-400">${esc(preview)}</p>
               </div>
-              ${imgs.length > 0
-                ? `<div class="grid ${imgs.length === 1 ? "grid-cols-1" : imgs.length === 2 ? "grid-cols-2" : imgs.length === 3 ? "grid-cols-3" : "grid-cols-2"} gap-0.5 px-5">
-                    ${imgs.slice(0, 4).map((img, idx) => {
-                      const isLast = idx === Math.min(3, imgs.length - 1) && imgs.length > 4;
-                      return `<button type="button" data-blog-img="${esc(img)}" class="relative block aspect-[4/3] w-full overflow-hidden">
-                        <img src="${esc(img)}" alt="${esc(p.title)}" loading="lazy" class="h-full w-full object-cover" />
-                        ${isLast ? `<span class="absolute inset-0 flex items-center justify-center bg-black/60 text-lg font-semibold text-white">+${imgs.length - 4}</span>` : ""}
-                      </button>`;
-                    }).join("")}
-                  </div>`
-                : ""}
+
+              ${
+                imgs.length > 0
+                  ? `
+                    <div class="grid grid-cols-3 gap-0.5 px-5">
+                      ${imgs.slice(0, 3).map((img, idx) => {
+                        const isLast = idx === 2 && imgs.length > 3;
+
+                        return `
+                          <button
+                            type="button"
+                            data-blog-img="${esc(img)}"
+                            class="relative block aspect-[4/3] w-full overflow-hidden"
+                          >
+                            <img
+                              src="${esc(img)}"
+                              alt="${esc(p.title)}"
+                              loading="lazy"
+                              class="h-full w-full object-cover"
+                            />
+
+                            ${
+                              isLast
+                                ? `
+                                  <span class="absolute inset-0 flex items-center justify-center bg-black/60 text-lg font-semibold text-white">
+                                    +${imgs.length - 3}
+                                  </span>
+                                `
+                                : ""
+                            }
+                          </button>
+                        `;
+                      }).join("")}
+                    </div>
+                  `
+                  : ""
+              }
+
               <div class="mt-auto flex items-center justify-between p-5 text-sm">
-                <span class="text-zinc-500 dark:text-zinc-400">${imgs.length} ${imgs.length === 1 ? "Photo" : "Photos"}</span>
-                <a href="#blog/${esc(p.slug || "")}" data-blog-viewmore class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">View More →</a>
+                <span class="text-zinc-500 dark:text-zinc-400">
+                  ${imgs.length} ${imgs.length === 1 ? "Photo" : "Photos"}
+                </span>
+
+                <a
+                  href="#blog/${esc(p.slug || "")}"
+                  data-blog-viewmore
+                  class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
+                >
+                  View More →
+                </a>
               </div>
+
             </article>
-            `;
-          })
-          .join("")}
-      </div>
-      ${renderPagination(page)}
-    `;
-  }
+          `;
+        })
+        .join("")}
+    </div>
+
+    ${renderPagination(page)}
+  `;
+}
 
   function openLightbox(images, startIndex) {
     if (!images || images.length === 0) return;

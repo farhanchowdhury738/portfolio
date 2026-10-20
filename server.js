@@ -130,7 +130,7 @@ function handleUploadBlogImages(req, res) {
       }
 
       const savedPaths = [];
-      let index = 1;
+      let index = Math.max(0, Number.parseInt(parsed.startIndex, 10) || 0) + 1;
       for (const img of images) {
         if (!img.data) continue;
         const base64Data = String(img.data).replace(/^data:.*?;base64,/, "");
@@ -178,6 +178,21 @@ function handleDeleteBlogImages(req, res) {
   req.on("end", () => {
     try {
       const parsed = JSON.parse(body);
+      if (Array.isArray(parsed.paths)) {
+        const blogRoot = path.resolve(__dirname, "images", "blog");
+        const deleted = [];
+        for (const imagePath of parsed.paths) {
+          if (typeof imagePath !== "string" || !imagePath.startsWith("images/blog/")) continue;
+          const target = path.resolve(__dirname, imagePath);
+          if (!target.startsWith(blogRoot + path.sep)) continue;
+          if (fs.existsSync(target) && fs.statSync(target).isFile()) {
+            fs.unlinkSync(target);
+            deleted.push(imagePath);
+          }
+        }
+        sendJSON(res, 200, { success: true, deleted });
+        return;
+      }
       const slug = slugify(parsed.slug || "");
       if (!slug) {
         sendJSON(res, 400, { success: false, error: "Missing slug" });

@@ -1523,12 +1523,12 @@
         </div>
 
         <div class="border-t border-zinc-200 pt-4 dark:border-zinc-800">
-          <div class="flex items-center justify-between mb-3">
-            <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Images</label>
-            <input type="file" id="admin-post-images" name="images" accept="image/*" multiple class="block w-full text-xs text-zinc-500 file:mr-4 file:rounded-xl file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-indigo-600 hover:file:bg-indigo-100 dark:file:bg-indigo-950 dark:file:text-indigo-300" />
+          <div class="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300" for="admin-post-images">Images</label>
+            <input type="file" id="admin-post-images" name="images" accept="image/*" multiple class="block max-w-full text-xs text-zinc-500 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-indigo-600 hover:file:bg-indigo-100 dark:file:bg-indigo-950 dark:file:text-indigo-300" />
           </div>
-          <div id="admin-post-image-previews" class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 max-h-60 overflow-auto"></div>
-          <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Select multiple images. They will be saved as sequential files (1.jpg, 2.jpg, etc.) in images/blog/[slug]/</p>
+          <div id="admin-post-image-previews" class="flex flex-wrap gap-2"></div>
+          <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Click × to mark an image for removal. Changes are applied when you save.</p>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3">
@@ -1568,8 +1568,9 @@
 
       const newImages = [];
       const fileInput = form.querySelector("#admin-post-images");
-      if (fileInput && fileInput.files.length > 0) {
-        for (const file of fileInput.files) {
+      const retainedPaths = retainedImages.map((item) => item.src);
+      if (selectedFiles.length > 0) {
+        for (const file of selectedFiles) {
           if (!file.type.startsWith("image/")) continue;
           const reader = new FileReader();
           await new Promise((resolve) => {
@@ -1600,7 +1601,7 @@
       const targetIndex = targetRank - 1;
 
       // Upload new images if any
-      let uploadedPaths = [...(p.images || [])];
+      let uploadedPaths = [...retainedPaths];
       if (newImages.length > 0) {
         try {
           const statusEl = document.getElementById("admin-post-form-status");
@@ -1611,11 +1612,11 @@
           const res = await fetch("/api/upload-blog-images", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ slug: newPost.slug, title: newPost.title, images: newImages }),
+            body: JSON.stringify({ slug: newPost.slug, title: newPost.title, images: newImages, startIndex: retainedPaths.length }),
           });
           const json = await res.json();
           if (res.ok && json.success && json.paths) {
-            uploadedPaths = json.paths;
+            uploadedPaths = [...retainedPaths, ...json.paths];
             if (statusEl) {
               statusEl.textContent = `Uploaded ${json.paths.length} image(s)`;
               statusEl.className = "text-xs font-medium text-emerald-600 dark:text-emerald-400 block";
@@ -1635,6 +1636,29 @@
       }
 
       newPost.images = uploadedPaths;
+
+      if (isEdit && p.slug === newPost.slug) {
+        const removedPaths = (Array.isArray(p.images) ? p.images : []).filter((imagePath) => !retainedPaths.includes(imagePath));
+        if (removedPaths.length) {
+          try {
+            const deleteRes = await fetch("/api/delete-blog-images", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ paths: removedPaths }),
+            });
+            const deleteJson = await deleteRes.json();
+            if (!deleteRes.ok || !deleteJson.success) throw new Error(deleteJson.error || "Could not remove selected images");
+          } catch (e) {
+            console.error("Selected image deletion failed:", e);
+            const statusEl = document.getElementById("admin-post-form-status");
+            if (statusEl) {
+              statusEl.textContent = `Could not remove image(s): ${e.message}`;
+              statusEl.className = "text-xs font-medium text-rose-500 block";
+            }
+            return false;
+          }
+        }
+      }
 
       if (isEdit) {
         // Delete old images if slug changed
@@ -1660,6 +1684,47 @@
       showToast(`Saved "${newPost.title}" at Rank #${targetRank}`);
       return true;
     });
+
+    // Compact existing/new image previews; deletions are deferred until Update Post.
+    const imageInput = document.getElementById("admin-post-images");
+    const previewHost = document.getElementById("admin-post-image-previews");
+    let retainedImages = (Array.isArray(p.images) ? p.images : []).filter(Boolean).map((src) => ({ src, kind: "existing" }));
+    let selectedFiles = [];
+
+    const renderImagePreviews = () => {
+      if (!previewHost) return;
+      const entries = [
+        ...retainedImages.map((item, index) => ({ ...item, key: `existing-${index}` })),
+        ...selectedFiles.map((file, index) => ({ src: URL.createObjectURL(file), file, kind: "new", key: `new-${index}` }))
+      ];
+      // Release temporary preview URLs from the previous render.
+      previewHost.querySelectorAll("img[data-object-url]").forEach((img) => URL.revokeObjectURL(img.src));
+      previewHost.innerHTML = entries.map((item) => `
+        <div class="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800" title="${esc(item.kind === "new" ? item.file.name : item.src.split("/").pop())}">
+          <img src="${item.src.startsWith("blob:") ? item.src : esc(item.src)}" alt="Blog image preview" class="h-full w-full object-cover" ${item.kind === "new" ? 'data-object-url="true"' : ""} />
+          <button type="button" data-remove-blog-image="${item.key}" aria-label="Remove image" class="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-black/80 text-[11px] font-bold leading-none text-white shadow hover:bg-rose-600">×</button>
+          <span class="absolute bottom-0 left-0 right-0 truncate bg-black/60 px-1 py-0.5 text-[8px] text-white">${item.kind === "new" ? "New" : "Saved"}</span>
+        </div>`).join("");
+    };
+
+    if (imageInput) {
+      imageInput.addEventListener("change", () => {
+        selectedFiles = [...selectedFiles, ...Array.from(imageInput.files || []).filter((file) => file.type.startsWith("image/"))];
+        imageInput.value = "";
+        renderImagePreviews();
+      });
+    }
+    if (previewHost) {
+      previewHost.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-remove-blog-image]");
+        if (!button) return;
+        const key = button.dataset.removeBlogImage;
+        if (key.startsWith("existing-")) retainedImages.splice(Number(key.slice(9)), 1);
+        else if (key.startsWith("new-")) selectedFiles.splice(Number(key.slice(4)), 1);
+        renderImagePreviews();
+      });
+    }
+    renderImagePreviews();
   }
 
   function slugify(name) {
