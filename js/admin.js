@@ -512,87 +512,26 @@
     const countBadge = document.getElementById("admin-projects-count");
     if (countBadge) countBadge.textContent = projectsState.length;
     if (!container) return;
-
     if (projectsState.length === 0) {
       container.innerHTML = `<p class="py-10 text-center text-sm text-zinc-500">No projects found. Click "Add Project" to create one.</p>`;
       return;
     }
-
-    container.innerHTML = projectsState
-      .map((p, idx) => {
-        const techs = (p.technologies || []).slice(0, 3).join(", ");
-        return `
-        <div class="flex flex-col justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
-          <div class="flex items-start gap-4">
-            <!-- Rank Indicator & Reorder Arrows -->
-            <div class="flex items-center gap-1.5">
-              <span class="flex h-7 min-w-[28px] items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400" title="Current Rank: #${idx + 1}">
-                #${idx + 1}
-              </span>
-              <div class="flex flex-col gap-0.5">
-                <button
-                  type="button"
-                  data-admin-move-project-up="${idx}"
-                  ${idx === 0 ? "disabled" : ""}
-                  title="Move Up in Rank"
-                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
-                >
-                  <i class="h-3 w-3" data-lucide="chevron-up"></i>
-                </button>
-                <button
-                  type="button"
-                  data-admin-move-project-down="${idx}"
-                  ${idx === projectsState.length - 1 ? "disabled" : ""}
-                  title="Move Down in Rank"
-                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
-                >
-                  <i class="h-3 w-3" data-lucide="chevron-down"></i>
-                </button>
-              </div>
-            </div>
-
-            <div class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-              ${p.image
-            ? `<img src="${p.image}" alt="${p.title}" class="h-full w-full object-cover" />`
-            : `<span class="text-xs font-bold text-zinc-400">#${idx + 1}</span>`
-          }
-            </div>
-            <div>
-              <div class="flex flex-wrap items-center gap-2">
-                <h4 class="text-base font-bold">${p.title}</h4>
-                ${p.featured
-            ? `<span class="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">Featured</span>`
-            : ""
-          }
-                <span class="rounded-full border border-zinc-200 px-2 py-0.5 text-xs text-zinc-500 dark:border-zinc-800">${p.category || "General"}</span>
-              </div>
-              <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                ${techs ? `Tech: ${techs}` : "No tech listed"} · ${p.timeline ? `${p.timeline.start || ""} - ${p.timeline.end || ""}` : ""}
-              </p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 self-end sm:self-center">
-            <button
-              type="button"
-              data-admin-edit-project="${idx}"
-              class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              data-admin-delete-project="${idx}"
-              class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400"
-            >
-              Delete
-            </button>
-          </div>
+    container.innerHTML = projectsState.map((p, idx) => `
+      <div class="flex w-full min-w-0 items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900">
+        <span class="flex h-7 min-w-[28px] shrink-0 items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">#${idx + 1}</span>
+        <div class="flex shrink-0 flex-col gap-0.5">
+          <button type="button" data-admin-move-project-up="${idx}" ${idx === 0 ? "disabled" : ""} title="Move Up" class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-20 dark:hover:bg-zinc-800"><i class="h-3 w-3" data-lucide="chevron-up"></i></button>
+          <button type="button" data-admin-move-project-down="${idx}" ${idx === projectsState.length - 1 ? "disabled" : ""} title="Move Down" class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-20 dark:hover:bg-zinc-800"><i class="h-3 w-3" data-lucide="chevron-down"></i></button>
         </div>
-      `;
-      })
-      .join("");
-
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+          ${p.image ? `<img src="${esc(p.image)}" alt="${esc(p.title)}" class="h-full w-full object-cover" />` : `<i class="h-5 w-5 text-zinc-400" data-lucide="image"></i>`}
+        </div>
+        <h4 class="min-w-0 flex-1 truncate text-sm font-bold">${esc(p.title || "Untitled Project")}</h4>
+        <div class="flex shrink-0 items-center gap-2">
+          <button type="button" data-admin-edit-project="${idx}" class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300">Edit</button>
+          <button type="button" data-admin-delete-project="${idx}" class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400">Delete</button>
+        </div>
+      </div>`).join("");
     if (window.lucide) lucide.createIcons();
   }
 
@@ -691,73 +630,23 @@
     const countBadge = document.getElementById("admin-exp-count");
     if (countBadge) countBadge.textContent = expState.length;
     if (!container) return;
-
     if (expState.length === 0) {
       container.innerHTML = `<p class="py-10 text-center text-sm text-zinc-500">No experience entries found. Click "Add Experience" to create one.</p>`;
       return;
     }
-
-    container.innerHTML = expState
-      .map(
-        (v, idx) => `
-        <div class="flex flex-col justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
-          <div class="flex items-center gap-3">
-            <!-- Rank Indicator & Reorder Arrows -->
-            <div class="flex items-center gap-1.5">
-              <span class="flex h-7 min-w-[28px] items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400" title="Current Rank: #${idx + 1}">
-                #${idx + 1}
-              </span>
-              <div class="flex flex-col gap-0.5">
-                <button
-                  type="button"
-                  data-admin-move-exp-up="${idx}"
-                  ${idx === 0 ? "disabled" : ""}
-                  title="Move Up in Rank"
-                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
-                >
-                  <i class="h-3 w-3" data-lucide="chevron-up"></i>
-                </button>
-                <button
-                  type="button"
-                  data-admin-move-exp-down="${idx}"
-                  ${idx === expState.length - 1 ? "disabled" : ""}
-                  title="Move Down in Rank"
-                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
-                >
-                  <i class="h-3 w-3" data-lucide="chevron-down"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Details -->
-            <div>
-              <h4 class="text-base font-bold">${v.title}${v.company ? ` <span class="font-normal text-zinc-500">|</span> ${v.company}` : ""}</h4>
-              <p class="text-xs font-medium text-indigo-500 dark:text-indigo-400">${v.time}</p>
-              <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">${(v.description || []).length} bullet point(s)</p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 self-end sm:self-center">
-            <button
-              type="button"
-              data-admin-edit-exp="${idx}"
-              class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              data-admin-delete-exp="${idx}"
-              class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400"
-            >
-              Delete
-            </button>
-          </div>
+    container.innerHTML = expState.map((item, idx) => `
+      <div class="flex w-full min-w-0 items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900">
+        <span class="flex h-7 min-w-[28px] shrink-0 items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">#${idx + 1}</span>
+        <div class="flex shrink-0 flex-col gap-0.5">
+          <button type="button" data-admin-move-exp-up="${idx}" ${idx === 0 ? "disabled" : ""} title="Move Up" class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-20 dark:hover:bg-zinc-800"><i class="h-3 w-3" data-lucide="chevron-up"></i></button>
+          <button type="button" data-admin-move-exp-down="${idx}" ${idx === expState.length - 1 ? "disabled" : ""} title="Move Down" class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-20 dark:hover:bg-zinc-800"><i class="h-3 w-3" data-lucide="chevron-down"></i></button>
         </div>
-      `,
-      )
-      .join("");
-
+        <h4 class="min-w-0 flex-1 truncate text-sm font-bold">${esc(item.title || "Untitled Experience")}</h4>
+        <div class="flex shrink-0 items-center gap-2">
+          <button type="button" data-admin-edit-exp="${idx}" class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300">Edit</button>
+          <button type="button" data-admin-delete-exp="${idx}" class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400">Delete</button>
+        </div>
+      </div>`).join("");
     if (window.lucide) lucide.createIcons();
   }
 
@@ -770,73 +659,23 @@
     const countBadge = document.getElementById("admin-vol-count");
     if (countBadge) countBadge.textContent = volState.length;
     if (!container) return;
-
     if (volState.length === 0) {
       container.innerHTML = `<p class="py-10 text-center text-sm text-zinc-500">No volunteering entries found. Click "Add Volunteering" to create one.</p>`;
       return;
     }
-
-    container.innerHTML = volState
-      .map(
-        (v, idx) => `
-        <div class="flex flex-col justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
-          <div class="flex items-center gap-3">
-            <!-- Rank Indicator & Reorder Arrows -->
-            <div class="flex items-center gap-1.5">
-              <span class="flex h-7 min-w-[28px] items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400" title="Current Rank: #${idx + 1}">
-                #${idx + 1}
-              </span>
-              <div class="flex flex-col gap-0.5">
-                <button
-                  type="button"
-                  data-admin-move-vol-up="${idx}"
-                  ${idx === 0 ? "disabled" : ""}
-                  title="Move Up in Rank"
-                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
-                >
-                  <i class="h-3 w-3" data-lucide="chevron-up"></i>
-                </button>
-                <button
-                  type="button"
-                  data-admin-move-vol-down="${idx}"
-                  ${idx === volState.length - 1 ? "disabled" : ""}
-                  title="Move Down in Rank"
-                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
-                >
-                  <i class="h-3 w-3" data-lucide="chevron-down"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Details -->
-            <div>
-              <h4 class="text-base font-bold">${v.title}</h4>
-              <p class="text-xs font-medium text-indigo-500 dark:text-indigo-400">${v.time}</p>
-              <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">${(v.description || []).length} bullet point(s)</p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 self-end sm:self-center">
-            <button
-              type="button"
-              data-admin-edit-vol="${idx}"
-              class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              data-admin-delete-vol="${idx}"
-              class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400"
-            >
-              Delete
-            </button>
-          </div>
+    container.innerHTML = volState.map((item, idx) => `
+      <div class="flex w-full min-w-0 items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900">
+        <span class="flex h-7 min-w-[28px] shrink-0 items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">#${idx + 1}</span>
+        <div class="flex shrink-0 flex-col gap-0.5">
+          <button type="button" data-admin-move-vol-up="${idx}" ${idx === 0 ? "disabled" : ""} title="Move Up" class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-20 dark:hover:bg-zinc-800"><i class="h-3 w-3" data-lucide="chevron-up"></i></button>
+          <button type="button" data-admin-move-vol-down="${idx}" ${idx === volState.length - 1 ? "disabled" : ""} title="Move Down" class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-20 dark:hover:bg-zinc-800"><i class="h-3 w-3" data-lucide="chevron-down"></i></button>
         </div>
-      `,
-      )
-      .join("");
-
+        <h4 class="min-w-0 flex-1 truncate text-sm font-bold">${esc(item.title || "Untitled Volunteering")}</h4>
+        <div class="flex shrink-0 items-center gap-2">
+          <button type="button" data-admin-edit-vol="${idx}" class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300">Edit</button>
+          <button type="button" data-admin-delete-vol="${idx}" class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400">Delete</button>
+        </div>
+      </div>`).join("");
     if (window.lucide) lucide.createIcons();
   }
 
@@ -849,87 +688,27 @@
     const countBadge = document.getElementById("admin-skills-count");
     if (countBadge) countBadge.textContent = skillsState.length;
     if (!container) return;
-
     if (skillsState.length === 0) {
       container.innerHTML = `<p class="py-10 text-center text-sm text-zinc-500">No skill categories found. Click "Add Skill Category" to create one.</p>`;
       return;
     }
-
-    container.innerHTML = skillsState
-      .map(
-        (group, idx) => `
-        <div class="flex flex-col justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
-          <div class="flex items-start gap-3">
-            <!-- Rank / Position & Reorder Arrows -->
-            <div class="flex items-center gap-1.5">
-              <span class="flex h-7 min-w-[28px] items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
-                #${idx + 1}
-              </span>
-              <div class="flex flex-col gap-0.5">
-                <button
-                  type="button"
-                  data-admin-move-skill-up="${idx}"
-                  ${idx === 0 ? "disabled" : ""}
-                  title="Move Up"
-                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
-                >
-                  <i class="h-3 w-3" data-lucide="chevron-up"></i>
-                </button>
-                <button
-                  type="button"
-                  data-admin-move-skill-down="${idx}"
-                  ${idx === skillsState.length - 1 ? "disabled" : ""}
-                  title="Move Down"
-                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
-                >
-                  <i class="h-3 w-3" data-lucide="chevron-down"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Icon -->
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
-              <i class="h-5 w-5" data-lucide="${group.icon || "code-2"}"></i>
-            </div>
-
-            <!-- Details -->
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 class="text-base font-bold">${group.category}</h4>
-                <span class="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">${(group.skills || []).length} skills</span>
-              </div>
-              <div class="mt-2 flex flex-wrap gap-1.5">
-                ${(group.skills || [])
-            .map(
-              (s) =>
-                `<span class="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">${s}</span>`,
-            )
-            .join("")}
-              </div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 self-end sm:self-center">
-            <button
-              type="button"
-              data-admin-edit-skill="${idx}"
-              class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              data-admin-delete-skill="${idx}"
-              class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400"
-            >
-              Delete
-            </button>
-          </div>
+    container.innerHTML = skillsState.map((group, idx) => `
+      <div class="flex w-full min-w-0 items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900">
+        <span class="flex h-7 min-w-[28px] shrink-0 items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">#${idx + 1}</span>
+        <div class="flex shrink-0 flex-col gap-0.5">
+          <button type="button" data-admin-move-skill-up="${idx}" ${idx === 0 ? "disabled" : ""} title="Move Up" class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-20 dark:hover:bg-zinc-800"><i class="h-3 w-3" data-lucide="chevron-up"></i></button>
+          <button type="button" data-admin-move-skill-down="${idx}" ${idx === skillsState.length - 1 ? "disabled" : ""} title="Move Down" class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-20 dark:hover:bg-zinc-800"><i class="h-3 w-3" data-lucide="chevron-down"></i></button>
         </div>
-      `,
-      )
-      .join("");
-
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400"><i class="h-5 w-5" data-lucide="${esc(group.icon || "code-2")}"></i></div>
+        <div class="flex min-w-0 flex-1 items-center gap-2">
+          <h4 class="truncate text-sm font-bold">${esc(group.category || "Untitled Skill")}</h4>
+          <span class="shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">${(group.skills || []).length} skills</span>
+        </div>
+        <div class="flex shrink-0 items-center gap-2">
+          <button type="button" data-admin-edit-skill="${idx}" class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300">Edit</button>
+          <button type="button" data-admin-delete-skill="${idx}" class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400">Delete</button>
+        </div>
+      </div>`).join("");
     if (window.lucide) lucide.createIcons();
   }
 
@@ -1763,89 +1542,29 @@
     const countBadge = document.getElementById("admin-posts-count");
     if (countBadge) countBadge.textContent = postsState.length;
     if (!container) return;
-
     if (postsState.length === 0) {
       container.innerHTML = `<p class="py-10 text-center text-sm text-zinc-500">No posts found. Click "Add Post" to create one.</p>`;
       return;
     }
-
-    container.innerHTML = postsState
-      .map((p, idx) => {
-        const imgs = Array.isArray(p.images) ? p.images.filter(Boolean) : [];
-        return `
-        <div class="flex flex-col justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center">
-          <div class="flex items-start gap-4">
-            <div class="flex items-center gap-1.5">
-              <span class="flex h-7 min-w-[28px] items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400" title="Current Rank: #${idx + 1}">
-                #${idx + 1}
-              </span>
-              <div class="flex flex-col gap-0.5">
-                <button
-                  type="button"
-                  data-admin-move-post-up="${idx}"
-                  ${idx === 0 ? "disabled" : ""}
-                  title="Move Up in Rank"
-                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
-                >
-                  <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>
-                </button>
-                <button
-                  type="button"
-                  data-admin-move-post-down="${idx}"
-                  ${idx === postsState.length - 1 ? "disabled" : ""}
-                  title="Move Down in Rank"
-                  class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:opacity-20 disabled:pointer-events-none dark:hover:bg-zinc-800 dark:hover:text-indigo-400"
-                >
-                  <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </button>
-              </div>
-            </div>
-
-            <div class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-              ${imgs.length > 0
-                ? `<img src="${esc(imgs[0])}" alt="${esc(p.title)}" class="h-full w-full object-cover" />`
-                : `<svg class="h-6 w-6 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`
-              }
-            </div>
-            <div class="min-w-0">
-              <div class="flex flex-wrap items-center gap-2">
-                <h4 class="text-base font-bold truncate">${esc(p.title)}</h4>
-                ${p.featured
-                  ? `<span class="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">Featured</span>`
-                  : ""
-                }
-                <span class="rounded-full border border-zinc-200 px-2 py-0.5 text-xs text-zinc-500 dark:border-zinc-800">${esc(p.category || "General")}</span>
-                <span class="rounded-full ${p.visibility === "private" ? "bg-rose-500/10 px-2 py-0.5 text-xs font-semibold text-rose-600 dark:text-rose-400" : "bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400"}">
-                  ${p.visibility === "private" ? "Private" : "Public"}
-                </span>
-              </div>
-              <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                ${esc(p.date)} · ${imgs.length} image${imgs.length !== 1 ? "s" : ""}
-              </p>
-            </div>
+    container.innerHTML = postsState.map((post, idx) => {
+      const imgs = Array.isArray(post.images) ? post.images.filter(Boolean) : [];
+      return `
+        <div class="flex w-full min-w-0 items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900">
+          <span class="flex h-7 min-w-[28px] shrink-0 items-center justify-center rounded-lg bg-indigo-50 px-2 text-xs font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">#${idx + 1}</span>
+          <div class="flex shrink-0 flex-col gap-0.5">
+            <button type="button" data-admin-move-post-up="${idx}" ${idx === 0 ? "disabled" : ""} title="Move Up" class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-20 dark:hover:bg-zinc-800"><i class="h-3 w-3" data-lucide="chevron-up"></i></button>
+            <button type="button" data-admin-move-post-down="${idx}" ${idx === postsState.length - 1 ? "disabled" : ""} title="Move Down" class="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-20 dark:hover:bg-zinc-800"><i class="h-3 w-3" data-lucide="chevron-down"></i></button>
           </div>
-
-          <div class="flex items-center gap-2 self-end sm:self-center">
-            <button
-              type="button"
-              data-admin-edit-post="${idx}"
-              class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              data-admin-delete-post="${idx}"
-              class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400"
-            >
-              Delete
-            </button>
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+            ${imgs.length ? `<img src="${esc(imgs[0])}" alt="${esc(post.title)}" class="h-full w-full object-cover" />` : `<i class="h-5 w-5 text-zinc-400" data-lucide="image"></i>`}
           </div>
-        </div>
-      `;
-      })
-      .join("");
-
+          <h4 class="min-w-0 flex-1 truncate text-sm font-bold">${esc(post.title || "Untitled Blog")}</h4>
+          <div class="flex shrink-0 items-center gap-2">
+            <button type="button" data-admin-edit-post="${idx}" class="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:text-zinc-300">Edit</button>
+            <button type="button" data-admin-delete-post="${idx}" class="rounded-xl border border-rose-200 bg-rose-50/50 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-400">Delete</button>
+          </div>
+        </div>`;
+    }).join("");
     if (window.lucide) lucide.createIcons();
   }
 
@@ -2583,21 +2302,15 @@
       });
     };
 
-    bindDownload("admin-download-projects-btn", "projects.json", () => projectsState);
     bindDownload("admin-export-projects-btn", "projects.json", () => projectsState);
-    bindDownload("admin-download-certs-btn", "certificates.json", () => certsState);
     bindDownload("admin-export-certs-btn", "certificates.json", () => certsState);
-    bindDownload("admin-download-exp-btn", "experience.json", () => expState);
     bindDownload("admin-export-exp-btn", "experience.json", () => expState);
-    bindDownload("admin-download-vol-btn", "volunteering.json", () => volState);
     bindDownload("admin-export-vol-btn", "volunteering.json", () => volState);
-    bindDownload("admin-download-skills-btn", "skills.json", () => skillsState);
     bindDownload("admin-export-skills-btn", "skills.json", () => skillsState);
     bindDownload("admin-download-profile-btn", "profile.json", () => profileState);
     bindDownload("admin-export-prof-btn", "profile.json", () => profileState);
     bindDownload("admin-download-about-btn", "about.json", () => aboutState);
     bindDownload("admin-export-about-btn", "about.json", () => aboutState);
-    bindDownload("admin-download-posts-btn", "posts.json", () => postsState);
     bindDownload("admin-export-posts-btn", "posts.json", () => postsState);
 
     // Export All JSON
@@ -2609,6 +2322,7 @@
       setTimeout(() => downloadJSON("skills.json", skillsState), 600);
       setTimeout(() => downloadJSON("profile.json", profileState), 800);
       setTimeout(() => downloadJSON("about.json", aboutState), 1000);
+      setTimeout(() => downloadJSON("posts.json", postsState), 1200);
     });
 
     if (window.lucide) lucide.createIcons();

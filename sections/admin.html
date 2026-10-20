@@ -70,13 +70,6 @@
       <div class="flex flex-wrap items-center gap-2">
         <button
           type="button"
-          id="admin-export-all-btn"
-          class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-xs font-semibold text-zinc-700 shadow-sm transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-indigo-400"
-        >
-          <i class="h-4 w-4" data-lucide="download"></i> Download All JSON
-        </button>
-        <button
-          type="button"
           id="admin-logout-btn"
           class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
         >
@@ -185,14 +178,6 @@
           >
             <i class="h-4 w-4" data-lucide="plus"></i> Add Project
           </button>
-
-          <button
-            type="button"
-            id="admin-download-projects-btn"
-            class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
-          >
-            <i class="h-4 w-4" data-lucide="download"></i> Download projects.json
-          </button>
         </div>
       </div>
 
@@ -217,14 +202,6 @@
             class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500"
           >
             <i class="h-4 w-4" data-lucide="plus"></i> Add Certificate
-          </button>
-
-          <button
-            type="button"
-            id="admin-download-certs-btn"
-            class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
-          >
-            <i class="h-4 w-4" data-lucide="download"></i> Download certificates.json
           </button>
         </div>
       </div>
@@ -251,14 +228,6 @@
           >
             <i class="h-4 w-4" data-lucide="plus"></i> Add Experience
           </button>
-
-          <button
-            type="button"
-            id="admin-download-exp-btn"
-            class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
-          >
-            <i class="h-4 w-4" data-lucide="download"></i> Download experience.json
-          </button>
         </div>
       </div>
 
@@ -284,14 +253,6 @@
           >
             <i class="h-4 w-4" data-lucide="plus"></i> Add Volunteering
           </button>
-
-          <button
-            type="button"
-            id="admin-download-vol-btn"
-            class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
-          >
-            <i class="h-4 w-4" data-lucide="download"></i> Download volunteering.json
-          </button>
         </div>
       </div>
 
@@ -316,14 +277,6 @@
             class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500"
           >
             <i class="h-4 w-4" data-lucide="plus"></i> Add Skill Category
-          </button>
-
-          <button
-            type="button"
-            id="admin-download-skills-btn"
-            class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
-          >
-            <i class="h-4 w-4" data-lucide="download"></i> Download skills.json
           </button>
         </div>
       </div>
@@ -540,9 +493,6 @@
           <button type="button" id="admin-add-post-btn" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">
             <i class="h-4 w-4" data-lucide="plus"></i> Add Post
           </button>
-          <button type="button" id="admin-download-posts-btn" class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
-            <i class="h-4 w-4" data-lucide="download"></i> Download posts.json
-          </button>
         </div>
       </div>
       <div id="admin-posts-list" class="space-y-4"></div>
@@ -552,9 +502,18 @@
     <!-- TAB 8: EXPORT & BACKUP -->
     <!-- ========================================================= -->
     <div id="admin-tab-export" class="admin-tab-pane hidden">
-      <div class="mb-6">
-        <h3 class="text-xl font-bold tracking-tight">Export &amp; Backup Data</h3>
-        <p class="text-sm text-zinc-500 dark:text-zinc-400">Download or view your JSON data files.</p>
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h3 class="text-xl font-bold tracking-tight">Export &amp; Backup Data</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">Download or view your JSON data files.</p>
+        </div>
+        <button
+          type="button"
+          id="admin-export-all-btn"
+          class="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-xs font-semibold text-zinc-700 shadow-sm transition hover:border-indigo-400 hover:text-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-indigo-400"
+        >
+          <i class="h-4 w-4" data-lucide="download"></i> Download All JSON
+        </button>
       </div>
 
       <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
