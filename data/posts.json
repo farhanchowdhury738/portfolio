@@ -1,26 +1,36 @@
 [
   {
-    "id": 1,
-    "slug": "php-mvc-faculty-finder",
-    "date": "2026-03-15",
-    "category": "Web Development",
-    "title": "Building a Faculty Finder with PHP & MVC Architecture",
-    "description": "During my coursework at AIUB, finding teacher schedules, office hours, and room locations across departments was often confusing for new students. I decided to build 'Faculty Finder' to solve this problem by organizing faculty profiles, consultations, and department listings in one clean interface.\n\nInstead of writing spaghetti PHP, I structured the application using the Model-View-Controller (MVC) pattern. Separating the database models (handling MySQL queries via PDO with prepared statements) from views and controllers made adding features much easier and eliminated SQL injection vulnerabilities.\n\nThe biggest challenge was architecting dynamic search filters with AJAX so students could instantly query professors by department, designation, or available days without full page reloads. This project taught me how production-grade backends handle routing, session auth, and data normalization.",
-    "text": [
-      "During my coursework at AIUB, finding teacher schedules, office hours, and room locations across departments was often confusing for new students. I decided to build 'Faculty Finder' to solve this problem by organizing faculty profiles, consultations, and department listings in one clean interface.",
-      "Instead of writing spaghetti PHP, I structured the application using the Model-View-Controller (MVC) pattern. Separating the database models (handling MySQL queries via PDO with prepared statements) from views and controllers made adding features much easier and eliminated SQL injection vulnerabilities.",
-      "The biggest challenge was architecting dynamic search filters with AJAX so students could instantly query professors by department, designation, or available days without full page reloads. This project taught me how production-grade backends handle routing, session auth, and data normalization."
-    ],
+    "id": 1792696821021,
+    "slug": "git-learning-journey",
+    "title": "Git Learning Journey",
+    "date": "2026-10-22",
+    "category": "Learning & Development",
+    "description": "October Learning Milestone | DataCamp\n\nI'm glad to share that I completed three Git courses on DataCamp this October, strengthening my understanding of version control and software development workflows.\n\nCourses Completed\n     • Introduction to Git\n     • Intermediate Git\n     • Advanced Git\n\nThis learning experience helped me build a stronger foundation in Git, from the basics to more advanced concepts.\n\nAs a CSE student, I believe continuous learning and practical skill development are essential for my growth as a future software engineer. Looking forward to learning more and applying these skills to real-world projects!",
     "images": [
-      "images/blog/post1-1.png",
-      "images/blog/post1-2.png",
-      "images/blog/post1-3.png"
+      "images/blog/git-learning-journey/1.jpg",
+      "images/blog/git-learning-journey/2.jpg",
+      "images/blog/git-learning-journey/3.jpg"
     ],
-    "image": "",
     "visibility": "public",
     "featured": false,
-    "projectUrl": "https://github.com/farhanchowdhury738/",
-    "link": "https://github.com/farhanchowdhury738/"
+    "projectUrl": ""
+  },
+  {
+    "id": 1792697289473,
+    "slug": "champion-idea-generation-segment",
+    "title": "Champion – Idea Generation Segment",
+    "date": "2026-10-22",
+    "category": "Champion",
+    "description": "✨ IEEE SPAVE 2025 ✨\n\nI’m thrilled to share that our team has been awarded the Champion title in the Idea Generation segment of IEEE SPAVE 2025, organized by the IEEE AIUB Student Branch! 🏆💡\n\nIt was an incredible experience to brainstorm innovative ideas, collaborate with brilliant minds, and present our vision for the future. The event pushed us to think beyond boundaries and explore creative solutions to real-world challenges.\nA huge thanks to the organizers and mentors from IEEE AIUB Student Branch for arranging such an inspiring platform for young innovators. Grateful for the opportunity and proud of this achievement! 🌟",
+    "images": [
+      "images/blog/champion-idea-generation-segment/1.jpg",
+      "images/blog/champion-idea-generation-segment/2.jpg",
+      "images/blog/champion-idea-generation-segment/3.jpg",
+      "images/blog/champion-idea-generation-segment/4.jpg"
+    ],
+    "visibility": "public",
+    "featured": false,
+    "projectUrl": ""
   },
   {
     "id": 2,
@@ -33,24 +43,5 @@
     "visibility": "public",
     "featured": false,
     "projectUrl": ""
-  },
-  {
-    "id": 3,
-    "slug": "react-nextjs-learning-journey",
-    "date": "2026-01-10",
-    "category": "Frontend Engineering",
-    "title": "Mastering React and Next.js Through Project-Driven Learning",
-    "description": "Moving from vanilla JavaScript and server-rendered templates to React and Next.js completely shifted how I think about user interface architecture. Rather than manipulating DOM nodes directly, UI becomes a direct function of state.\n\nBuilding full-stack projects with Next.js App Router taught me the nuances between Server Components and Client Components. Server components provide blazing fast initial renders with zero client-side JavaScript bloat, while client components deliver rich interactivity where needed.\n\nPairing Next.js with Tailwind CSS enabled me to build clean, responsive, and dark-mode-first designs rapidly. My biggest takeaway for fellow university students: don't get trapped in tutorial hell. Build real apps, break things, debug console errors, and deploy them on Vercel.",
-    "text": [
-      "Moving from vanilla JavaScript and server-rendered templates to React and Next.js completely shifted how I think about user interface architecture. Rather than manipulating DOM nodes directly, UI becomes a direct function of state.",
-      "Building full-stack projects with Next.js App Router taught me the nuances between Server Components and Client Components. Server components provide blazing fast initial renders with zero client-side JavaScript bloat, while client components deliver rich interactivity where needed.",
-      "Pairing Next.js with Tailwind CSS enabled me to build clean, responsive, and dark-mode-first designs rapidly. My biggest takeaway for fellow university students: don't get trapped in tutorial hell. Build real apps, break things, debug console errors, and deploy them on Vercel."
-    ],
-    "images": [],
-    "image": "",
-    "visibility": "public",
-    "featured": false,
-    "projectUrl": "",
-    "link": "https://github.com/farhanchowdhury738/"
   }
 ]

@@ -126,44 +126,7 @@
     "image": "images/projects/Cleaner_Robot.jpeg",
     "liveDemo": "",
     "github": "",
-    "featured": true
-  },
-  {
-    "id": 12,
-    "title": "Job & Internship Platform",
-    "category": "Cross-Platform Application",
-    "technologies": [
-      "ASP.NET Core MVC",
-      "C#",
-      "SQL Server",
-      "Razor Views",
-      "Tailwind CSS",
-      "JavaScript"
-    ],
-    "timeline": {
-      "start": "September 2026",
-      "end": "Present"
-    },
-    "details": [
-      "A full-stack job and internship platform designed to connect students and job seekers with companies.",
-      "The platform allows users to search for opportunities, apply for jobs, upload resumes, and track application status."
-    ],
-    "features": [
-      "User registration and login",
-      "Role-based access",
-      "Job and internship posting",
-      "Job search and filtering",
-      "Online job application",
-      "Resume upload",
-      "Application tracking",
-      "Recruiter dashboard",
-      "Admin dashboard",
-      "Job bookmarking"
-    ],
-    "image": "",
-    "liveDemo": "",
-    "github": "https://github.com/farhanchowdhury738/job-internship-platform",
-    "featured": true
+    "featured": false
   },
   {
     "id": 3,
@@ -171,11 +134,11 @@
     "category": "Data Science",
     "technologies": [
       "R",
-      "Data Analysis",
       "NLP",
       "TF-IDF",
-      "Bag-of-Words",
-      "Machine Learning"
+      "BoW",
+      "Naive Bayes",
+      "ML"
     ],
     "timeline": {
       "start": "June 2026",
@@ -372,6 +335,43 @@
     "image": "images/projects/DC_Charger.jpeg",
     "liveDemo": "",
     "github": "",
+    "featured": false
+  },
+  {
+    "id": 12,
+    "title": "Job & Internship Platform",
+    "category": "Cross-Platform Application",
+    "technologies": [
+      "ASP.NET Core MVC",
+      "C#",
+      "SQL Server",
+      "Razor Views",
+      "Tailwind CSS",
+      "JavaScript"
+    ],
+    "timeline": {
+      "start": "September 2026",
+      "end": "Present"
+    },
+    "details": [
+      "A full-stack job and internship platform designed to connect students and job seekers with companies.",
+      "The platform allows users to search for opportunities, apply for jobs, upload resumes, and track application status."
+    ],
+    "features": [
+      "User registration and login",
+      "Role-based access",
+      "Job and internship posting",
+      "Job search and filtering",
+      "Online job application",
+      "Resume upload",
+      "Application tracking",
+      "Recruiter dashboard",
+      "Admin dashboard",
+      "Job bookmarking"
+    ],
+    "image": "",
+    "liveDemo": "",
+    "github": "https://github.com/farhanchowdhury738/job-internship-platform",
     "featured": false
   }
 ]

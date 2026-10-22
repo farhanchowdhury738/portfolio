@@ -1,5 +1,13 @@
 [
   {
+    "title": "Advanced Git",
+    "organization": "datacamp",
+    "date": "Oct 2026",
+    "logo": "images/dataCamp.png",
+    "credential": "https://www.datacamp.com/statement-of-accomplishment/course/c270606829719409bd3734ba70a9f1c7ada4bfa4?raw=1",
+    "skills": "Git"
+  },
+  {
     "title": "Champion, Idea Generation Segment",
     "organization": "IEEE SPAVE 2025",
     "date": "Oct 2025",
