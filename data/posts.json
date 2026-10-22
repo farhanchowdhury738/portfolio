@@ -43,5 +43,49 @@
     "visibility": "public",
     "featured": false,
     "projectUrl": ""
+  },
+  {
+    "id": 1792698748928,
+    "slug": "efootball-tournament-2025",
+    "title": "eFootball Tournament 2025",
+    "date": "2025-12-29",
+    "category": "General",
+    "description": "My Experience as an eFootball Volunteer\n\nBeing part of the eFootball Tournament 2025, organized by Connect eSports, the official esports wing of AIUB Connect, was a valuable and rewarding experience for me. Held from October 9 to October 31, 2025, the tournament brought together 110+ registered players and highlighted the growing esports culture at our university.\n\nMy Role & Responsibilities\nAs an eFootball Volunteer, I was responsible for managing 3 groups, with 16 players in each group. My responsibilities included coordinating players, maintaining effective communication, and helping ensure fair play and smooth tournament operations.\n\nWorking closely with players and the organizing team helped me develop practical skills in event management, team coordination, communication, and leadership.\n\nKey Takeaways\nThis experience taught me the importance of teamwork, responsibility, and clear communication in managing a large-scale event. It also strengthened my interest in esports and community-driven initiatives.\nI am grateful to Team AIUB Connect, Connect eSports, fellow volunteers, organizers, and players for making this journey meaningful. I look forward to taking part in more initiatives where I can contribute, learn, and grow professionally.\n\nEvent: eFootball Tournament 2025\nOrganizer: Connect eSports — AIUB Connect\nRole: eFootball Volunteer\nDuration: October 9–31, 2025",
+    "images": [
+      "images/blog/efootball-tournament-2025/1.jpg",
+      "images/blog/efootball-tournament-2025/2.jpg",
+      "images/blog/efootball-tournament-2025/3.jpg",
+      "images/blog/efootball-tournament-2025/4.jpg"
+    ],
+    "visibility": "public",
+    "featured": false,
+    "projectUrl": ""
+  },
+  {
+    "id": 1792699502742,
+    "slug": "100-day-github-contribution-challenge",
+    "title": "100-Day GitHub Contribution Challenge",
+    "date": "2025-11-17",
+    "category": "Achievement",
+    "description": "Completing My 100-Day GitHub Contribution Challenge \n\nI'm excited to share that I successfully completed a 100-day streak of GitHub contributions, maintaining consistency and contributing every single day from August 9 to November 16, 2025.\n\nThis challenge was more than just maintaining a streak. It helped me develop discipline, strengthen my problem-solving habits, and stay committed to continuous learning and technical growth.\n\nKey Highlights\nTotal Contributions: 506\nLongest Streak: 100 consecutive days\nChallenge Period: August 9 – November 16, 2025\nMost Used Languages: C# (34.70%), Java (27.54%), C++ (17.87%)\n\nThroughout this journey, I learned the value of showing up consistently, making steady progress, and improving through practice.\n\nI'm grateful for the support and motivation from the developer community. This milestone is another step forward in my journey as a developer, and I'm looking forward to building more projects and taking on new challenges.",
+    "images": [
+      "images/blog/100-day-github-contribution-challenge/1.jpg",
+      "images/blog/100-day-github-contribution-challenge/2.jpg"
+    ],
+    "visibility": "public",
+    "featured": false,
+    "projectUrl": ""
+  },
+  {
+    "id": 1792699625399,
+    "slug": "update-blog-section",
+    "title": "Update Blog Section",
+    "date": "2026-10-22",
+    "category": "General",
+    "description": "1. blod\n2. font size up/down\n3. hyperlink text\n4.",
+    "images": [],
+    "visibility": "private",
+    "featured": false,
+    "projectUrl": ""
   }
 ]
