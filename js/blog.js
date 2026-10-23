@@ -1,3 +1,153 @@
+// Shared rich-text helpers for the blog editor and the public detail page.
+// Content is treated as untrusted HTML: only the small formatting subset below
+// is kept, and every link is checked before it is rendered.
+(function () {
+  const ALLOWED_TAGS = new Set([
+    "P", "BR", "STRONG", "B", "EM", "I", "U", "H2", "H3",
+    "A", "UL", "OL", "LI", "FONT", "DIV", "SPAN",
+  ]);
+  const DROP_TAGS = new Set([
+    "SCRIPT", "STYLE", "IFRAME", "OBJECT", "EMBED", "TEMPLATE", "NOSCRIPT",
+    "SVG", "MATH", "LINK", "META", "BASE", "FORM", "INPUT", "BUTTON",
+    "TEXTAREA", "SELECT", "OPTION", "IMG", "VIDEO", "AUDIO", "SOURCE",
+    "TRACK", "CANVAS", "MAP", "AREA", "PICTURE", "XMP", "PLAINTEXT",
+    "FRAME", "FRAMESET", "APPLET",
+  ]);
+  const RICH_TAG_RE = /<\/?(?:p|br|strong|b|em|i|u|h2|h3|a|ul|ol|li|div|span|font)\b[^>]*>/i;
+
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    })[character]);
+  }
+
+  function isRichHtml(value) {
+    return RICH_TAG_RE.test(String(value ?? ""));
+  }
+
+  function safeHref(value) {
+    const href = String(value ?? "").trim();
+    if (!href) return "";
+    const compact = href.replace(/[\u0000-\u0020\u007f-\u009f\u00a0]+/g, "");
+    if (!compact) return "";
+    if (/^(?:javascript|data|vbscript|file|blob|filesystem):/i.test(compact)) return "";
+    const protocol = compact.match(/^([a-z][a-z0-9+.-]*):/i);
+    if (protocol && !/^(?:https?|mailto|tel)$/i.test(protocol[1])) return "";
+    return href;
+  }
+
+  function isSafeHref(value) {
+    return Boolean(safeHref(value));
+  }
+
+  function cleanChildren(parent) {
+    Array.from(parent.childNodes).forEach((node) => {
+      if (node.nodeType === 3) return;
+      if (node.nodeType !== 1) {
+        node.remove();
+        return;
+      }
+
+      const tag = node.tagName.toUpperCase();
+      if (!ALLOWED_TAGS.has(tag)) {
+        if (DROP_TAGS.has(tag)) {
+          node.remove();
+          return;
+        }
+        cleanChildren(node);
+        while (node.firstChild) parent.insertBefore(node.firstChild, node);
+        node.remove();
+        return;
+      }
+
+      const href = tag === "A" ? safeHref(node.getAttribute("href")) : "";
+      const fontSize = tag === "FONT" ? node.getAttribute("size") : "";
+      Array.from(node.attributes).forEach((attribute) => {
+        node.removeAttribute(attribute.name);
+      });
+
+      if (tag === "A") {
+        if (!href) {
+          cleanChildren(node);
+          while (node.firstChild) parent.insertBefore(node.firstChild, node);
+          node.remove();
+          return;
+        }
+        node.setAttribute("href", href);
+        node.setAttribute("target", "_blank");
+        node.setAttribute("rel", "noopener noreferrer");
+      }
+
+      if (tag === "FONT" && /^[2-5]$/.test(String(fontSize || ""))) {
+        node.setAttribute("size", fontSize);
+      }
+
+      cleanChildren(node);
+    });
+  }
+
+  function sanitize(value) {
+    const html = String(value ?? "");
+    if (!html) return "";
+    const doc = new DOMParser().parseFromString(
+      `<div id="portfolio-rich-root">${html}</div>`,
+      "text/html",
+    );
+    const root = doc.getElementById("portfolio-rich-root");
+    if (!root) return "";
+    cleanChildren(root);
+    return root.innerHTML;
+  }
+
+  function toEditorHtml(value) {
+    const raw = String(value ?? "").replace(/\r\n?/g, "\n");
+    if (!raw) return "";
+    if (isRichHtml(raw)) return sanitize(raw);
+    return escapeHtml(raw).replace(/\n/g, "<br>");
+  }
+
+  function toPlainText(value) {
+    const raw = String(value ?? "");
+    if (!isRichHtml(raw)) return raw;
+    const spaced = sanitize(raw)
+      .replace(/<br\s*\/?>/gi, " ")
+      .replace(/<\/(?:p|div|h2|h3|li|ul|ol)>/gi, " ");
+    const doc = new DOMParser().parseFromString(`<div>${spaced}</div>`, "text/html");
+    return (doc.body.textContent || "").replace(/\s+/g, " ").trim();
+  }
+
+  function editorToStorage(value) {
+    const cleaned = sanitize(value);
+    if (!cleaned) return "";
+    const probe = document.createElement("div");
+    probe.innerHTML = cleaned;
+    if (!probe.textContent.replace(/\u200b/g, "").trim()) return "";
+    return cleaned;
+  }
+
+  function render(value) {
+    const raw = String(value ?? "");
+    if (!raw.trim()) return { html: "", rich: false };
+    if (!isRichHtml(raw)) return { html: escapeHtml(raw), rich: false };
+    return { html: sanitize(raw), rich: true };
+  }
+
+  window.PortfolioRichText = {
+    sanitize,
+    toEditorHtml,
+    toPlainText,
+    editorToStorage,
+    render,
+    escapeHtml,
+    isRichHtml,
+    isSafeHref,
+  };
+})();
+
 // Blog implementation - Facebook-style post feed with pagination and details page
 window.loadBlog = async function () {
   const root = document.getElementById("blog-feed");
@@ -94,8 +244,12 @@ function renderList(page) {
             p.description ||
             (Array.isArray(p.text) ? p.text.join(" ") : p.text || "");
 
+          const plainDesc = window.PortfolioRichText
+            ? window.PortfolioRichText.toPlainText(desc)
+            : String(desc || "");
+
           const preview =
-            desc.length > 200 ? desc.substring(0, 197) + "..." : desc;
+            plainDesc.length > 200 ? plainDesc.substring(0, 197) + "..." : plainDesc;
 
           return `
             <article class="group flex h-full flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
@@ -222,6 +376,9 @@ function renderList(page) {
   function renderDetail(post) {
     const imgs = Array.isArray(post.images) ? post.images.filter(Boolean) : (post.image ? [post.image] : []);
     const desc = post.description || (Array.isArray(post.text) ? post.text.join("\n\n") : post.text || "");
+    const renderedDesc = window.PortfolioRichText
+      ? window.PortfolioRichText.render(desc)
+      : { html: esc(desc), rich: false };
     const url = `${location.origin}/blog/${post.slug || ""}`;
     return `
       <div class="mb-6">
@@ -240,7 +397,7 @@ function renderList(page) {
           </div>
         </header>
         <h1 class="mt-6 text-2xl font-bold sm:text-3xl">${esc(post.title)}</h1>
-        <div class="mt-4 whitespace-pre-line text-[15px] leading-7 text-zinc-700 dark:text-zinc-300">${esc(desc)}</div>
+        <div class="rich-text-content mt-4${renderedDesc.rich ? "" : " whitespace-pre-line"} break-words text-[15px] leading-7 text-zinc-700 dark:text-zinc-300">${renderedDesc.html}</div>
         ${imgs.length > 0
           ? `<div class="mt-6 grid gap-2 sm:grid-cols-2">
               ${imgs.map((img, idx) => `<button type="button" data-blog-detail-img="${idx}" data-blog-detail-all='${esc(JSON.stringify(imgs))}' class="block overflow-hidden rounded-2xl"><img src="${esc(img)}" alt="" loading="lazy" class="h-full w-full object-cover" /></button>`).join("")}

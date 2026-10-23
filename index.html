@@ -108,6 +108,76 @@
     };
   </script>
 
+  <style type="text/tailwindcss">
+    /* Formatting used by the blog admin editor and the public post detail page. */
+    .rich-text-content {
+      @apply break-words;
+    }
+
+    .rich-text-content h2 {
+      @apply mb-2 mt-5 text-xl font-bold leading-snug;
+    }
+
+    .rich-text-content h3 {
+      @apply mb-2 mt-4 text-lg font-bold leading-snug;
+    }
+
+    .rich-text-content p,
+    .rich-text-content div {
+      @apply mb-2;
+    }
+
+    .rich-text-content ul {
+      @apply mb-2 list-disc pl-5;
+    }
+
+    .rich-text-content ol {
+      @apply mb-2 list-decimal pl-5;
+    }
+
+    .rich-text-content li {
+      @apply ml-1;
+    }
+
+    .rich-text-content a {
+      @apply font-medium text-indigo-600 underline underline-offset-2 hover:text-indigo-500 dark:text-indigo-400;
+    }
+
+    .rich-text-content strong,
+    .rich-text-content b {
+      @apply font-bold;
+    }
+
+    .rich-text-content em,
+    .rich-text-content i {
+      @apply italic;
+    }
+
+    .rich-text-content u {
+      @apply underline underline-offset-2;
+    }
+
+    .rich-text-content font[size="2"] {
+      @apply text-sm;
+    }
+
+    .rich-text-content font[size="3"] {
+      @apply text-base;
+    }
+
+    .rich-text-content font[size="4"] {
+      @apply text-lg;
+    }
+
+    .rich-text-content font[size="5"] {
+      @apply text-xl;
+    }
+
+    .rich-editor-toolbar [aria-pressed="true"] {
+      @apply bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300;
+    }
+  </style>
+
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>

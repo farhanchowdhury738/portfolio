@@ -1336,11 +1336,6 @@
           </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Description (Full content for detail page)</label>
-          <textarea name="description" rows="5" placeholder="Write your full blog post content here..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${esc(p.description || "")}</textarea>
-        </div>
-
         <div class="border-t border-zinc-200 pt-4 dark:border-zinc-800">
           <div class="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300" for="admin-post-images">Images</label>
@@ -1371,6 +1366,38 @@
           </div>
         </div>
 
+        <div>
+          <label id="admin-post-description-label" class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Description (Full content for detail page)</label>
+          <div class="mt-1 overflow-hidden rounded-xl border border-zinc-300 bg-zinc-50 focus-within:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-800">
+            <div id="admin-post-editor-toolbar" role="toolbar" aria-label="Description formatting" aria-controls="admin-post-description-editor" class="rich-editor-toolbar flex flex-wrap items-center gap-1 border-b border-zinc-200 bg-white/70 p-2 dark:border-zinc-700 dark:bg-zinc-900/60">
+              <button type="button" data-editor-cmd="bold" aria-label="Bold" aria-pressed="false" title="Bold" class="inline-flex h-8 min-w-[34px] items-center justify-center rounded-lg px-2 text-xs font-bold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">B</button>
+              <button type="button" data-editor-cmd="italic" aria-label="Italic" aria-pressed="false" title="Italic" class="inline-flex h-8 min-w-[34px] items-center justify-center rounded-lg px-2 text-xs font-semibold italic text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">I</button>
+              <button type="button" data-editor-cmd="underline" aria-label="Underline" aria-pressed="false" title="Underline" class="inline-flex h-8 min-w-[34px] items-center justify-center rounded-lg px-2 text-xs font-semibold underline text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">U</button>
+              <select id="admin-post-font-size" aria-label="Font size" title="Font size" class="h-8 rounded-lg border border-zinc-300 bg-white px-2 text-xs font-semibold text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                <option value="">Size</option>
+                <option value="2">Small</option>
+                <option value="3">Normal</option>
+                <option value="4">Large</option>
+                <option value="5">Extra large</option>
+              </select>
+              <button type="button" data-editor-block="h2" aria-label="Heading 2" title="Heading 2" class="inline-flex h-8 min-w-[34px] items-center justify-center rounded-lg px-2 text-xs font-bold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">H2</button>
+              <button type="button" data-editor-block="h3" aria-label="Heading 3" title="Heading 3" class="inline-flex h-8 min-w-[34px] items-center justify-center rounded-lg px-2 text-xs font-bold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">H3</button>
+              <button type="button" data-editor-cmd="createLink" aria-label="Insert link" title="Insert link" class="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">Link</button>
+              <button type="button" data-editor-cmd="unlink" aria-label="Remove link" title="Remove link" class="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">Unlink</button>
+              <button type="button" data-editor-cmd="insertUnorderedList" aria-label="Bullet list" aria-pressed="false" title="Bullet list" class="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">• List</button>
+              <button type="button" data-editor-cmd="insertOrderedList" aria-label="Numbered list" aria-pressed="false" title="Numbered list" class="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">1. List</button>
+              <button type="button" data-editor-cmd="undo" aria-label="Undo" title="Undo" class="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">Undo</button>
+              <button type="button" data-editor-cmd="redo" aria-label="Redo" title="Redo" class="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">Redo</button>
+            </div>
+            <div class="relative">
+              <div id="admin-post-description-placeholder" aria-hidden="true" class="pointer-events-none absolute left-3.5 top-3 text-sm text-zinc-400 dark:text-zinc-500">Write your full blog post content here...</div>
+              <div id="admin-post-description-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="admin-post-description-label" class="rich-text-content max-h-[60vh] min-h-[220px] w-full overflow-y-auto overflow-x-hidden px-3.5 py-3 text-sm leading-7 text-zinc-900 focus:outline-none dark:text-zinc-100"></div>
+            </div>
+            <input type="hidden" name="description" id="admin-post-description-input" value="${esc(p.description || "")}" />
+          </div>
+          <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Use the toolbar to format the post. Formatting is saved with the post and shown on the public detail page.</p>
+        </div>
+
         <div id="admin-post-form-status" class="hidden text-xs font-medium"></div>
 
         <div class="flex items-center justify-end gap-3 pt-4">
@@ -1381,6 +1408,7 @@
     `;
 
     openAdminModal(title, formHtml, async (form) => {
+      syncPostDescription(form);
       const fd = new FormData(form);
       const titleVal = fd.get("title").trim();
       if (!titleVal) return false;
@@ -1544,6 +1572,242 @@
       });
     }
     renderImagePreviews();
+
+    const editor = document.getElementById("admin-post-description-editor");
+    const editorInput = document.getElementById("admin-post-description-input");
+    const placeholder = document.getElementById("admin-post-description-placeholder");
+    const toolbar = document.getElementById("admin-post-editor-toolbar");
+    const fontSizeSelect = document.getElementById("admin-post-font-size");
+    const richText = window.PortfolioRichText;
+    let savedRange = null;
+
+    function syncPostDescription() {
+      if (!editor || !editorInput) return;
+      editorInput.value = richText
+        ? richText.editorToStorage(editor.innerHTML)
+        : editor.innerText;
+    }
+
+    function setPlaceholderVisibility() {
+      if (!placeholder || !editor) return;
+      placeholder.classList.toggle("hidden", editor.textContent.trim().length > 0);
+    }
+
+    function saveSelection() {
+      if (!editor) return;
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+      const range = selection.getRangeAt(0);
+      if (editor.contains(range.commonAncestorContainer)) {
+        savedRange = range.cloneRange();
+      }
+    }
+
+    function restoreSelection() {
+      if (!editor) return;
+      editor.focus();
+      if (!savedRange) return;
+      const selection = window.getSelection();
+      if (!selection) return;
+      try {
+        selection.removeAllRanges();
+        selection.addRange(savedRange);
+      } catch (e) {
+        const fallback = document.createRange();
+        fallback.selectNodeContents(editor);
+        fallback.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(fallback);
+      }
+    }
+
+    function normalizeBlockName(value) {
+      return String(value || "").toLowerCase().replace(/[<>]/g, "").trim();
+    }
+
+    function updateToolbarState() {
+      if (!toolbar) return;
+      toolbar.querySelectorAll("[data-editor-cmd]").forEach((button) => {
+        const cmd = button.dataset.editorCmd;
+        if (!["bold", "italic", "underline", "insertUnorderedList", "insertOrderedList"].includes(cmd)) return;
+        try {
+          button.setAttribute("aria-pressed", String(document.queryCommandState(cmd)));
+        } catch (e) {
+          button.setAttribute("aria-pressed", "false");
+        }
+      });
+      const currentBlock = normalizeBlockName(document.queryCommandValue("formatBlock"));
+      toolbar.querySelectorAll("[data-editor-block]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(currentBlock === button.dataset.editorBlock));
+      });
+      if (fontSizeSelect) {
+        let size = "";
+        try {
+          size = String(document.queryCommandValue("fontSize") || "");
+        } catch (e) { }
+        const hasOption = size && fontSizeSelect.querySelector(`option[value="${size}"]`);
+        fontSizeSelect.value = hasOption ? size : "";
+      }
+      setPlaceholderVisibility();
+    }
+
+    function prepareCommand() {
+      if (!editor) return;
+      editor.focus();
+      try {
+        document.execCommand("styleWithCSS", false, false);
+      } catch (e) { }
+    }
+
+    function applyBlock(block) {
+      if (!editor) return;
+      prepareCommand();
+      const current = normalizeBlockName(document.queryCommandValue("formatBlock"));
+      const target = current === block ? "p" : block;
+      try {
+        document.execCommand("formatBlock", false, `<${target}>`);
+      } catch (e) {
+        document.execCommand("formatBlock", false, target);
+      }
+      syncPostDescription();
+      updateToolbarState();
+    }
+
+    function applyFontSize(size) {
+      if (!editor) return;
+      prepareCommand();
+      document.execCommand("fontSize", false, size);
+      syncPostDescription();
+      updateToolbarState();
+    }
+
+    function applyLink() {
+      if (!editor) return;
+      prepareCommand();
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
+      const entered = window.prompt("Enter the link URL:", "https://");
+      if (entered === null) return;
+      let href = entered.trim();
+      if (!href) return;
+      if (!/^[a-z][a-z0-9+.-]*:/i.test(href) && !href.startsWith("/") && !href.startsWith("#") && !href.startsWith(".")) {
+        href = `https://${href}`;
+      }
+      if (richText && !richText.isSafeHref(href)) {
+        window.alert("Unsafe link. Only http, https, mailto, and tel links are allowed.");
+        return;
+      }
+      restoreSelection();
+      document.execCommand("createLink", false, href);
+      syncPostDescription();
+      updateToolbarState();
+    }
+
+    function removeLink() {
+      if (!editor) return;
+      prepareCommand();
+      restoreSelection();
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+      const range = selection.getRangeAt(0);
+      let node = range.commonAncestorContainer;
+      if (node.nodeType === 3) node = node.parentElement;
+      const anchor = node && node.closest ? node.closest("a") : null;
+      if (anchor && editor.contains(anchor)) {
+        const anchorRange = document.createRange();
+        anchorRange.selectNodeContents(anchor);
+        selection.removeAllRanges();
+        selection.addRange(anchorRange);
+      }
+      document.execCommand("unlink");
+      syncPostDescription();
+      updateToolbarState();
+    }
+
+    function runCommand(cmd) {
+      if (!editor) return;
+      if (cmd === "createLink") {
+        applyLink();
+        return;
+      }
+      if (cmd === "unlink") {
+        removeLink();
+        return;
+      }
+      prepareCommand();
+      restoreSelection();
+      document.execCommand(cmd);
+      syncPostDescription();
+      updateToolbarState();
+    }
+
+    function initEditor() {
+      if (!editor || !editorInput) return;
+      const stored = editorInput.value || "";
+      if (stored) {
+        editor.innerHTML = richText ? richText.toEditorHtml(stored) : stored;
+      }
+      syncPostDescription();
+      updateToolbarState();
+
+      editor.addEventListener("input", () => {
+        syncPostDescription();
+        updateToolbarState();
+      });
+      editor.addEventListener("keyup", () => {
+        saveSelection();
+        updateToolbarState();
+      });
+      editor.addEventListener("mouseup", () => {
+        saveSelection();
+        updateToolbarState();
+      });
+      editor.addEventListener("focus", saveSelection);
+      editor.addEventListener("click", (event) => {
+        const anchor = event.target.closest("a");
+        if (anchor) event.preventDefault();
+      });
+      editor.addEventListener("paste", (event) => {
+        event.preventDefault();
+        const text = event.clipboardData.getData("text/plain");
+        document.execCommand("insertText", false, text);
+        syncPostDescription();
+        updateToolbarState();
+      });
+
+      if (toolbar) {
+        toolbar.addEventListener("mousedown", (event) => {
+          saveSelection();
+          if (event.target.closest("button")) event.preventDefault();
+        });
+        toolbar.addEventListener("click", (event) => {
+          const blockButton = event.target.closest("[data-editor-block]");
+          const commandButton = event.target.closest("[data-editor-cmd]");
+          if (!blockButton && !commandButton) return;
+          event.preventDefault();
+          if (blockButton) {
+            applyBlock(blockButton.dataset.editorBlock);
+          } else {
+            runCommand(commandButton.dataset.editorCmd);
+          }
+        });
+      }
+
+      if (fontSizeSelect) {
+        fontSizeSelect.addEventListener("mousedown", saveSelection);
+        fontSizeSelect.addEventListener("change", () => {
+          if (fontSizeSelect.value) applyFontSize(fontSizeSelect.value);
+        });
+      }
+
+      const form = document.getElementById("admin-post-form");
+      if (form) {
+        form.addEventListener("submit", syncPostDescription);
+      }
+    }
+
+    initEditor();
+
   }
 
   function slugify(name) {
