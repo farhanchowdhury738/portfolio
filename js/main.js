@@ -36,9 +36,9 @@ async function loadCertificates() {
       .map((certificate) => {
         const skillsList = certificate.skills
           ? certificate.skills
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean)
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
           : [];
 
         return `
@@ -57,10 +57,11 @@ async function loadCertificates() {
                   <div
                     class="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-zinc-200/70 bg-zinc-50/80 p-1 transition-transform duration-300 group-hover:scale-105 group-hover:border-indigo-200 dark:border-zinc-800 dark:bg-zinc-800/80 dark:group-hover:border-indigo-800"
                   >
-                    ${certificate.logo
-            ? `<img src="${certificate.logo}" alt="${certificate.organization}" loading="lazy" class="h-full w-full object-contain" />`
-            : `<i class="h-4 w-4 text-indigo-500" data-lucide="award"></i>`
-          }
+                    ${
+                      certificate.logo
+                        ? `<img src="${certificate.logo}" alt="${certificate.organization}" loading="lazy" class="h-full w-full object-contain" />`
+                        : `<i class="h-4 w-4 text-indigo-500" data-lucide="award"></i>`
+                    }
                   </div>
                   <span
                     class="truncate text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
@@ -84,12 +85,13 @@ async function loadCertificates() {
               </h4>
 
               <!-- Skills / Topics Tags -->
-              ${skillsList.length
-            ? `
+              ${
+                skillsList.length
+                  ? `
                     <div class="mt-2.5 flex flex-wrap gap-1">
                       ${skillsList
-              .map(
-                (skill) => `
+                        .map(
+                          (skill) => `
                           <span
                             class="inline-flex items-center gap-1 rounded-md border border-zinc-200/70 bg-zinc-50/80 px-2 py-0.5 text-[11px] font-medium text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950/60 dark:text-zinc-300"
                           >
@@ -97,20 +99,21 @@ async function loadCertificates() {
                             ${skill}
                           </span>
                         `,
-              )
-              .join("")}
+                        )
+                        .join("")}
                     </div>
                   `
-            : ""
-          }
+                  : ""
+              }
             </div>
 
             <!-- Footer: Credential Link -->
             <div
               class="mt-3.5 flex items-center justify-end border-t border-zinc-100/80 pt-2.5 dark:border-zinc-800/60"
             >
-              ${certificate.credential
-            ? `
+              ${
+                certificate.credential
+                  ? `
                     <a
                       href="${certificate.credential}"
                       target="_blank"
@@ -125,8 +128,8 @@ async function loadCertificates() {
                       ></i>
                     </a>
                   `
-            : ""
-          }
+                  : ""
+              }
             </div>
           </article>
         `;
@@ -164,8 +167,9 @@ async function loadVolunteering() {
         .map(
           (item, index) => `
             <div
-              class="relative ${index !== volunteering.length - 1 ? "pb-10" : ""
-            } pl-12"
+              class="relative ${
+                index !== volunteering.length - 1 ? "pb-10" : ""
+              } pl-12"
             >
 
               <!-- Timeline Dot -->
@@ -190,8 +194,8 @@ async function loadVolunteering() {
                 class="mt-4 space-y-1 text-sm leading-6 text-zinc-600 dark:text-zinc-400"
               >
                 ${item.description
-              .map((description) => `<li>• ${description}</li>`)
-              .join("")}
+                  .map((description) => `<li>• ${description}</li>`)
+                  .join("")}
               </ul>
 
             </div>
@@ -235,8 +239,9 @@ async function loadExperience() {
         .map(
           (item, index) => `
             <div
-              class="relative ${index !== experience.length - 1 ? "pb-10" : ""
-            } pl-12"
+              class="relative ${
+                index !== experience.length - 1 ? "pb-10" : ""
+              } pl-12"
             >
 
               <!-- Timeline Dot -->
@@ -259,8 +264,8 @@ async function loadExperience() {
                 class="mt-4 space-y-1 text-sm leading-6 text-zinc-600 dark:text-zinc-400"
               >
                 ${(item.description || [])
-              .map((desc) => `<li>• ${desc}</li>`)
-              .join("")}
+                  .map((desc) => `<li>• ${desc}</li>`)
+                  .join("")}
               </ul>
 
             </div>
@@ -309,15 +314,15 @@ async function loadSkills() {
 
           <div class="flex flex-wrap gap-1.5">
             ${(group.skills || [])
-            .map(
-              (skill) => `
+              .map(
+                (skill) => `
                 <span class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200/80 bg-zinc-50/70 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:border-indigo-300 hover:bg-white hover:text-indigo-600 dark:border-zinc-800/90 dark:bg-zinc-950/60 dark:text-zinc-300 dark:hover:border-indigo-500/40 dark:hover:text-indigo-400">
                   <span class="h-1.5 w-1.5 rounded-full bg-indigo-500/80"></span>
                   ${skill}
                 </span>
               `,
-            )
-            .join("")}
+              )
+              .join("")}
           </div>
         </div>
       `,
@@ -343,7 +348,7 @@ const escapeHTML = (s) =>
     /[&<>"']/g,
     (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
-      c
+        c
       ],
   );
 
@@ -371,19 +376,20 @@ function projectCard(project, index) {
   return `
     <article class="flex h-full flex-col group rounded-3xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
       <div class="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-100 to-zinc-100 text-4xl font-bold tracking-tight text-indigo-300 dark:from-indigo-950 dark:to-zinc-800 dark:text-indigo-800">
-        ${project.image
-      ? `<img src="${project.image}" alt="${project.title}" loading="lazy"/>`
-      : initials
-    }
+        ${
+          project.image
+            ? `<img src="${project.image}" alt="${project.title}" loading="lazy"/>`
+            : initials
+        }
       </div>
       <div class="flex flex-1 flex-col pt-5">
         <div class="flex flex-wrap gap-1.5">
           ${project.technologies
-      .map(
-        (t) =>
-          `<span class="rounded-full border border-zinc-200 px-2.5 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">${t}</span>`,
-      )
-      .join("")}
+            .map(
+              (t) =>
+                `<span class="rounded-full border border-zinc-200 px-2.5 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">${t}</span>`,
+            )
+            .join("")}
         </div>
         <h3 class="mt-3 text-xl font-bold">${project.title}</h3>
         
@@ -443,7 +449,8 @@ function openProjectModal(project, opener) {
       ([label, href, primary]) =>
         `<a href="${escapeHTML(
           href,
-        )}" target="_blank" rel="noopener noreferrer" class="${BTN} ${primary ? BTN_PRIMARY : BTN_OUTLINE
+        )}" target="_blank" rel="noopener noreferrer" class="${BTN} ${
+          primary ? BTN_PRIMARY : BTN_OUTLINE
         }">${label} ↗</a>`,
     )
     .join("");
@@ -462,14 +469,15 @@ function openProjectModal(project, opener) {
       class="relative max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl bg-white p-6 text-zinc-900 shadow-2xl dark:bg-zinc-900 dark:text-zinc-100 sm:rounded-3xl sm:p-8"
     >
 
-      ${project.image
-      ? `<img
+      ${
+        project.image
+          ? `<img
               src="${escapeHTML(project.image)}"
               alt="${escapeHTML(project.title)}"
               class="mb-6 max-h-[50vh] w-full rounded-2xl border border-zinc-200 bg-zinc-100 object-contain dark:border-zinc-800 dark:bg-zinc-800"
             />`
-      : ""
-    }
+          : ""
+      }
 
       <h3
         id="project-modal-title"
@@ -481,23 +489,24 @@ function openProjectModal(project, opener) {
       <!-- Technologies -->
       <div class="mt-3 flex flex-wrap gap-1.5">
         ${(project.technologies || [])
-      .map(
-        (t) =>
-          `<span class="rounded-full border border-zinc-200 px-2.5 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">${escapeHTML(
-            t,
-          )}</span>`,
-      )
-      .join("")}
+          .map(
+            (t) =>
+              `<span class="rounded-full border border-zinc-200 px-2.5 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">${escapeHTML(
+                t,
+              )}</span>`,
+          )
+          .join("")}
       </div>
 
       <!-- Timeline & Category -->
-      ${meta.length
-      ? `
+      ${
+        meta.length
+          ? `
             <dl class="mt-5 grid gap-3 text-sm sm:grid-cols-2">
               ${meta
-        .map(
-          ([k, v]) =>
-            `<div class="rounded-2xl border border-zinc-200 p-3 dark:border-zinc-800">
+                .map(
+                  ([k, v]) =>
+                    `<div class="rounded-2xl border border-zinc-200 p-3 dark:border-zinc-800">
                       <dt class="text-zinc-500 dark:text-zinc-400">
                         ${escapeHTML(k)}
                       </dt>
@@ -505,16 +514,17 @@ function openProjectModal(project, opener) {
                         ${escapeHTML(v)}
                       </dd>
                     </div>`,
-        )
-        .join("")}
+                )
+                .join("")}
             </dl>
           `
-      : ""
-    }
+          : ""
+      }
 
       <!-- About Project -->
-      ${paragraphs.length
-      ? `
+      ${
+        paragraphs.length
+          ? `
             <section class="mt-6">
               <h4 class="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                 About Project
@@ -525,12 +535,13 @@ function openProjectModal(project, opener) {
               </div>
             </section>
           `
-      : ""
-    }
+          : ""
+      }
 
       <!-- Key Features -->
-      ${project.features?.length
-      ? `
+      ${
+        project.features?.length
+          ? `
             <section class="mt-6">
               <h4 class="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                 Key Features
@@ -538,13 +549,13 @@ function openProjectModal(project, opener) {
 
               <ul class="mt-3 list-disc space-y-1.5 pl-5 text-[15px] leading-7 text-zinc-700 dark:text-zinc-300">
                 ${project.features
-        .map((f) => `<li>${escapeHTML(f)}</li>`)
-        .join("")}
+                  .map((f) => `<li>${escapeHTML(f)}</li>`)
+                  .join("")}
               </ul>
             </section>
           `
-      : ""
-    }
+          : ""
+      }
 
       <!-- Back button + Project Links -->
       <div class="mt-7 flex flex-wrap items-center justify-between gap-3 text-sm font-semibold">
@@ -556,12 +567,13 @@ function openProjectModal(project, opener) {
           ← Back
         </button>
 
-        ${links
-      ? `<div class="flex flex-wrap gap-2">
+        ${
+          links
+            ? `<div class="flex flex-wrap gap-2">
                 ${links}
               </div>`
-      : ""
-    }
+            : ""
+        }
       </div>
     </div>
   `;
@@ -606,7 +618,10 @@ async function loadProjects() {
       document.addEventListener("click", (e) => {
         const btn = e.target.closest("[data-project-details]");
         if (btn && window._currentProjectsList)
-          openProjectModal(window._currentProjectsList[Number(btn.dataset.projectDetails)], btn);
+          openProjectModal(
+            window._currentProjectsList[Number(btn.dataset.projectDetails)],
+            btn,
+          );
       });
       window._projectDetailsListenerAttached = true;
     }
@@ -851,17 +866,78 @@ function initializePortfolio() {
   // ==========================================================
 
   const contactForm = document.getElementById("contact-form");
+  let contactToastTimer;
+
+  function showContactToast(type) {
+    const isSuccess = type === "success";
+    const existingToast = document.getElementById("contact-toast");
+    if (existingToast) existingToast.remove();
+    clearTimeout(contactToastTimer);
+
+    const toast = document.createElement("div");
+    toast.id = "contact-toast";
+    toast.setAttribute("role", isSuccess ? "status" : "alert");
+    toast.setAttribute("aria-live", isSuccess ? "polite" : "assertive");
+    toast.className = "fixed inset-x-4 top-4 z-50 flex max-w-sm -translate-y-2 items-start gap-3 rounded-2xl border border-zinc-200 border-l-4 border-l-indigo-500 bg-white p-4 text-sm shadow-lg opacity-0 transition-all duration-200 dark:border-zinc-700 dark:bg-zinc-900 sm:left-auto sm:right-6 sm:w-full";
+    toast.innerHTML = `
+      <div class="min-w-0 flex-1">
+        <p class="font-semibold text-zinc-900 dark:text-zinc-100">${isSuccess ? "Message sent successfully!" : "Message could not be sent."}</p>
+        <p class="mt-1 leading-5 text-zinc-600 dark:text-zinc-400">${isSuccess ? "Thanks for reaching out. I'll get back to you soon." : "Please try again in a moment."}</p>
+      </div>
+      <button type="button" aria-label="Dismiss notification" class="shrink-0 rounded-lg p-1 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200">&times;</button>
+    `;
+
+    const dismissToast = () => {
+      toast.classList.add("-translate-y-2", "opacity-0");
+      toast.classList.remove("translate-y-0", "opacity-100");
+      setTimeout(() => toast.remove(), 200);
+    };
+
+    toast.querySelector("button").addEventListener("click", dismissToast);
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => {
+      toast.classList.remove("-translate-y-2", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+    });
+    contactToastTimer = setTimeout(dismissToast, 4500);
+  }
+
   if (contactForm) {
-    contactForm.addEventListener("submit", (e) => {
+    contactForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const name = document.getElementById("contact-name")?.value.trim() || "";
-      const email = document.getElementById("contact-email")?.value.trim() || "";
-      const message = document.getElementById("contact-message")?.value.trim() || "";
 
-      const subject = encodeURIComponent(`Portfolio Message from ${name}`);
-      const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+      const submitBtn = document.getElementById("contact-submit-btn");
+      const originalText = submitBtn.innerHTML;
 
-      window.location.href = `mailto:farhanchowdhury7389@gmail.com?subject=${subject}&body=${body}`;
+      submitBtn.disabled = true;
+      submitBtn.querySelector("span").textContent = "Sending...";
+
+      const formData = new FormData(contactForm);
+      formData.append("access_key", "4ceba284-c710-4e2b-a9ee-006f44de3a9b"); // Replace with your
+
+      try {
+        const response = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showContactToast("success");
+          contactForm.reset();
+        } else {
+          showContactToast("error");
+          console.error(result);
+        }
+      } catch (error) {
+        showContactToast("error");
+        console.error(error);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        if (window.lucide) window.lucide.createIcons();
+      }
     });
   }
 }
