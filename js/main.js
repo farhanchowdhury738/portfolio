@@ -173,15 +173,17 @@ async function loadVolunteering() {
                 class="absolute left-0 top-1 h-3.5 w-3.5 rounded-full border-4 border-zinc-50 bg-indigo-400 dark:border-zinc-950 shadow-[0_0_0_2px_rgba(129,140,248,0.12)]"
               ></div>
 
-              <!-- Title -->
-              <h4 class="text-lg font-bold">
-                ${item.title}
-              </h4>
+              <div class="flex flex-col md:flex-row md:items-start md:justify-between">
+                <!-- Title -->
+                <h4 class="text-lg font-bold">
+                  ${item.title}
+                </h4>
 
-              <!-- Time -->
-              <p class="mt-2 text-base font-medium text-indigo-500 dark:text-indigo-400">
-                ${item.time}
-              </p>
+                <!-- Time -->
+                <p class="mt-2 text-right text-base font-medium text-indigo-500 dark:text-indigo-400 md:mt-0 md:shrink-0 md:pl-4">
+                  ${item.time}
+                </p>
+              </div>
 
               <!-- Description -->
               <ul
