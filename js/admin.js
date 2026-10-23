@@ -1370,24 +1370,53 @@
           <label id="admin-post-description-label" class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Description (Full content for detail page)</label>
           <div class="mt-1 overflow-hidden rounded-xl border border-zinc-300 bg-zinc-50 focus-within:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-800">
             <div id="admin-post-editor-toolbar" role="toolbar" aria-label="Description formatting" aria-controls="admin-post-description-editor" class="rich-editor-toolbar flex flex-wrap items-center gap-1 border-b border-zinc-200 bg-white/70 p-2 dark:border-zinc-700 dark:bg-zinc-900/60">
-              <button type="button" data-editor-cmd="bold" aria-label="Bold" aria-pressed="false" title="Bold" class="inline-flex h-8 min-w-[34px] items-center justify-center rounded-lg px-2 text-xs font-bold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">B</button>
-              <button type="button" data-editor-cmd="italic" aria-label="Italic" aria-pressed="false" title="Italic" class="inline-flex h-8 min-w-[34px] items-center justify-center rounded-lg px-2 text-xs font-semibold italic text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">I</button>
-              <button type="button" data-editor-cmd="underline" aria-label="Underline" aria-pressed="false" title="Underline" class="inline-flex h-8 min-w-[34px] items-center justify-center rounded-lg px-2 text-xs font-semibold underline text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">U</button>
-              <select id="admin-post-font-size" aria-label="Font size" title="Font size" class="h-8 rounded-lg border border-zinc-300 bg-white px-2 text-xs font-semibold text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-                <option value="">Size</option>
-                <option value="2">Small</option>
-                <option value="3">Normal</option>
-                <option value="4">Large</option>
-                <option value="5">Extra large</option>
-              </select>
-              <button type="button" data-editor-block="h2" aria-label="Heading 2" title="Heading 2" class="inline-flex h-8 min-w-[34px] items-center justify-center rounded-lg px-2 text-xs font-bold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">H2</button>
-              <button type="button" data-editor-block="h3" aria-label="Heading 3" title="Heading 3" class="inline-flex h-8 min-w-[34px] items-center justify-center rounded-lg px-2 text-xs font-bold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">H3</button>
-              <button type="button" data-editor-cmd="createLink" aria-label="Insert link" title="Insert link" class="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">Link</button>
-              <button type="button" data-editor-cmd="unlink" aria-label="Remove link" title="Remove link" class="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">Unlink</button>
-              <button type="button" data-editor-cmd="insertUnorderedList" aria-label="Bullet list" aria-pressed="false" title="Bullet list" class="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">• List</button>
-              <button type="button" data-editor-cmd="insertOrderedList" aria-label="Numbered list" aria-pressed="false" title="Numbered list" class="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">1. List</button>
-              <button type="button" data-editor-cmd="undo" aria-label="Undo" title="Undo" class="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">Undo</button>
-              <button type="button" data-editor-cmd="redo" aria-label="Redo" title="Redo" class="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">Redo</button>
+              <div class="flex items-center gap-0.5" role="group" aria-label="History">
+                <button type="button" data-editor-cmd="undo" aria-label="Undo" title="Undo" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" /></svg>
+                </button>
+                <button type="button" data-editor-cmd="redo" aria-label="Redo" title="Redo" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5" /><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" /></svg>
+                </button>
+              </div>
+              <span aria-hidden="true" class="mx-0.5 hidden h-5 w-px shrink-0 bg-zinc-200 sm:block dark:bg-zinc-700"></span>
+              <div class="flex items-center gap-1" role="group" aria-label="Text style">
+                <select id="admin-post-block" aria-label="Text style" title="Text style" class="h-8 min-w-[112px] rounded-lg border border-zinc-300 bg-white px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+                  <option value="p">Paragraph</option>
+                  <option value="h2">Heading 2</option>
+                  <option value="h3">Heading 3</option>
+                </select>
+                <select id="admin-post-font-size" aria-label="Font size" title="Font size" class="h-8 min-w-[92px] rounded-lg border border-zinc-300 bg-white px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+                  <option value="">Font size</option>
+                  <option value="2">14 px</option>
+                  <option value="3">16 px</option>
+                  <option value="4">18 px</option>
+                  <option value="5">20 px</option>
+                </select>
+              </div>
+              <span aria-hidden="true" class="mx-0.5 hidden h-5 w-px shrink-0 bg-zinc-200 sm:block dark:bg-zinc-700"></span>
+              <div class="flex items-center gap-0.5" role="group" aria-label="Text formatting">
+                <button type="button" data-editor-cmd="bold" aria-label="Bold" aria-pressed="false" title="Bold" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-xs font-bold text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">B</button>
+                <button type="button" data-editor-cmd="italic" aria-label="Italic" aria-pressed="false" title="Italic" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-xs font-semibold italic text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">I</button>
+                <button type="button" data-editor-cmd="underline" aria-label="Underline" aria-pressed="false" title="Underline" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-xs font-semibold underline text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">U</button>
+              </div>
+              <span aria-hidden="true" class="mx-0.5 hidden h-5 w-px shrink-0 bg-zinc-200 sm:block dark:bg-zinc-700"></span>
+              <div class="flex items-center gap-0.5" role="group" aria-label="Lists">
+                <button type="button" data-editor-cmd="insertUnorderedList" aria-label="Bullet list" aria-pressed="false" title="Bullet list" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13" /><path d="M3 6h.01M3 12h.01M3 18h.01" /></svg>
+                </button>
+                <button type="button" data-editor-cmd="insertOrderedList" aria-label="Numbered list" aria-pressed="false" title="Numbered list" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6h11M10 12h11M10 18h11" /><path d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" /></svg>
+                </button>
+              </div>
+              <span aria-hidden="true" class="mx-0.5 hidden h-5 w-px shrink-0 bg-zinc-200 sm:block dark:bg-zinc-700"></span>
+              <div class="flex items-center gap-0.5" role="group" aria-label="Links">
+                <button type="button" data-editor-cmd="createLink" aria-label="Insert link" title="Insert link" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
+                </button>
+                <button type="button" data-editor-cmd="unlink" aria-label="Remove link" title="Remove link" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18.84 12.25 1.72-1.71c1.95-1.96 1.95-5.12 0-7.07s-5.12-1.95-7.07 0L11.8 5.16" /><path d="m5.17 11.75-1.71 1.71c-1.96 1.95-1.96 5.12 0 7.07s5.12 1.95 7.07 0l1.71-1.71" /><path d="M8 2v3M2 8h3M16 19v3M19 16h3" /></svg>
+                </button>
+              </div>
             </div>
             <div class="relative">
               <div id="admin-post-description-placeholder" aria-hidden="true" class="pointer-events-none absolute left-3.5 top-3 text-sm text-zinc-400 dark:text-zinc-500">Write your full blog post content here...</div>
@@ -1577,6 +1606,7 @@
     const editorInput = document.getElementById("admin-post-description-input");
     const placeholder = document.getElementById("admin-post-description-placeholder");
     const toolbar = document.getElementById("admin-post-editor-toolbar");
+    const blockSelect = document.getElementById("admin-post-block");
     const fontSizeSelect = document.getElementById("admin-post-font-size");
     const richText = window.PortfolioRichText;
     let savedRange = null;
@@ -1636,10 +1666,13 @@
           button.setAttribute("aria-pressed", "false");
         }
       });
-      const currentBlock = normalizeBlockName(document.queryCommandValue("formatBlock"));
-      toolbar.querySelectorAll("[data-editor-block]").forEach((button) => {
-        button.setAttribute("aria-pressed", String(currentBlock === button.dataset.editorBlock));
-      });
+      let currentBlock = "";
+      try {
+        currentBlock = normalizeBlockName(document.queryCommandValue("formatBlock"));
+      } catch (e) { }
+      if (blockSelect) {
+        blockSelect.value = currentBlock === "h2" || currentBlock === "h3" ? currentBlock : "p";
+      }
       if (fontSizeSelect) {
         let size = "";
         try {
@@ -1660,14 +1693,13 @@
     }
 
     function applyBlock(block) {
-      if (!editor) return;
+      if (!editor || !block) return;
       prepareCommand();
-      const current = normalizeBlockName(document.queryCommandValue("formatBlock"));
-      const target = current === block ? "p" : block;
+      restoreSelection();
       try {
-        document.execCommand("formatBlock", false, `<${target}>`);
+        document.execCommand("formatBlock", false, `<${block}>`);
       } catch (e) {
-        document.execCommand("formatBlock", false, target);
+        document.execCommand("formatBlock", false, block);
       }
       syncPostDescription();
       updateToolbarState();
@@ -1781,15 +1813,17 @@
           if (event.target.closest("button")) event.preventDefault();
         });
         toolbar.addEventListener("click", (event) => {
-          const blockButton = event.target.closest("[data-editor-block]");
           const commandButton = event.target.closest("[data-editor-cmd]");
-          if (!blockButton && !commandButton) return;
+          if (!commandButton) return;
           event.preventDefault();
-          if (blockButton) {
-            applyBlock(blockButton.dataset.editorBlock);
-          } else {
-            runCommand(commandButton.dataset.editorCmd);
-          }
+          runCommand(commandButton.dataset.editorCmd);
+        });
+      }
+
+      if (blockSelect) {
+        blockSelect.addEventListener("mousedown", saveSelection);
+        blockSelect.addEventListener("change", () => {
+          applyBlock(blockSelect.value);
         });
       }
 
