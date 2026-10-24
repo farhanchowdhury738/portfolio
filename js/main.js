@@ -461,7 +461,9 @@ function closeProjectModal() {
 
 function renderProjectBodySection(project) {
   const richText = window.PortfolioRichText;
-  const hasUnifiedDesc = typeof project.description === "string" && project.description.trim().length > 0;
+  const hasUnifiedDesc =
+    typeof project.description === "string" &&
+    project.description.trim().length > 0;
 
   if (hasUnifiedDesc) {
     const rendered = richText
@@ -519,9 +521,7 @@ function renderProjectBodySection(project) {
             </h4>
 
             <ul class="mt-3 list-disc space-y-1.5 pl-5 text-[15px] leading-7 text-zinc-700 dark:text-zinc-300">
-              ${features
-                .map((f) => `<li>${escapeHTML(f)}</li>`)
-                .join("")}
+              ${features.map((f) => `<li>${escapeHTML(f)}</li>`).join("")}
             </ul>
           </section>
         `
@@ -701,10 +701,12 @@ async function loadProjects() {
     const projectsGrid = document.getElementById("projectsGrid");
 
     if (categorySelect) {
-      const categories = [...new Set(projects.map((p) => p.category))];
+      const categories = [...new Set(projects.map((p) => p.category))].sort(
+        (a, b) => a.localeCompare(b),
+      );
       categorySelect.innerHTML = `
-        <option value="featured">Featured Projects</option>
         <option value="all">All Projects</option>
+        <option value="featured">Featured Projects</option>
         ${categories.map((c) => `<option value="${c}">${c}</option>`).join("")}`;
       categorySelect.value = "all";
 
@@ -950,7 +952,8 @@ function initializePortfolio() {
     toast.id = "contact-toast";
     toast.setAttribute("role", isSuccess ? "status" : "alert");
     toast.setAttribute("aria-live", isSuccess ? "polite" : "assertive");
-    toast.className = "fixed inset-x-4 top-4 z-50 flex max-w-sm -translate-y-2 items-start gap-3 rounded-2xl border border-zinc-200 border-l-4 border-l-indigo-500 bg-white p-4 text-sm shadow-lg opacity-0 transition-all duration-200 dark:border-zinc-700 dark:bg-zinc-900 sm:left-auto sm:right-6 sm:w-full";
+    toast.className =
+      "fixed inset-x-4 top-4 z-50 flex max-w-sm -translate-y-2 items-start gap-3 rounded-2xl border border-zinc-200 border-l-4 border-l-indigo-500 bg-white p-4 text-sm shadow-lg opacity-0 transition-all duration-200 dark:border-zinc-700 dark:bg-zinc-900 sm:left-auto sm:right-6 sm:w-full";
     toast.innerHTML = `
       <div class="min-w-0 flex-1">
         <p class="font-semibold text-zinc-900 dark:text-zinc-100">${isSuccess ? "Message sent successfully!" : "Message could not be sent."}</p>
