@@ -28,7 +28,48 @@ function sendJSON(res, statusCode, data) {
   res.end(JSON.stringify(data));
 }
 
-function handleSaveFile(req, res, targetFilename) {
+// Per-file write queue to prevent concurrent writes or partial/corrupted JSON files
+const writeQueues = new Map();
+
+function enqueueFileWrite(filePath, content, callback) {
+  const prev = writeQueues.get(filePath) || Promise.resolve();
+  const next = prev
+    .catch(() => {})
+    .then(
+      () =>
+        new Promise((resolve) => {
+          const tempPath = `${filePath}.${process.pid}.${Date.now()}.tmp`;
+          fs.writeFile(tempPath, content, "utf8", (writeErr) => {
+            if (writeErr) {
+              try {
+                if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+              } catch (e) {}
+              callback(writeErr);
+              resolve();
+              return;
+            }
+            fs.rename(tempPath, filePath, (renameErr) => {
+              if (renameErr) {
+                // Fallback to direct write if rename across filesystems or Windows lock occurs
+                fs.writeFile(filePath, content, "utf8", (fallbackErr) => {
+                  try {
+                    if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+                  } catch (e) {}
+                  callback(fallbackErr);
+                  resolve();
+                });
+                return;
+              }
+              callback(null);
+              resolve();
+            });
+          });
+        }),
+    );
+  writeQueues.set(filePath, next);
+}
+
+function handleSaveFile(req, res, targetFilename, expectArray = false) {
   let body = "";
   req.on("data", (chunk) => {
     body += chunk;
@@ -36,7 +77,24 @@ function handleSaveFile(req, res, targetFilename) {
 
   req.on("end", () => {
     try {
+      if (!body || !body.trim()) {
+        sendJSON(res, 400, { success: false, error: "Empty request body" });
+        return;
+      }
       const parsed = JSON.parse(body);
+      if (parsed === null || typeof parsed !== "object") {
+        sendJSON(res, 400, { success: false, error: "Invalid JSON payload structure" });
+        return;
+      }
+      if (expectArray && !Array.isArray(parsed)) {
+        sendJSON(res, 400, { success: false, error: `Expected JSON array for ${targetFilename}` });
+        return;
+      }
+      if (!expectArray && Array.isArray(parsed)) {
+        sendJSON(res, 400, { success: false, error: `Expected JSON object for ${targetFilename}` });
+        return;
+      }
+
       const filePath = path.join(__dirname, "data", targetFilename);
 
       // Ensure data directory exists
@@ -45,7 +103,8 @@ function handleSaveFile(req, res, targetFilename) {
         fs.mkdirSync(dataDir, { recursive: true });
       }
 
-      fs.writeFile(filePath, JSON.stringify(parsed, null, 2), "utf8", (err) => {
+      const serialized = JSON.stringify(parsed, null, 2);
+      enqueueFileWrite(filePath, serialized, (err) => {
         if (err) {
           console.error(`Error saving ${targetFilename}:`, err);
           sendJSON(res, 500, { success: false, error: err.message });
@@ -265,35 +324,35 @@ const server = http.createServer((req, res) => {
   // API Endpoints to save JSON files directly on disk
   if (req.method === "POST") {
     if (req.url === "/api/save-projects") {
-      handleSaveFile(req, res, "projects.json");
+      handleSaveFile(req, res, "projects.json", true);
       return;
     }
     if (req.url === "/api/save-certificates") {
-      handleSaveFile(req, res, "certificates.json");
+      handleSaveFile(req, res, "certificates.json", true);
       return;
     }
     if (req.url === "/api/save-volunteering") {
-      handleSaveFile(req, res, "volunteering.json");
+      handleSaveFile(req, res, "volunteering.json", true);
       return;
     }
     if (req.url === "/api/save-experience") {
-      handleSaveFile(req, res, "experience.json");
+      handleSaveFile(req, res, "experience.json", true);
       return;
     }
     if (req.url === "/api/save-skills") {
-      handleSaveFile(req, res, "skills.json");
+      handleSaveFile(req, res, "skills.json", true);
       return;
     }
     if (req.url === "/api/save-profile") {
-      handleSaveFile(req, res, "profile.json");
+      handleSaveFile(req, res, "profile.json", false);
       return;
     }
     if (req.url === "/api/save-about") {
-      handleSaveFile(req, res, "about.json");
+      handleSaveFile(req, res, "about.json", false);
       return;
     }
     if (req.url === "/api/save-posts") {
-      handleSaveFile(req, res, "posts.json");
+      handleSaveFile(req, res, "posts.json", true);
       return;
     }
     if (req.url === "/api/upload-cv") {
@@ -345,6 +404,7 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, {
       "Content-Type": contentType,
       "Access-Control-Allow-Origin": "*",
+      "Cache-Control": ext === ".json" ? "no-store, no-cache, must-revalidate" : "no-cache",
     });
 
     const stream = fs.createReadStream(filePath);
@@ -352,6 +412,11 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
-});
+if (require.main === module) {
+  const listenPort = process.env.PORT ? Number(process.env.PORT) : PORT;
+  server.listen(listenPort, () => {
+    console.log(`Server running at http://localhost:${listenPort}/`);
+  });
+}
+
+module.exports = server;

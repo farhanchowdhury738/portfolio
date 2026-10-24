@@ -2,6 +2,16 @@
 // LOAD PORTFOLIO COMPONENTS & SECTIONS
 // ============================================================
 
+function renderLucideIcons() {
+  if (window.lucide && typeof window.lucide.createIcons === "function") {
+    try {
+      window.lucide.createIcons();
+    } catch (e) {
+      console.warn("Lucide icon render skipped:", e);
+    }
+  }
+}
+
 async function loadFile(targetId, file) {
   const target = document.getElementById(targetId);
   try {
@@ -137,10 +147,47 @@ async function loadCertificates() {
       .join("");
 
     // Render Lucide icons after certificates are created
-    lucide.createIcons();
+    renderLucideIcons();
   } catch (error) {
     console.error("Certificates Error:", error);
   }
+}
+
+// Helper: Render rich text or legacy bullet array for Resume (Experience & Volunteering)
+function renderResumeDescriptionBlock(item) {
+  const richText = window.PortfolioRichText;
+  const desc = item ? item.description : "";
+
+  if (Array.isArray(desc)) {
+    const items = desc.map((d) => String(d ?? "").trim()).filter(Boolean);
+    if (!items.length) return "";
+    if (items.length === 1 && richText && richText.isRichHtml(items[0])) {
+      const rendered = richText.render(items[0]);
+      return `<div class="rich-text-content mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">${rendered.html}</div>`;
+    }
+    return `
+      <ul class="mt-4 space-y-1 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+        ${items
+          .map((d) => {
+            if (richText && richText.isRichHtml(d)) {
+              return `<li>• ${richText.sanitize(d)}</li>`;
+            }
+            return `<li>• ${escapeHTML(d)}</li>`;
+          })
+          .join("")}
+      </ul>
+    `;
+  }
+
+  if (typeof desc === "string" && desc.trim()) {
+    if (richText) {
+      const rendered = richText.render(desc);
+      return `<div class="rich-text-content mt-4${rendered.rich ? "" : " whitespace-pre-line"} text-sm leading-6 text-zinc-600 dark:text-zinc-400">${rendered.html}</div>`;
+    }
+    return `<div class="mt-4 whitespace-pre-line text-sm leading-6 text-zinc-600 dark:text-zinc-400">${escapeHTML(desc)}</div>`;
+  }
+
+  return "";
 }
 
 // ============================================================
@@ -180,23 +227,17 @@ async function loadVolunteering() {
               <div class="flex flex-col md:flex-row md:items-start md:justify-between">
                 <!-- Title -->
                 <h4 class="text-lg font-bold">
-                  ${item.title}
+                  ${escapeHTML(item.title)}
                 </h4>
 
                 <!-- Time -->
                 <p class="mt-2 text-right text-base font-medium text-indigo-500 dark:text-indigo-400 md:mt-0 md:shrink-0 md:pl-4">
-                  ${item.time}
+                  ${escapeHTML(item.time)}
                 </p>
               </div>
 
               <!-- Description -->
-              <ul
-                class="mt-4 space-y-1 text-sm leading-6 text-zinc-600 dark:text-zinc-400"
-              >
-                ${item.description
-                  .map((description) => `<li>• ${description}</li>`)
-                  .join("")}
-              </ul>
+              ${renderResumeDescriptionBlock(item)}
 
             </div>
           `,
@@ -251,22 +292,16 @@ async function loadExperience() {
 
               <!-- Title -->
               <h4 class="text-lg font-bold">
-                ${item.title}${item.company ? ` <span class="font-normal text-zinc-500 dark:text-zinc-400">|</span> <span class="font-semibold text-zinc-700 dark:text-zinc-300">${item.company}</span>` : ""}
+                ${escapeHTML(item.title)}${item.company ? ` <span class="font-normal text-zinc-500 dark:text-zinc-400">|</span> <span class="font-semibold text-zinc-700 dark:text-zinc-300">${escapeHTML(item.company)}</span>` : ""}
               </h4>
 
               <!-- Time -->
               <p class="mt-2 text-base font-medium text-indigo-500 dark:text-indigo-400">
-                ${item.time}
+                ${escapeHTML(item.time)}
               </p>
 
               <!-- Description -->
-              <ul
-                class="mt-4 space-y-1 text-sm leading-6 text-zinc-600 dark:text-zinc-400"
-              >
-                ${(item.description || [])
-                  .map((desc) => `<li>• ${desc}</li>`)
-                  .join("")}
-              </ul>
+              ${renderResumeDescriptionBlock(item)}
 
             </div>
           `,
@@ -329,7 +364,7 @@ async function loadSkills() {
       )
       .join("");
 
-    if (window.lucide) lucide.createIcons();
+    renderLucideIcons();
   } catch (error) {
     console.error("Skills loading error:", error);
   }
@@ -384,7 +419,7 @@ function projectCard(project, index) {
       </div>
       <div class="flex flex-1 flex-col pt-5">
         <div class="flex flex-wrap gap-1.5">
-          ${project.technologies
+          ${(project.technologies || [])
             .map(
               (t) =>
                 `<span class="rounded-full border border-zinc-200 px-2.5 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">${t}</span>`,
@@ -424,18 +459,87 @@ function closeProjectModal() {
   projectModalOpener = null;
 }
 
+function renderProjectBodySection(project) {
+  const richText = window.PortfolioRichText;
+  const hasUnifiedDesc = typeof project.description === "string" && project.description.trim().length > 0;
+
+  if (hasUnifiedDesc) {
+    const rendered = richText
+      ? richText.render(project.description)
+      : { html: escapeHTML(project.description), rich: false };
+    return `
+      <section class="mt-6">
+        <h4 class="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          About Project
+        </h4>
+        <div class="rich-text-content mt-3${rendered.rich ? "" : " whitespace-pre-line"} break-words text-[15px] leading-7 text-zinc-700 dark:text-zinc-300">
+          ${rendered.html}
+        </div>
+      </section>
+    `;
+  }
+
+  const paragraphs = Array.isArray(project.details)
+    ? project.details.filter((p) => String(p ?? "").trim())
+    : [];
+  const features = Array.isArray(project.features)
+    ? project.features.filter((f) => String(f ?? "").trim())
+    : [];
+
+  return `
+    ${
+      paragraphs.length
+        ? `
+          <section class="mt-6">
+            <h4 class="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              About Project
+            </h4>
+
+            <div class="mt-3 space-y-3 text-[15px] leading-7 text-zinc-700 dark:text-zinc-300">
+              ${paragraphs
+                .map((p) => {
+                  if (richText && richText.isRichHtml(p)) {
+                    return `<div class="rich-text-content">${richText.sanitize(p)}</div>`;
+                  }
+                  return `<p>${escapeHTML(p)}</p>`;
+                })
+                .join("")}
+            </div>
+          </section>
+        `
+        : ""
+    }
+
+    ${
+      features.length
+        ? `
+          <section class="mt-6">
+            <h4 class="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              Key Features
+            </h4>
+
+            <ul class="mt-3 list-disc space-y-1.5 pl-5 text-[15px] leading-7 text-zinc-700 dark:text-zinc-300">
+              ${features
+                .map((f) => `<li>${escapeHTML(f)}</li>`)
+                .join("")}
+            </ul>
+          </section>
+        `
+        : ""
+    }
+  `;
+}
+
 function openProjectModal(project, opener) {
   closeProjectModal();
   projectModalOpener = opener || null;
-
-  const paragraphs = project.details?.length ? project.details : [];
 
   const meta = [
     [
       "Timeline",
       project.timeline?.start && project.timeline?.end
         ? `${project.timeline.start} → ${project.timeline.end}`
-        : null,
+        : project.timeline?.start || project.timeline?.end || null,
     ],
     ["Category", project.category],
   ].filter(([, v]) => v);
@@ -521,41 +625,8 @@ function openProjectModal(project, opener) {
           : ""
       }
 
-      <!-- About Project -->
-      ${
-        paragraphs.length
-          ? `
-            <section class="mt-6">
-              <h4 class="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                About Project
-              </h4>
-
-              <div class="mt-3 space-y-3 text-[15px] leading-7 text-zinc-700 dark:text-zinc-300">
-                ${paragraphs.map((p) => `<p>${escapeHTML(p)}</p>`).join("")}
-              </div>
-            </section>
-          `
-          : ""
-      }
-
-      <!-- Key Features -->
-      ${
-        project.features?.length
-          ? `
-            <section class="mt-6">
-              <h4 class="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                Key Features
-              </h4>
-
-              <ul class="mt-3 list-disc space-y-1.5 pl-5 text-[15px] leading-7 text-zinc-700 dark:text-zinc-300">
-                ${project.features
-                  .map((f) => `<li>${escapeHTML(f)}</li>`)
-                  .join("")}
-              </ul>
-            </section>
-          `
-          : ""
-      }
+      <!-- About Project & Key Features -->
+      ${renderProjectBodySection(project)}
 
       <!-- Back button + Project Links -->
       <div class="mt-7 flex flex-wrap items-center justify-between gap-3 text-sm font-semibold">
@@ -637,7 +708,7 @@ async function loadProjects() {
         ${categories.map((c) => `<option value="${c}">${c}</option>`).join("")}`;
       categorySelect.value = "all";
 
-      categorySelect.addEventListener("change", () => {
+      categorySelect.onchange = () => {
         const value = categorySelect.value;
         render(
           projectsGrid,
@@ -647,17 +718,18 @@ async function loadProjects() {
               ? projects
               : projects.filter((p) => p.category === value),
         );
-        lucide.createIcons();
-      });
+        renderLucideIcons();
+      };
     }
 
     render(projectsGrid, projects);
     render(document.getElementById("featured-projects-list"), featured);
-    lucide.createIcons();
+    renderLucideIcons();
   } catch (error) {
     console.error("Projects Error:", error);
   }
 }
+window.loadProjects = loadProjects;
 
 // ============================================================
 // LOAD ALL PORTFOLIO COMPONENTS
@@ -710,7 +782,7 @@ async function loadPortfolio() {
 
 function initializePortfolio() {
   // Render Lucide icons after HTML is loaded
-  lucide.createIcons();
+  renderLucideIcons();
 
   const html = document.documentElement;
   const themeToggle = document.getElementById("themeToggle");
@@ -936,7 +1008,7 @@ function initializePortfolio() {
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;
-        if (window.lucide) window.lucide.createIcons();
+        renderLucideIcons();
       }
     });
   }

@@ -28,6 +28,10 @@
   let aboutState = {};
   let postsState = [];
 
+  // Editor instance references for clean lifecycle management
+  let modalEditorInstance = null;
+  let aboutEditorInstance = null;
+
   // Utility: Show Toast Notification
   function showToast(message) {
     const toast = document.getElementById("admin-toast");
@@ -72,10 +76,6 @@
 
   // Helper: Save to server API directly on disk
   async function saveToServer(endpoint, filename, data, storageKey) {
-    // 1. Update localStorage cache
-    localStorage.setItem(storageKey, JSON.stringify(data));
-
-    // 2. Persist to actual physical file on disk via server
     try {
       const response = await fetch(`/api/${endpoint}`, {
         method: "POST",
@@ -83,18 +83,35 @@
         body: JSON.stringify(data),
       });
 
-      if (response.ok) {
+      let payload = null;
+      const rawText = await response.text();
+      if (rawText) {
+        try {
+          payload = JSON.parse(rawText);
+        } catch (parseErr) {
+          console.error(`Invalid JSON response from /api/${endpoint}:`, rawText);
+          showToast(`Error: invalid server response saving ${filename}`);
+          return false;
+        }
+      }
+
+      if (response.ok && (!payload || payload.success !== false)) {
+        if (storageKey) {
+          try {
+            localStorage.setItem(storageKey, JSON.stringify(data));
+          } catch (e) {}
+        }
         showToast(`Saved to data/${filename}!`);
         return true;
       } else {
-        const errText = await response.text();
-        console.error(`Failed to save to server (/api/${endpoint}):`, response.status, errText);
-        showToast(`Server error ${response.status}: not saved to disk`);
+        const errDetail = (payload && payload.error) || rawText || `HTTP ${response.status}`;
+        console.error(`Failed to save to server (/api/${endpoint}):`, response.status, errDetail);
+        showToast(`Server error (${response.status}): could not save ${filename}`);
         return false;
       }
     } catch (error) {
-      console.warn("Server save API unreachable (check if node server.js is running):", error);
-      showToast(`Saved in browser only (server offline)`);
+      console.error(`Network error saving to /api/${endpoint}:`, error);
+      showToast(`Save failed: server unreachable (${filename} not saved)`);
       return false;
     }
   }
@@ -118,7 +135,7 @@
     if (cached) {
       try {
         projectsState = JSON.parse(cached);
-      } catch (e) { }
+      } catch (e) {}
     }
     return projectsState;
   };
@@ -138,7 +155,7 @@
     if (cached) {
       try {
         certsState = JSON.parse(cached);
-      } catch (e) { }
+      } catch (e) {}
     }
     return certsState;
   };
@@ -158,7 +175,7 @@
     if (cached) {
       try {
         expState = JSON.parse(cached);
-      } catch (e) { }
+      } catch (e) {}
     }
     return expState;
   };
@@ -178,7 +195,7 @@
     if (cached) {
       try {
         volState = JSON.parse(cached);
-      } catch (e) { }
+      } catch (e) {}
     }
     return volState;
   };
@@ -199,7 +216,7 @@
       try {
         skillsState = JSON.parse(cached);
         return skillsState;
-      } catch (e) { }
+      } catch (e) {}
     }
     try {
       const res = await fetch("data/skills.json");
@@ -248,7 +265,7 @@
       try {
         profileState = JSON.parse(cached);
         return profileState;
-      } catch (e) { }
+      } catch (e) {}
     }
     try {
       const res = await fetch("data/profile.json");
@@ -286,7 +303,7 @@
       try {
         aboutState = JSON.parse(cached);
         return aboutState;
-      } catch (e) { }
+      } catch (e) {}
     }
     try {
       const res = await fetch("data/about.json");
@@ -330,7 +347,7 @@
         postsState = JSON.parse(cached);
         if (!Array.isArray(postsState)) postsState = [];
         return postsState;
-      } catch (e) { }
+      } catch (e) {}
     }
     try {
       const res = await fetch("data/posts.json");
@@ -348,7 +365,9 @@
     if (profileState && Object.keys(profileState).length > 0) return profileState;
     const cached = localStorage.getItem(KEY_PROFILE);
     if (cached) {
-      try { return JSON.parse(cached); } catch (e) { }
+      try {
+        return JSON.parse(cached);
+      } catch (e) {}
     }
     return profileState;
   }
@@ -357,7 +376,9 @@
     if (aboutState && Object.keys(aboutState).length > 0) return aboutState;
     const cached = localStorage.getItem(KEY_ABOUT);
     if (cached) {
-      try { return JSON.parse(cached); } catch (e) { }
+      try {
+        return JSON.parse(cached);
+      } catch (e) {}
     }
     return aboutState;
   }
@@ -366,10 +387,10 @@
     if (postsState && Array.isArray(postsState)) return postsState;
     const cached = localStorage.getItem(KEY_POSTS);
     if (cached) {
-      try { 
+      try {
         const parsed = JSON.parse(cached);
         return Array.isArray(parsed) ? parsed : [];
-      } catch (e) { }
+      } catch (e) {}
     }
     return [];
   }
@@ -420,35 +441,74 @@
     if (titleEl && about.title) titleEl.textContent = about.title;
 
     const p1El = document.getElementById("profile-about-p1");
-    if (p1El && about.p1) p1El.textContent = about.p1;
-
     const p2El = document.getElementById("profile-about-p2");
-    if (p2El && about.p2) p2El.textContent = about.p2;
-
     const p3El = document.getElementById("profile-about-p3");
-    if (p3El) {
-      if (about.p3 && about.p3.trim()) {
-        p3El.textContent = about.p3;
-        p3El.classList.remove("hidden");
-      } else {
-        p3El.classList.add("hidden");
-      }
-    }
+    const aboutContainer = p1El?.parentElement;
 
-    // Render any additional About paragraphs while keeping the first two fixed.
-    const aboutContainer = document.getElementById("profile-about-p1")?.parentElement;
-    const extraParagraphs = Array.isArray(about.paragraphs) ? about.paragraphs.slice(2) : (about.p3 ? [about.p3] : []);
     if (aboutContainer) {
       aboutContainer.querySelectorAll("[data-extra-about-paragraph]").forEach((el) => el.remove());
-      const anchor = document.getElementById("profile-about-p3");
-      extraParagraphs.forEach((paragraph) => {
-        if (!paragraph || !paragraph.trim()) return;
-        const p = document.createElement("p");
-        p.dataset.extraAboutParagraph = "true";
-        p.className = "mt-4 text-base leading-8 text-justify text-zinc-600 dark:text-zinc-400";
-        p.textContent = paragraph;
-        (anchor || document.getElementById("profile-about-p2"))?.after(p);
-      });
+      aboutContainer.querySelectorAll("[data-about-rich-description]").forEach((el) => el.remove());
+    }
+
+    const richText = window.PortfolioRichText;
+    const hasRichDescription = typeof about.description === "string" && about.description.trim().length > 0;
+
+    if (hasRichDescription && p1El && aboutContainer) {
+      const rendered = richText
+        ? richText.render(about.description)
+        : { html: esc(about.description), rich: false };
+      let richHost = document.getElementById("profile-about-description");
+      if (!richHost) {
+        richHost = document.createElement("div");
+        richHost.id = "profile-about-description";
+        richHost.dataset.aboutRichDescription = "true";
+        p1El.before(richHost);
+      }
+      richHost.className = `rich-text-content text-base leading-8 text-zinc-600 dark:text-zinc-400${rendered.rich ? "" : " whitespace-pre-line"}`;
+      richHost.innerHTML = rendered.html;
+      p1El.classList.add("hidden");
+      if (p2El) p2El.classList.add("hidden");
+      if (p3El) p3El.classList.add("hidden");
+    } else {
+      if (p1El) {
+        p1El.classList.remove("hidden");
+        if (about.p1 !== undefined) p1El.textContent = about.p1 || "";
+      }
+      if (p2El) {
+        if (about.p2 && about.p2.trim()) {
+          p2El.textContent = about.p2;
+          p2El.classList.remove("hidden");
+        } else {
+          p2El.textContent = "";
+          p2El.classList.add("hidden");
+        }
+      }
+      if (p3El) {
+        if (about.p3 && about.p3.trim()) {
+          p3El.textContent = about.p3;
+          p3El.classList.remove("hidden");
+        } else {
+          p3El.textContent = "";
+          p3El.classList.add("hidden");
+        }
+      }
+
+      const extraParagraphs = Array.isArray(about.paragraphs)
+        ? about.paragraphs.slice(2)
+        : [];
+      if (aboutContainer && extraParagraphs.length > 0) {
+        if (p3El) p3El.classList.add("hidden");
+        let lastEl = p2El || p1El;
+        extraParagraphs.forEach((paragraph) => {
+          if (!paragraph || !paragraph.trim()) return;
+          const p = document.createElement("p");
+          p.dataset.extraAboutParagraph = "true";
+          p.className = "mt-4 text-base leading-8 text-justify text-zinc-600 dark:text-zinc-400";
+          p.textContent = paragraph;
+          lastEl?.after(p);
+          lastEl = p;
+        });
+      }
     }
 
     const studyingEl = document.getElementById("profile-studying");
@@ -465,9 +525,27 @@
       interestsContainer.innerHTML = about.interests
         .map(
           (tag) =>
-            `<span class="rounded-full border border-zinc-200 bg-zinc-100 px-3 py-1.5 text-xs font-medium dark:border-zinc-800 dark:bg-zinc-900">${tag}</span>`,
+            `<span class="rounded-full border border-zinc-200 bg-zinc-100 px-3 py-1.5 text-xs font-medium dark:border-zinc-800 dark:bg-zinc-900">${esc(tag)}</span>`,
         )
         .join("");
+    }
+
+    // Apply Tech Focus badges if present
+    const techFocusArr = Array.isArray(about.techFocus) && about.techFocus.length
+      ? about.techFocus
+      : null;
+    if (techFocusArr) {
+      const homeTechHost =
+        document.getElementById("home-tech-focus") ||
+        document.querySelector("#home .mt-14.flex.flex-wrap.gap-2");
+      if (homeTechHost) {
+        homeTechHost.innerHTML = techFocusArr
+          .map(
+            (badge) =>
+              `<span class="rounded-full border border-zinc-200 bg-zinc-100 px-3 py-1.5 text-sm font-medium dark:border-zinc-800 dark:bg-zinc-900">${esc(badge)}</span>`,
+          )
+          .join("");
+      }
     }
   };
 
@@ -483,6 +561,11 @@
 
     if (!modal || !bodyEl) return;
 
+    if (modalEditorInstance && typeof modalEditorInstance.destroy === "function") {
+      modalEditorInstance.destroy();
+      modalEditorInstance = null;
+    }
+
     titleEl.textContent = title;
     bodyEl.innerHTML = formHtml;
     modal.classList.remove("hidden");
@@ -494,6 +577,9 @@
     if (form) {
       form.onsubmit = async (e) => {
         e.preventDefault();
+        if (modalEditorInstance && typeof modalEditorInstance.sync === "function") {
+          modalEditorInstance.sync();
+        }
         const success = await onSave(form);
         if (success !== false) {
           closeAdminModal();
@@ -513,6 +599,10 @@
   }
 
   function closeAdminModal() {
+    if (modalEditorInstance && typeof modalEditorInstance.destroy === "function") {
+      modalEditorInstance.destroy();
+      modalEditorInstance = null;
+    }
     const modal = document.getElementById("admin-modal");
     if (!modal) return;
     modal.classList.add("hidden");
@@ -750,19 +840,64 @@
     setVal("admin-prof-hero-intro", prof.heroIntro);
   }
 
+  function parseBadgeInput(rawValue) {
+    const seen = new Set();
+    return String(rawValue || "")
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => {
+        if (!item) return false;
+        const key = item.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+  }
+
+  function renderBadgeChips(containerId, inputId, badgeKind) {
+    const container = document.getElementById(containerId);
+    const input = document.getElementById(inputId);
+    if (!container || !input) return;
+    const badges = parseBadgeInput(input.value);
+    container.innerHTML = `
+      ${badges
+        .map(
+          (badge, idx) => `
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+            <button type="button" data-badge-edit="${badgeKind}" data-badge-idx="${idx}" title="Click to edit badge" class="hover:text-indigo-600 dark:hover:text-indigo-400">${esc(badge)}</button>
+            <button type="button" data-badge-remove="${badgeKind}" data-badge-idx="${idx}" aria-label="Remove ${esc(badge)}" title="Remove badge" class="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full text-zinc-400 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950 dark:hover:text-rose-400">×</button>
+          </span>`,
+        )
+        .join("")}
+      <button type="button" data-badge-add="${badgeKind}" class="inline-flex items-center gap-1 rounded-full border border-dashed border-indigo-400 px-2.5 py-1 text-xs font-semibold text-indigo-600 hover:bg-indigo-50 dark:border-indigo-500/60 dark:text-indigo-400 dark:hover:bg-indigo-950/40">+ Add Badge</button>
+    `;
+  }
+
   function renderAboutDynamicFields(about) {
-    const paragraphHost = document.getElementById("admin-about-paragraphs-container");
-    if (paragraphHost) {
-      const paragraphs = Array.isArray(about.paragraphs) && about.paragraphs.length
-        ? about.paragraphs
-        : [about.p1 || "", about.p2 || "", ...(about.p3 ? [about.p3] : [])];
-      paragraphHost.innerHTML = paragraphs.map((value, index) => `
-        <div class="about-paragraph-item">
-          <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Paragraph ${index + 1}</label>
-          <textarea data-about-paragraph="${index}" class="mt-2 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" rows="3">${String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</textarea>
-          ${index > 1 ? `<button type="button" data-remove-paragraph="${index}" class="mt-2 text-xs font-semibold text-rose-500">Remove paragraph</button>` : ""}
-        </div>`).join("");
+    const richText = window.PortfolioRichText;
+    const editorHost = document.getElementById("admin-about-editor-container");
+    if (editorHost && richText) {
+      const initialAboutHtml = richText.aboutToRichHtml(about);
+      if (!aboutEditorInstance || !editorHost.querySelector('[data-rich-role="editor"]')) {
+        editorHost.innerHTML = richText.createEditorMarkup({
+          idPrefix: "admin-about",
+          label: "About Description",
+          name: "description",
+          placeholder: "Write your complete About description here...",
+          helperText: "Use the toolbar to format your About description. Formatting is saved to data/about.json and shown on the public About section.",
+          minHeightClass: "min-h-[220px]",
+          value: initialAboutHtml,
+        });
+        aboutEditorInstance = richText.mountEditor({
+          idPrefix: "admin-about",
+          initialValue: initialAboutHtml,
+          form: document.getElementById("admin-about-form"),
+        });
+      } else {
+        aboutEditorInstance.setValue(initialAboutHtml);
+      }
     }
+
     const cardsHost = document.getElementById("admin-quick-details-container");
     if (cardsHost) {
       const cards = Array.isArray(about.quickDetails) && about.quickDetails.length
@@ -794,9 +929,19 @@
     setVal("admin-about-based", about.based);
     setVal("admin-about-focus", about.focus);
     setVal("admin-about-interests", Array.isArray(about.interests) ? about.interests.join(", ") : "");
+    const defaultTechFocus = ["PHP", "JavaScript", "React", "Next.js", "Python", "R", "MySQL", "dotnet", "Tailwind CSS"];
+    const techFocusList = Array.isArray(about.techFocus) && about.techFocus.length
+      ? about.techFocus
+      : defaultTechFocus;
+    setVal("admin-about-tech-focus", techFocusList.join(", "));
     renderAboutDynamicFields(about);
+    renderBadgeChips("admin-about-interests-chips", "admin-about-interests", "interests");
+    renderBadgeChips("admin-about-tech-focus-chips", "admin-about-tech-focus", "techFocus");
   }
 
+  // ==========================================================
+  // PROJECT FORM MODAL (UNIFIED RICH TEXT DESCRIPTION)
+  // ==========================================================
 
   function openProjectFormModal(project = null, editIndex = -1) {
     const isEdit = editIndex >= 0;
@@ -809,6 +954,7 @@
       category: "Web Application",
       technologies: [],
       timeline: { start: "", end: "" },
+      description: "",
       details: [""],
       features: [],
       image: "",
@@ -817,17 +963,31 @@
       featured: false,
     };
 
+    const richText = window.PortfolioRichText;
+    const initialDescription = richText ? richText.projectToRichHtml(p) : (p.description || "");
+    const editorBlockHtml = richText
+      ? richText.createEditorMarkup({
+          idPrefix: "admin-project",
+          label: "Description (Overview & Key Features)",
+          name: "description",
+          placeholder: "Write the project overview, detailed description, and key features here...",
+          helperText: "Use the toolbar to format the project description and key features. Saved formatting is displayed on the public project details popup.",
+          minHeightClass: "min-h-[220px]",
+          value: initialDescription,
+        })
+      : `<div><label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Description</label><textarea name="description" rows="5" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${esc(initialDescription)}</textarea></div>`;
+
     const formHtml = `
-      <form class="space-y-4">
+      <form class="space-y-4" id="admin-project-form">
         <div class="grid gap-4 sm:grid-cols-3">
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Project Title *</label>
-            <input name="title" required value="${p.title || ""}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="title" required value="${esc(p.title || "")}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
 
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Category *</label>
-            <input name="category" required value="${p.category || "Web Application"}" placeholder="e.g. Web Application, Data Science, Robotics" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="category" required value="${esc(p.category || "Web Application")}" placeholder="e.g. Web Application, Data Science, Robotics" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
 
           <div>
@@ -838,45 +998,37 @@
 
         <div>
           <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Technologies (comma-separated)</label>
-          <input name="technologies" value="${(p.technologies || []).join(", ")}" placeholder="React, Node.js, Tailwind CSS" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <input name="technologies" value="${esc((p.technologies || []).join(", "))}" placeholder="React, Node.js, Tailwind CSS" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Start Timeline</label>
-            <input name="start" value="${p.timeline ? p.timeline.start || "" : ""}" placeholder="e.g. Jan 2026" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="start" value="${esc(p.timeline ? p.timeline.start || "" : "")}" placeholder="e.g. Jan 2026" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">End Timeline</label>
-            <input name="end" value="${p.timeline ? p.timeline.end || "" : ""}" placeholder="e.g. Present, or May 2026" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="end" value="${esc(p.timeline ? p.timeline.end || "" : "")}" placeholder="e.g. Present, or May 2026" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Live Demo URL</label>
-            <input name="liveDemo" type="url" value="${p.liveDemo || ""}" placeholder="https://..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="liveDemo" type="url" value="${esc(p.liveDemo || "")}" placeholder="https://..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">GitHub URL</label>
-            <input name="github" type="url" value="${p.github || ""}" placeholder="https://github.com/..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="github" type="url" value="${esc(p.github || "")}" placeholder="https://github.com/..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Image Path / URL</label>
-          <input name="image" value="${p.image || ""}" placeholder="images/project.png" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <input name="image" value="${esc(p.image || "")}" placeholder="images/project.png" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Detailed Description (One paragraph per line)</label>
-          <textarea name="details" rows="3" placeholder="Paragraph 1...&#10;Paragraph 2..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${(p.details || []).join("\n")}</textarea>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Key Features (One feature per line)</label>
-          <textarea name="features" rows="3" placeholder="Feature 1&#10;Feature 2" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${(p.features || []).join("\n")}</textarea>
-        </div>
+        ${editorBlockHtml}
 
         <div class="flex items-center gap-2">
           <input type="checkbox" id="admin-proj-featured" name="featured" ${p.featured ? "checked" : ""} class="h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500" />
@@ -891,56 +1043,55 @@
     `;
 
     openAdminModal(title, formHtml, async (form) => {
+      if (modalEditorInstance) modalEditorInstance.sync();
       const fd = new FormData(form);
-      const titleVal = fd.get("title").trim();
+      const titleVal = (fd.get("title") || "").trim();
       if (!titleVal) return false;
 
-      const techArr = fd
-        .get("technologies")
+      const techArr = (fd.get("technologies") || "")
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean);
 
-      const detailsArr = fd
-        .get("details")
-        .split("\n")
-        .map((d) => d.trim())
-        .filter(Boolean);
+      const descHtml = (fd.get("description") || "").trim();
+      const plainLines = richText ? richText.toPlainLines(descHtml) : (descHtml ? [descHtml] : []);
 
-      const featuresArr = fd
-        .get("features")
-        .split("\n")
-        .map((f) => f.trim())
-        .filter(Boolean);
-
+      // Preserve any unrelated custom fields on existing project records
+      const baseProj = isEdit && p && typeof p === "object" ? { ...p } : {};
       const newProj = {
+        ...baseProj,
         id: isEdit ? p.id || editIndex + 1 : Date.now(),
         title: titleVal,
-        category: fd.get("category").trim() || "Web Application",
+        category: (fd.get("category") || "").trim() || "Web Application",
         technologies: techArr,
         timeline: {
-          start: fd.get("start").trim(),
-          end: fd.get("end").trim(),
+          start: (fd.get("start") || "").trim(),
+          end: (fd.get("end") || "").trim(),
         },
-        details: detailsArr.length ? detailsArr : [""],
-        features: featuresArr,
-        image: fd.get("image").trim(),
-        liveDemo: fd.get("liveDemo").trim(),
-        github: fd.get("github").trim(),
+        description: descHtml,
+        details: plainLines.length ? plainLines : [""],
+        features: [],
+        image: (fd.get("image") || "").trim(),
+        liveDemo: (fd.get("liveDemo") || "").trim(),
+        github: (fd.get("github") || "").trim(),
         featured: fd.get("featured") === "on",
       };
 
       const targetRank = Math.max(1, Math.min(parseInt(fd.get("rank"), 10) || 1, maxRank));
       const targetIndex = targetRank - 1;
 
+      const nextProjects = [...projectsState];
       if (isEdit) {
-        projectsState.splice(editIndex, 1);
-        projectsState.splice(targetIndex, 0, newProj);
+        nextProjects.splice(editIndex, 1);
+        nextProjects.splice(targetIndex, 0, newProj);
       } else {
-        projectsState.splice(targetIndex, 0, newProj);
+        nextProjects.splice(targetIndex, 0, newProj);
       }
 
-      await saveToServer("save-projects", "projects.json", projectsState, KEY_PROJECTS);
+      const saved = await saveToServer("save-projects", "projects.json", nextProjects, KEY_PROJECTS);
+      if (!saved) return false;
+
+      projectsState = nextProjects;
       renderAdminProjects();
 
       // Refresh live portfolio views
@@ -948,6 +1099,14 @@
       showToast(`Saved "${newProj.title}" at Rank #${targetRank}`);
       return true;
     });
+
+    if (richText) {
+      modalEditorInstance = richText.mountEditor({
+        idPrefix: "admin-project",
+        initialValue: initialDescription,
+        form: document.getElementById("admin-project-form"),
+      });
+    }
   }
 
   // ==========================================================
@@ -973,13 +1132,13 @@
       <form class="space-y-4">
         <div>
           <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Certificate Title *</label>
-          <input name="title" required value="${c.title || ""}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <input name="title" required value="${esc(c.title || "")}" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3">
           <div class="sm:col-span-2">
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Issuing Organization *</label>
-            <input name="organization" required value="${c.organization || ""}" placeholder="e.g. HackerRank, MathWorks, Cisco" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="organization" required value="${esc(c.organization || "")}" placeholder="e.g. HackerRank, MathWorks, Cisco" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
 
           <div>
@@ -991,23 +1150,23 @@
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Issue Date</label>
-            <input name="date" value="${c.date || ""}" placeholder="e.g. May 2025" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="date" value="${esc(c.date || "")}" placeholder="e.g. May 2025" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
 
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Skills / Topics Covered</label>
-            <input name="skills" value="${c.skills || ""}" placeholder="e.g. Java, C++, Networking" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="skills" value="${esc(c.skills || "")}" placeholder="e.g. Java, C++, Networking" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Credential Verification URL</label>
-          <input name="credential" type="url" value="${c.credential || ""}" placeholder="https://..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <input name="credential" type="url" value="${esc(c.credential || "")}" placeholder="https://..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
         </div>
 
         <div>
           <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Logo Image Path / URL</label>
-          <input name="logo" value="${c.logo || ""}" placeholder="images/hackerrank.png" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <input name="logo" value="${esc(c.logo || "")}" placeholder="images/hackerrank.png" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-4">
@@ -1033,14 +1192,18 @@
       const targetRank = Math.max(1, Math.min(parseInt(fd.get("rank"), 10) || 1, maxRank));
       const targetIndex = targetRank - 1;
 
+      const nextCerts = [...certsState];
       if (isEdit) {
-        certsState.splice(editIndex, 1);
-        certsState.splice(targetIndex, 0, newCert);
+        nextCerts.splice(editIndex, 1);
+        nextCerts.splice(targetIndex, 0, newCert);
       } else {
-        certsState.splice(targetIndex, 0, newCert);
+        nextCerts.splice(targetIndex, 0, newCert);
       }
 
-      await saveToServer("save-certificates", "certificates.json", certsState, KEY_CERTS);
+      const saved = await saveToServer("save-certificates", "certificates.json", nextCerts, KEY_CERTS);
+      if (!saved) return false;
+
+      certsState = nextCerts;
       renderAdminCertificates();
 
       if (window.loadCertificates) await window.loadCertificates();
@@ -1050,7 +1213,7 @@
   }
 
   // ==========================================================
-  // VOLUNTEERING FORM MODAL (WITH DIRECT RANK MODIFICATION)
+  // VOLUNTEERING FORM MODAL (SHARED RICH TEXT EDITOR)
   // ==========================================================
 
   function openVolFormModal(vol = null, editIndex = -1) {
@@ -1062,20 +1225,34 @@
     const v = vol || {
       title: "",
       time: "",
-      description: [""],
+      description: [],
     };
 
+    const richText = window.PortfolioRichText;
+    const initialVolHtml = richText ? richText.pointsToRichHtml(v) : "";
+    const editorBlockHtml = richText
+      ? richText.createEditorMarkup({
+          idPrefix: "admin-vol",
+          label: "Description",
+          name: "description",
+          placeholder: "Write volunteering responsibilities, achievements, or bullet points...",
+          helperText: "Use the toolbar to format the volunteering description. Formatting is saved to data/volunteering.json and shown on the public Resume page.",
+          minHeightClass: "min-h-[180px]",
+          value: initialVolHtml,
+        })
+      : `<div><label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Description</label><textarea name="description" rows="4" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${esc(initialVolHtml)}</textarea></div>`;
+
     const formHtml = `
-      <form class="space-y-4">
+      <form class="space-y-4" id="admin-vol-form">
         <div>
           <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Organization / Role Title *</label>
-          <input name="title" required value="${v.title || ""}" placeholder="e.g. IEEE AIUB Student Branch" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <input name="title" required value="${esc(v.title || "")}" placeholder="e.g. IEEE AIUB Student Branch" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3">
           <div class="sm:col-span-2">
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Time Period *</label>
-            <input name="time" required value="${v.time || ""}" placeholder="e.g. Mar 2025 — Present" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="time" required value="${esc(v.time || "")}" placeholder="e.g. Mar 2025 — Present" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
 
           <div>
@@ -1084,10 +1261,7 @@
           </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Description Points (One bullet per line)</label>
-          <textarea name="description" rows="4" placeholder="Organized technical workshops and seminars&#10;Managed participant registration" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${(v.description || []).join("\n")}</textarea>
-        </div>
+        ${editorBlockHtml}
 
         <div class="flex items-center justify-end gap-3 pt-4">
           <button type="button" data-admin-cancel class="rounded-xl border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800">Cancel</button>
@@ -1097,17 +1271,16 @@
     `;
 
     openAdminModal(title, formHtml, async (form) => {
+      if (modalEditorInstance) modalEditorInstance.sync();
       const fd = new FormData(form);
-      const descArr = fd
-        .get("description")
-        .split("\n")
-        .map((d) => d.trim())
-        .filter(Boolean);
+      const descHtml = (fd.get("description") || "").trim();
 
+      const baseVol = isEdit && v && typeof v === "object" ? { ...v } : {};
       const newVol = {
-        title: fd.get("title").trim(),
-        time: fd.get("time").trim(),
-        description: descArr,
+        ...baseVol,
+        title: (fd.get("title") || "").trim(),
+        time: (fd.get("time") || "").trim(),
+        description: descHtml,
       };
 
       if (!newVol.title || !newVol.time) return false;
@@ -1115,24 +1288,36 @@
       const targetRank = Math.max(1, Math.min(parseInt(fd.get("rank"), 10) || 1, maxRank));
       const targetIndex = targetRank - 1;
 
+      const nextVol = [...volState];
       if (isEdit) {
-        volState.splice(editIndex, 1);
-        volState.splice(targetIndex, 0, newVol);
+        nextVol.splice(editIndex, 1);
+        nextVol.splice(targetIndex, 0, newVol);
       } else {
-        volState.splice(targetIndex, 0, newVol);
+        nextVol.splice(targetIndex, 0, newVol);
       }
 
-      await saveToServer("save-volunteering", "volunteering.json", volState, KEY_VOL);
+      const saved = await saveToServer("save-volunteering", "volunteering.json", nextVol, KEY_VOL);
+      if (!saved) return false;
+
+      volState = nextVol;
       renderAdminVolunteering();
 
       if (window.loadVolunteering) await window.loadVolunteering();
       showToast(`Saved "${newVol.title}" at Rank #${targetRank}`);
       return true;
     });
+
+    if (richText) {
+      modalEditorInstance = richText.mountEditor({
+        idPrefix: "admin-vol",
+        initialValue: initialVolHtml,
+        form: document.getElementById("admin-vol-form"),
+      });
+    }
   }
 
   // ==========================================================
-  // EXPERIENCE FORM MODAL (WITH DIRECT RANK MODIFICATION)
+  // EXPERIENCE FORM MODAL (SHARED RICH TEXT EDITOR)
   // ==========================================================
 
   function openExpFormModal(exp = null, editIndex = -1) {
@@ -1145,26 +1330,40 @@
       title: "",
       company: "",
       time: "",
-      description: [""],
+      description: [],
     };
 
+    const richText = window.PortfolioRichText;
+    const initialExpHtml = richText ? richText.pointsToRichHtml(v) : "";
+    const editorBlockHtml = richText
+      ? richText.createEditorMarkup({
+          idPrefix: "admin-exp",
+          label: "Description",
+          name: "description",
+          placeholder: "Write work experience responsibilities, achievements, or bullet points...",
+          helperText: "Use the toolbar to format the experience description. Formatting is saved to data/experience.json and shown on the public Resume page.",
+          minHeightClass: "min-h-[180px]",
+          value: initialExpHtml,
+        })
+      : `<div><label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Description</label><textarea name="description" rows="4" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${esc(initialExpHtml)}</textarea></div>`;
+
     const formHtml = `
-      <form class="space-y-4">
+      <form class="space-y-4" id="admin-exp-form">
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Job Title / Role *</label>
-            <input name="title" required value="${v.title || ""}" placeholder="e.g. Web Team Member" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="title" required value="${esc(v.title || "")}" placeholder="e.g. Web Team Member" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Company / Organization *</label>
-            <input name="company" required value="${v.company || ""}" placeholder="e.g. IEEE AIUB Student Branch" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="company" required value="${esc(v.company || "")}" placeholder="e.g. IEEE AIUB Student Branch" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3">
           <div class="sm:col-span-2">
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Time Period *</label>
-            <input name="time" required value="${v.time || ""}" placeholder="e.g. Mar 2025 — Present" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input name="time" required value="${esc(v.time || "")}" placeholder="e.g. Mar 2025 — Present" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Display Rank (1 = Top)</label>
@@ -1172,10 +1371,7 @@
           </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Description Points (One bullet per line)</label>
-          <textarea name="description" rows="4" placeholder="Maintain and support the branch website&#10;Coordinate events with the Event Team" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${(v.description || []).join("\n")}</textarea>
-        </div>
+        ${editorBlockHtml}
 
         <div class="flex items-center justify-end gap-3 pt-4">
           <button type="button" data-admin-cancel class="rounded-xl border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800">Cancel</button>
@@ -1185,18 +1381,17 @@
     `;
 
     openAdminModal(title, formHtml, async (form) => {
+      if (modalEditorInstance) modalEditorInstance.sync();
       const fd = new FormData(form);
-      const descArr = fd
-        .get("description")
-        .split("\n")
-        .map((d) => d.trim())
-        .filter(Boolean);
+      const descHtml = (fd.get("description") || "").trim();
 
+      const baseExp = isEdit && v && typeof v === "object" ? { ...v } : {};
       const newExp = {
-        title: fd.get("title").trim(),
-        company: fd.get("company").trim(),
-        time: fd.get("time").trim(),
-        description: descArr,
+        ...baseExp,
+        title: (fd.get("title") || "").trim(),
+        company: (fd.get("company") || "").trim(),
+        time: (fd.get("time") || "").trim(),
+        description: descHtml,
       };
 
       if (!newExp.title || !newExp.company || !newExp.time) return false;
@@ -1204,20 +1399,32 @@
       const targetRank = Math.max(1, Math.min(parseInt(fd.get("rank"), 10) || 1, maxRank));
       const targetIndex = targetRank - 1;
 
+      const nextExp = [...expState];
       if (isEdit) {
-        expState.splice(editIndex, 1);
-        expState.splice(targetIndex, 0, newExp);
+        nextExp.splice(editIndex, 1);
+        nextExp.splice(targetIndex, 0, newExp);
       } else {
-        expState.splice(targetIndex, 0, newExp);
+        nextExp.splice(targetIndex, 0, newExp);
       }
 
-      await saveToServer("save-experience", "experience.json", expState, KEY_EXP);
+      const saved = await saveToServer("save-experience", "experience.json", nextExp, KEY_EXP);
+      if (!saved) return false;
+
+      expState = nextExp;
       renderAdminExperience();
 
       if (window.loadExperience) await window.loadExperience();
       showToast(`Saved "${newExp.title}" at Rank #${targetRank}`);
       return true;
     });
+
+    if (richText) {
+      modalEditorInstance = richText.mountEditor({
+        idPrefix: "admin-exp",
+        initialValue: initialExpHtml,
+        form: document.getElementById("admin-exp-form"),
+      });
+    }
   }
 
   // ==========================================================
@@ -1238,18 +1445,18 @@
       <form class="space-y-4">
         <div>
           <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Category Name *</label>
-          <input name="category" required value="${s.category || ""}" placeholder="e.g. Cloud & DevOps, Mobile Development" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <input name="category" required value="${esc(s.category || "")}" placeholder="e.g. Cloud & DevOps, Mobile Development" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
         </div>
 
         <div>
           <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Lucide Icon Name</label>
-          <input name="icon" value="${s.icon || "code-2"}" placeholder="code-2, globe, brain, database, terminal, cpu, layers..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <input name="icon" value="${esc(s.icon || "code-2")}" placeholder="code-2, globe, brain, database, terminal, cpu, layers..." class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
           <p class="mt-1 text-xs text-zinc-400">Standard Lucide icon identifier (e.g. code-2, globe, brain, database, terminal, shield)</p>
         </div>
 
         <div>
           <label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Skills (Comma-separated)</label>
-          <textarea name="skills" rows="3" placeholder="React, Node.js, Express, Next.js" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${(s.skills || []).join(", ")}</textarea>
+          <textarea name="skills" rows="3" placeholder="React, Node.js, Express, Next.js" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${esc((s.skills || []).join(", "))}</textarea>
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-4">
@@ -1276,13 +1483,17 @@
         skills: skillsArr,
       };
 
+      const nextSkills = [...skillsState];
       if (isEdit) {
-        skillsState[editIndex] = newGroup;
+        nextSkills[editIndex] = newGroup;
       } else {
-        skillsState.push(newGroup);
+        nextSkills.push(newGroup);
       }
 
-      await saveToServer("save-skills", "skills.json", skillsState, KEY_SKILLS);
+      const saved = await saveToServer("save-skills", "skills.json", nextSkills, KEY_SKILLS);
+      if (!saved) return false;
+
+      skillsState = nextSkills;
       renderAdminSkills();
 
       if (window.loadSkills) await window.loadSkills();
@@ -1292,7 +1503,7 @@
   }
 
   // ==========================================================
-  // BLOG POST FORM MODAL
+  // BLOG POST FORM MODAL (SHARED RICH TEXT EDITOR)
   // ==========================================================
 
   function openPostFormModal(post = null, editIndex = -1) {
@@ -1313,6 +1524,20 @@
       featured: false,
       projectUrl: "",
     };
+
+    const richText = window.PortfolioRichText;
+    const initialPostDesc = p.description || (Array.isArray(p.text) ? p.text.join("\n\n") : p.text || "");
+    const editorBlockHtml = richText
+      ? richText.createEditorMarkup({
+          idPrefix: "admin-post",
+          label: "Description (Full content for detail page)",
+          name: "description",
+          placeholder: "Write your full blog post content here...",
+          helperText: "Use the toolbar to format the post. Formatting is saved with the post and shown on the public detail page.",
+          minHeightClass: "min-h-[220px]",
+          value: initialPostDesc,
+        })
+      : `<div><label class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Description</label><textarea name="description" rows="5" class="mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-sm text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">${esc(initialPostDesc)}</textarea></div>`;
 
     const formHtml = `
       <form class="space-y-4" id="admin-post-form">
@@ -1366,66 +1591,7 @@
           </div>
         </div>
 
-        <div>
-          <label id="admin-post-description-label" class="block text-xs font-semibold uppercase text-zinc-600 dark:text-zinc-400">Description (Full content for detail page)</label>
-          <div class="mt-1 overflow-hidden rounded-xl border border-zinc-300 bg-zinc-50 focus-within:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-800">
-            <div id="admin-post-editor-toolbar" role="toolbar" aria-label="Description formatting" aria-controls="admin-post-description-editor" class="rich-editor-toolbar flex flex-wrap items-center gap-1 border-b border-zinc-200 bg-white/70 p-2 dark:border-zinc-700 dark:bg-zinc-900/60">
-              <div class="flex items-center gap-0.5" role="group" aria-label="History">
-                <button type="button" data-editor-cmd="undo" aria-label="Undo" title="Undo" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">
-                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" /></svg>
-                </button>
-                <button type="button" data-editor-cmd="redo" aria-label="Redo" title="Redo" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">
-                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5" /><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" /></svg>
-                </button>
-              </div>
-              <span aria-hidden="true" class="mx-0.5 hidden h-5 w-px shrink-0 bg-zinc-200 sm:block dark:bg-zinc-700"></span>
-              <div class="flex items-center gap-1" role="group" aria-label="Text style">
-                <select id="admin-post-block" aria-label="Text style" title="Text style" class="h-8 min-w-[112px] rounded-lg border border-zinc-300 bg-white px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
-                  <option value="p">Paragraph</option>
-                  <option value="h2">Heading 2</option>
-                  <option value="h3">Heading 3</option>
-                </select>
-                <select id="admin-post-font-size" aria-label="Font size" title="Font size" class="h-8 min-w-[92px] rounded-lg border border-zinc-300 bg-white px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
-                  <option value="">Font size</option>
-                  <option value="2">14 px</option>
-                  <option value="3">16 px</option>
-                  <option value="4">18 px</option>
-                  <option value="5">20 px</option>
-                </select>
-              </div>
-              <span aria-hidden="true" class="mx-0.5 hidden h-5 w-px shrink-0 bg-zinc-200 sm:block dark:bg-zinc-700"></span>
-              <div class="flex items-center gap-0.5" role="group" aria-label="Text formatting">
-                <button type="button" data-editor-cmd="bold" aria-label="Bold" aria-pressed="false" title="Bold" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-xs font-bold text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">B</button>
-                <button type="button" data-editor-cmd="italic" aria-label="Italic" aria-pressed="false" title="Italic" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-xs font-semibold italic text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">I</button>
-                <button type="button" data-editor-cmd="underline" aria-label="Underline" aria-pressed="false" title="Underline" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-xs font-semibold underline text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">U</button>
-              </div>
-              <span aria-hidden="true" class="mx-0.5 hidden h-5 w-px shrink-0 bg-zinc-200 sm:block dark:bg-zinc-700"></span>
-              <div class="flex items-center gap-0.5" role="group" aria-label="Lists">
-                <button type="button" data-editor-cmd="insertUnorderedList" aria-label="Bullet list" aria-pressed="false" title="Bullet list" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">
-                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13" /><path d="M3 6h.01M3 12h.01M3 18h.01" /></svg>
-                </button>
-                <button type="button" data-editor-cmd="insertOrderedList" aria-label="Numbered list" aria-pressed="false" title="Numbered list" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">
-                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6h11M10 12h11M10 18h11" /><path d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" /></svg>
-                </button>
-              </div>
-              <span aria-hidden="true" class="mx-0.5 hidden h-5 w-px shrink-0 bg-zinc-200 sm:block dark:bg-zinc-700"></span>
-              <div class="flex items-center gap-0.5" role="group" aria-label="Links">
-                <button type="button" data-editor-cmd="createLink" aria-label="Insert link" title="Insert link" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">
-                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
-                </button>
-                <button type="button" data-editor-cmd="unlink" aria-label="Remove link" title="Remove link" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-zinc-600 transition hover:border-zinc-200 hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:focus-visible:ring-offset-zinc-900">
-                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18.84 12.25 1.72-1.71c1.95-1.96 1.95-5.12 0-7.07s-5.12-1.95-7.07 0L11.8 5.16" /><path d="m5.17 11.75-1.71 1.71c-1.96 1.95-1.96 5.12 0 7.07s5.12 1.95 7.07 0l1.71-1.71" /><path d="M8 2v3M2 8h3M16 19v3M19 16h3" /></svg>
-                </button>
-              </div>
-            </div>
-            <div class="relative">
-              <div id="admin-post-description-placeholder" aria-hidden="true" class="pointer-events-none absolute left-3.5 top-3 text-sm text-zinc-400 dark:text-zinc-500">Write your full blog post content here...</div>
-              <div id="admin-post-description-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="admin-post-description-label" class="rich-text-content max-h-[60vh] min-h-[220px] w-full overflow-y-auto overflow-x-hidden px-3.5 py-3 text-sm leading-7 text-zinc-900 focus:outline-none dark:text-zinc-100"></div>
-            </div>
-            <input type="hidden" name="description" id="admin-post-description-input" value="${esc(p.description || "")}" />
-          </div>
-          <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Use the toolbar to format the post. Formatting is saved with the post and shown on the public detail page.</p>
-        </div>
+        ${editorBlockHtml}
 
         <div id="admin-post-form-status" class="hidden text-xs font-medium"></div>
 
@@ -1437,13 +1603,12 @@
     `;
 
     openAdminModal(title, formHtml, async (form) => {
-      syncPostDescription(form);
+      if (modalEditorInstance) modalEditorInstance.sync();
       const fd = new FormData(form);
       const titleVal = fd.get("title").trim();
       if (!titleVal) return false;
 
       const newImages = [];
-      const fileInput = form.querySelector("#admin-post-images");
       const retainedPaths = retainedImages.map((item) => item.src);
       if (selectedFiles.length > 0) {
         for (const file of selectedFiles) {
@@ -1536,6 +1701,7 @@
         }
       }
 
+      const nextPosts = [...postsState];
       if (isEdit) {
         // Delete old images if slug changed
         if (p.slug && p.slug !== newPost.slug) {
@@ -1545,15 +1711,20 @@
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ slug: p.slug }),
             });
-          } catch (e) { console.warn("Old images cleanup failed:", e); }
+          } catch (e) {
+            console.warn("Old images cleanup failed:", e);
+          }
         }
-        postsState.splice(editIndex, 1);
-        postsState.splice(targetIndex, 0, newPost);
+        nextPosts.splice(editIndex, 1);
+        nextPosts.splice(targetIndex, 0, newPost);
       } else {
-        postsState.splice(targetIndex, 0, newPost);
+        nextPosts.splice(targetIndex, 0, newPost);
       }
 
-      await saveToServer("save-posts", "posts.json", postsState, KEY_POSTS);
+      const saved = await saveToServer("save-posts", "posts.json", nextPosts, KEY_POSTS);
+      if (!saved) return false;
+
+      postsState = nextPosts;
       renderAdminPosts();
 
       if (window.loadBlog) await window.loadBlog();
@@ -1602,246 +1773,13 @@
     }
     renderImagePreviews();
 
-    const editor = document.getElementById("admin-post-description-editor");
-    const editorInput = document.getElementById("admin-post-description-input");
-    const placeholder = document.getElementById("admin-post-description-placeholder");
-    const toolbar = document.getElementById("admin-post-editor-toolbar");
-    const blockSelect = document.getElementById("admin-post-block");
-    const fontSizeSelect = document.getElementById("admin-post-font-size");
-    const richText = window.PortfolioRichText;
-    let savedRange = null;
-
-    function syncPostDescription() {
-      if (!editor || !editorInput) return;
-      editorInput.value = richText
-        ? richText.editorToStorage(editor.innerHTML)
-        : editor.innerText;
-    }
-
-    function setPlaceholderVisibility() {
-      if (!placeholder || !editor) return;
-      placeholder.classList.toggle("hidden", editor.textContent.trim().length > 0);
-    }
-
-    function saveSelection() {
-      if (!editor) return;
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0) return;
-      const range = selection.getRangeAt(0);
-      if (editor.contains(range.commonAncestorContainer)) {
-        savedRange = range.cloneRange();
-      }
-    }
-
-    function restoreSelection() {
-      if (!editor) return;
-      editor.focus();
-      if (!savedRange) return;
-      const selection = window.getSelection();
-      if (!selection) return;
-      try {
-        selection.removeAllRanges();
-        selection.addRange(savedRange);
-      } catch (e) {
-        const fallback = document.createRange();
-        fallback.selectNodeContents(editor);
-        fallback.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(fallback);
-      }
-    }
-
-    function normalizeBlockName(value) {
-      return String(value || "").toLowerCase().replace(/[<>]/g, "").trim();
-    }
-
-    function updateToolbarState() {
-      if (!toolbar) return;
-      toolbar.querySelectorAll("[data-editor-cmd]").forEach((button) => {
-        const cmd = button.dataset.editorCmd;
-        if (!["bold", "italic", "underline", "insertUnorderedList", "insertOrderedList"].includes(cmd)) return;
-        try {
-          button.setAttribute("aria-pressed", String(document.queryCommandState(cmd)));
-        } catch (e) {
-          button.setAttribute("aria-pressed", "false");
-        }
+    if (richText) {
+      modalEditorInstance = richText.mountEditor({
+        idPrefix: "admin-post",
+        initialValue: initialPostDesc,
+        form: document.getElementById("admin-post-form"),
       });
-      let currentBlock = "";
-      try {
-        currentBlock = normalizeBlockName(document.queryCommandValue("formatBlock"));
-      } catch (e) { }
-      if (blockSelect) {
-        blockSelect.value = currentBlock === "h2" || currentBlock === "h3" ? currentBlock : "p";
-      }
-      if (fontSizeSelect) {
-        let size = "";
-        try {
-          size = String(document.queryCommandValue("fontSize") || "");
-        } catch (e) { }
-        const hasOption = size && fontSizeSelect.querySelector(`option[value="${size}"]`);
-        fontSizeSelect.value = hasOption ? size : "";
-      }
-      setPlaceholderVisibility();
     }
-
-    function prepareCommand() {
-      if (!editor) return;
-      editor.focus();
-      try {
-        document.execCommand("styleWithCSS", false, false);
-      } catch (e) { }
-    }
-
-    function applyBlock(block) {
-      if (!editor || !block) return;
-      prepareCommand();
-      restoreSelection();
-      try {
-        document.execCommand("formatBlock", false, `<${block}>`);
-      } catch (e) {
-        document.execCommand("formatBlock", false, block);
-      }
-      syncPostDescription();
-      updateToolbarState();
-    }
-
-    function applyFontSize(size) {
-      if (!editor) return;
-      prepareCommand();
-      document.execCommand("fontSize", false, size);
-      syncPostDescription();
-      updateToolbarState();
-    }
-
-    function applyLink() {
-      if (!editor) return;
-      prepareCommand();
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
-      const entered = window.prompt("Enter the link URL:", "https://");
-      if (entered === null) return;
-      let href = entered.trim();
-      if (!href) return;
-      if (!/^[a-z][a-z0-9+.-]*:/i.test(href) && !href.startsWith("/") && !href.startsWith("#") && !href.startsWith(".")) {
-        href = `https://${href}`;
-      }
-      if (richText && !richText.isSafeHref(href)) {
-        window.alert("Unsafe link. Only http, https, mailto, and tel links are allowed.");
-        return;
-      }
-      restoreSelection();
-      document.execCommand("createLink", false, href);
-      syncPostDescription();
-      updateToolbarState();
-    }
-
-    function removeLink() {
-      if (!editor) return;
-      prepareCommand();
-      restoreSelection();
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0) return;
-      const range = selection.getRangeAt(0);
-      let node = range.commonAncestorContainer;
-      if (node.nodeType === 3) node = node.parentElement;
-      const anchor = node && node.closest ? node.closest("a") : null;
-      if (anchor && editor.contains(anchor)) {
-        const anchorRange = document.createRange();
-        anchorRange.selectNodeContents(anchor);
-        selection.removeAllRanges();
-        selection.addRange(anchorRange);
-      }
-      document.execCommand("unlink");
-      syncPostDescription();
-      updateToolbarState();
-    }
-
-    function runCommand(cmd) {
-      if (!editor) return;
-      if (cmd === "createLink") {
-        applyLink();
-        return;
-      }
-      if (cmd === "unlink") {
-        removeLink();
-        return;
-      }
-      prepareCommand();
-      restoreSelection();
-      document.execCommand(cmd);
-      syncPostDescription();
-      updateToolbarState();
-    }
-
-    function initEditor() {
-      if (!editor || !editorInput) return;
-      const stored = editorInput.value || "";
-      if (stored) {
-        editor.innerHTML = richText ? richText.toEditorHtml(stored) : stored;
-      }
-      syncPostDescription();
-      updateToolbarState();
-
-      editor.addEventListener("input", () => {
-        syncPostDescription();
-        updateToolbarState();
-      });
-      editor.addEventListener("keyup", () => {
-        saveSelection();
-        updateToolbarState();
-      });
-      editor.addEventListener("mouseup", () => {
-        saveSelection();
-        updateToolbarState();
-      });
-      editor.addEventListener("focus", saveSelection);
-      editor.addEventListener("click", (event) => {
-        const anchor = event.target.closest("a");
-        if (anchor) event.preventDefault();
-      });
-      editor.addEventListener("paste", (event) => {
-        event.preventDefault();
-        const text = event.clipboardData.getData("text/plain");
-        document.execCommand("insertText", false, text);
-        syncPostDescription();
-        updateToolbarState();
-      });
-
-      if (toolbar) {
-        toolbar.addEventListener("mousedown", (event) => {
-          saveSelection();
-          if (event.target.closest("button")) event.preventDefault();
-        });
-        toolbar.addEventListener("click", (event) => {
-          const commandButton = event.target.closest("[data-editor-cmd]");
-          if (!commandButton) return;
-          event.preventDefault();
-          runCommand(commandButton.dataset.editorCmd);
-        });
-      }
-
-      if (blockSelect) {
-        blockSelect.addEventListener("mousedown", saveSelection);
-        blockSelect.addEventListener("change", () => {
-          applyBlock(blockSelect.value);
-        });
-      }
-
-      if (fontSizeSelect) {
-        fontSizeSelect.addEventListener("mousedown", saveSelection);
-        fontSizeSelect.addEventListener("change", () => {
-          if (fontSizeSelect.value) applyFontSize(fontSizeSelect.value);
-        });
-      }
-
-      const form = document.getElementById("admin-post-form");
-      if (form) {
-        form.addEventListener("submit", syncPostDescription);
-      }
-    }
-
-    initEditor();
-
   }
 
   function slugify(name) {
@@ -1949,8 +1887,6 @@
     if (!adminSection) return;
 
     // Bind authentication controls BEFORE loading data.
-    // If any JSON fetch or profile hydration fails, login and password visibility
-    // still remain functional instead of leaving the form with its default reload behavior.
     const loginForm = document.getElementById("admin-login-form");
     const pwdInput = document.getElementById("admin-password-input");
     const authError = document.getElementById("admin-auth-error");
@@ -2078,7 +2014,6 @@
       btn.addEventListener("click", () => activateResumeTab(btn.dataset.adminResumeTab));
     });
 
-
     // Profile sub-tabs: Sidebar and About.
     function activateProfileTab(target) {
       document.querySelectorAll("[data-admin-profile-tab]").forEach((btn) => {
@@ -2114,8 +2049,9 @@
           heroIntro: document.getElementById("admin-prof-hero-intro")?.value.trim(),
         };
 
+        const saved = await saveToServer("save-profile", "profile.json", updated, KEY_PROFILE);
+        if (!saved) return;
         profileState = updated;
-        await saveToServer("save-profile", "profile.json", profileState, KEY_PROFILE);
         window.applyProfileContent();
       };
     }
@@ -2233,27 +2169,14 @@
       };
     }
 
-    document.getElementById("admin-add-paragraph-btn")?.addEventListener("click", () => {
-      const values = Array.from(document.querySelectorAll("[data-about-paragraph]")).map((el) => el.value);
-      values.push("");
-      renderAboutDynamicFields({ ...getCachedAbout(), paragraphs: values });
-      if (window.lucide) lucide.createIcons();
-    });
-    document.getElementById("admin-about-paragraphs-container")?.addEventListener("click", (event) => {
-      const button = event.target.closest("[data-remove-paragraph]");
-      if (!button) return;
-      const index = Number(button.dataset.removeParagraph);
-      const values = Array.from(document.querySelectorAll("[data-about-paragraph]")).map((el) => el.value);
-      if (index > 1) values.splice(index, 1);
-      renderAboutDynamicFields({ ...getCachedAbout(), paragraphs: values });
-    });
     document.getElementById("admin-add-quick-detail-btn")?.addEventListener("click", () => {
       const cards = Array.from(document.querySelectorAll("[data-quick-detail-label]")).map((el, index) => ({
         label: el.value,
         value: document.querySelector(`[data-quick-detail-value="${index}"]`)?.value || ""
       }));
       cards.push({ label: "", value: "" });
-      renderAboutDynamicFields({ ...getCachedAbout(), quickDetails: cards });
+      const currentDesc = aboutEditorInstance ? aboutEditorInstance.getValue() : getCachedAbout().description;
+      renderAboutDynamicFields({ ...getCachedAbout(), description: currentDesc, quickDetails: cards });
     });
     document.getElementById("admin-quick-details-container")?.addEventListener("click", (event) => {
       const button = event.target.closest("[data-remove-quick-detail]");
@@ -2264,41 +2187,137 @@
         value: document.querySelector(`[data-quick-detail-value="${i}"]`)?.value || ""
       }));
       if (index > 2) cards.splice(index, 1);
-      renderAboutDynamicFields({ ...getCachedAbout(), quickDetails: cards });
+      const currentDesc = aboutEditorInstance ? aboutEditorInstance.getValue() : getCachedAbout().description;
+      renderAboutDynamicFields({ ...getCachedAbout(), description: currentDesc, quickDetails: cards });
     });
+
+    // Interactive Badge Editors for Interest and Tech Focus inside About Form
+    const interestsInput = document.getElementById("admin-about-interests");
+    const techFocusInput = document.getElementById("admin-about-tech-focus");
+    interestsInput?.addEventListener("input", () => {
+      renderBadgeChips("admin-about-interests-chips", "admin-about-interests", "interests");
+    });
+    techFocusInput?.addEventListener("input", () => {
+      renderBadgeChips("admin-about-tech-focus-chips", "admin-about-tech-focus", "techFocus");
+    });
+
+    const handleBadgeChipClick = (event) => {
+      const addBtn = event.target.closest("[data-badge-add]");
+      if (addBtn) {
+        const kind = addBtn.dataset.badgeAdd;
+        const inputEl = document.getElementById(kind === "techFocus" ? "admin-about-tech-focus" : "admin-about-interests");
+        const chipsId = kind === "techFocus" ? "admin-about-tech-focus-chips" : "admin-about-interests-chips";
+        if (!inputEl) return;
+        const entered = window.prompt(`Add new ${kind === "techFocus" ? "Tech Focus" : "Interest"} badge:`);
+        if (entered && entered.trim()) {
+          const list = parseBadgeInput(inputEl.value);
+          const additions = parseBadgeInput(entered);
+          const merged = parseBadgeInput([...list, ...additions].join(", "));
+          inputEl.value = merged.join(", ");
+          renderBadgeChips(chipsId, inputEl.id, kind);
+        }
+        return;
+      }
+
+      const editBtn = event.target.closest("[data-badge-edit]");
+      if (editBtn) {
+        const kind = editBtn.dataset.badgeEdit;
+        const idx = Number(editBtn.dataset.badgeIdx);
+        const inputEl = document.getElementById(kind === "techFocus" ? "admin-about-tech-focus" : "admin-about-interests");
+        const chipsId = kind === "techFocus" ? "admin-about-tech-focus-chips" : "admin-about-interests-chips";
+        if (!inputEl) return;
+        const list = parseBadgeInput(inputEl.value);
+        if (idx < 0 || idx >= list.length) return;
+        const updatedVal = window.prompt("Edit badge:", list[idx]);
+        if (updatedVal !== null) {
+          if (updatedVal.trim()) {
+            list[idx] = updatedVal.trim();
+          } else {
+            list.splice(idx, 1);
+          }
+          inputEl.value = parseBadgeInput(list.join(", ")).join(", ");
+          renderBadgeChips(chipsId, inputEl.id, kind);
+        }
+        return;
+      }
+
+      const removeBtn = event.target.closest("[data-badge-remove]");
+      if (removeBtn) {
+        const kind = removeBtn.dataset.badgeRemove;
+        const idx = Number(removeBtn.dataset.badgeIdx);
+        const inputEl = document.getElementById(kind === "techFocus" ? "admin-about-tech-focus" : "admin-about-interests");
+        const chipsId = kind === "techFocus" ? "admin-about-tech-focus-chips" : "admin-about-interests-chips";
+        if (!inputEl) return;
+        const list = parseBadgeInput(inputEl.value);
+        if (idx >= 0 && idx < list.length) {
+          list.splice(idx, 1);
+          inputEl.value = list.join(", ");
+          renderBadgeChips(chipsId, inputEl.id, kind);
+        }
+      }
+    };
+
+    document.getElementById("admin-about-interests-chips")?.addEventListener("click", handleBadgeChipClick);
+    document.getElementById("admin-about-tech-focus-chips")?.addEventListener("click", handleBadgeChipClick);
 
     // About Form Submit (Direct to data/about.json)
     const aboutForm = document.getElementById("admin-about-form");
     if (aboutForm) {
       aboutForm.onsubmit = async (e) => {
         e.preventDefault();
-        const interestsRaw = document.getElementById("admin-about-interests")?.value.trim() || "";
-        const interestsArr = interestsRaw
-          .split(",")
-          .map((i) => i.trim())
-          .filter(Boolean);
+        if (aboutEditorInstance) aboutEditorInstance.sync();
 
-        const paragraphs = Array.from(document.querySelectorAll("[data-about-paragraph]")).map((el) => el.value.trim());
+        const interestsRaw = document.getElementById("admin-about-interests")?.value.trim() || "";
+        const interestsArr = parseBadgeInput(interestsRaw);
+
+        const techFocusInputEl = document.getElementById("admin-about-tech-focus");
+        const existingAbout = getCachedAbout() || {};
+        const techFocusArr = techFocusInputEl
+          ? parseBadgeInput(techFocusInputEl.value)
+          : Array.isArray(existingAbout.techFocus)
+            ? existingAbout.techFocus
+            : [];
+
+        const richText = window.PortfolioRichText;
+        const descInput = document.getElementById("admin-about-description-input");
+        const descriptionHtml = aboutEditorInstance
+          ? aboutEditorInstance.getValue()
+          : descInput
+            ? descInput.value.trim()
+            : existingAbout.description || "";
+
+        const plainParagraphs = richText
+          ? richText.toPlainLines(descriptionHtml)
+          : descriptionHtml
+            ? [descriptionHtml]
+            : [];
+
         const quickDetails = Array.from(document.querySelectorAll("[data-quick-detail-label]")).map((el, index) => ({
           label: el.value.trim(),
           value: document.querySelector(`[data-quick-detail-value="${index}"]`)?.value.trim() || ""
         })).filter((card) => card.label || card.value);
+
         const updatedAbout = {
+          ...existingAbout,
           title: document.getElementById("admin-about-title")?.value.trim() || "About me",
-          p1: paragraphs[0] || "",
-          p2: paragraphs[1] || "",
-          p3: paragraphs[2] || "",
-          paragraphs,
-          studying: quickDetails[0]?.value || "",
-          based: quickDetails[1]?.value || "",
-          focus: quickDetails[2]?.value || "",
+          description: descriptionHtml,
+          p1: plainParagraphs[0] || "",
+          p2: plainParagraphs[1] || "",
+          p3: plainParagraphs[2] || "",
+          paragraphs: plainParagraphs,
+          studying: quickDetails[0]?.value ?? existingAbout.studying ?? "",
+          based: quickDetails[1]?.value ?? existingAbout.based ?? "",
+          focus: quickDetails[2]?.value ?? existingAbout.focus ?? "",
           quickDetails,
           interests: interestsArr,
+          ...(techFocusInputEl || existingAbout.techFocus ? { techFocus: techFocusArr } : {}),
         };
 
+        const saved = await saveToServer("save-about", "about.json", updatedAbout, KEY_ABOUT);
+        if (!saved) return;
         aboutState = updatedAbout;
-        await saveToServer("save-about", "about.json", aboutState, KEY_ABOUT);
-        window.applyAboutContent();
+        populateAboutForm();
+        await window.applyAboutContent();
       };
     }
 
@@ -2341,8 +2360,11 @@
       if (delProjBtn) {
         const idx = Number(delProjBtn.dataset.adminDeleteProject);
         if (confirm(`Are you sure you want to delete "${projectsState[idx]?.title}"?`)) {
-          projectsState.splice(idx, 1);
-          await saveToServer("save-projects", "projects.json", projectsState, KEY_PROJECTS);
+          const nextProjects = [...projectsState];
+          nextProjects.splice(idx, 1);
+          const saved = await saveToServer("save-projects", "projects.json", nextProjects, KEY_PROJECTS);
+          if (!saved) return;
+          projectsState = nextProjects;
           renderAdminProjects();
           if (window.loadProjects) await window.loadProjects();
         }
@@ -2354,9 +2376,12 @@
       if (moveProjectUpBtn) {
         const idx = Number(moveProjectUpBtn.dataset.adminMoveProjectUp);
         if (idx > 0) {
-          const item = projectsState.splice(idx, 1)[0];
-          projectsState.splice(idx - 1, 0, item);
-          await saveToServer("save-projects", "projects.json", projectsState, KEY_PROJECTS);
+          const nextProjects = [...projectsState];
+          const item = nextProjects.splice(idx, 1)[0];
+          nextProjects.splice(idx - 1, 0, item);
+          const saved = await saveToServer("save-projects", "projects.json", nextProjects, KEY_PROJECTS);
+          if (!saved) return;
+          projectsState = nextProjects;
           renderAdminProjects();
           if (window.loadProjects) await window.loadProjects();
           showToast(`Moved "${item.title}" up to Rank #${idx}`);
@@ -2369,9 +2394,12 @@
       if (moveProjectDownBtn) {
         const idx = Number(moveProjectDownBtn.dataset.adminMoveProjectDown);
         if (idx < projectsState.length - 1) {
-          const item = projectsState.splice(idx, 1)[0];
-          projectsState.splice(idx + 1, 0, item);
-          await saveToServer("save-projects", "projects.json", projectsState, KEY_PROJECTS);
+          const nextProjects = [...projectsState];
+          const item = nextProjects.splice(idx, 1)[0];
+          nextProjects.splice(idx + 1, 0, item);
+          const saved = await saveToServer("save-projects", "projects.json", nextProjects, KEY_PROJECTS);
+          if (!saved) return;
+          projectsState = nextProjects;
           renderAdminProjects();
           if (window.loadProjects) await window.loadProjects();
           showToast(`Moved "${item.title}" down to Rank #${idx + 2}`);
@@ -2384,9 +2412,12 @@
       if (moveCertUpBtn) {
         const idx = Number(moveCertUpBtn.dataset.adminMoveCertUp);
         if (idx > 0) {
-          const item = certsState.splice(idx, 1)[0];
-          certsState.splice(idx - 1, 0, item);
-          await saveToServer("save-certificates", "certificates.json", certsState, KEY_CERTS);
+          const nextCerts = [...certsState];
+          const item = nextCerts.splice(idx, 1)[0];
+          nextCerts.splice(idx - 1, 0, item);
+          const saved = await saveToServer("save-certificates", "certificates.json", nextCerts, KEY_CERTS);
+          if (!saved) return;
+          certsState = nextCerts;
           renderAdminCertificates();
           if (window.loadCertificates) await window.loadCertificates();
           showToast(`Moved "${item.title}" up to Rank #${idx}`);
@@ -2399,9 +2430,12 @@
       if (moveCertDownBtn) {
         const idx = Number(moveCertDownBtn.dataset.adminMoveCertDown);
         if (idx < certsState.length - 1) {
-          const item = certsState.splice(idx, 1)[0];
-          certsState.splice(idx + 1, 0, item);
-          await saveToServer("save-certificates", "certificates.json", certsState, KEY_CERTS);
+          const nextCerts = [...certsState];
+          const item = nextCerts.splice(idx, 1)[0];
+          nextCerts.splice(idx + 1, 0, item);
+          const saved = await saveToServer("save-certificates", "certificates.json", nextCerts, KEY_CERTS);
+          if (!saved) return;
+          certsState = nextCerts;
           renderAdminCertificates();
           if (window.loadCertificates) await window.loadCertificates();
           showToast(`Moved "${item.title}" down to Rank #${idx + 2}`);
@@ -2422,8 +2456,11 @@
       if (delCertBtn) {
         const idx = Number(delCertBtn.dataset.adminDeleteCert);
         if (confirm(`Are you sure you want to delete "${certsState[idx]?.title}"?`)) {
-          certsState.splice(idx, 1);
-          await saveToServer("save-certificates", "certificates.json", certsState, KEY_CERTS);
+          const nextCerts = [...certsState];
+          nextCerts.splice(idx, 1);
+          const saved = await saveToServer("save-certificates", "certificates.json", nextCerts, KEY_CERTS);
+          if (!saved) return;
+          certsState = nextCerts;
           renderAdminCertificates();
           if (window.loadCertificates) await window.loadCertificates();
         }
@@ -2435,9 +2472,12 @@
       if (moveExpUpBtn) {
         const idx = Number(moveExpUpBtn.dataset.adminMoveExpUp);
         if (idx > 0) {
-          const item = expState.splice(idx, 1)[0];
-          expState.splice(idx - 1, 0, item);
-          await saveToServer("save-experience", "experience.json", expState, KEY_EXP);
+          const nextExp = [...expState];
+          const item = nextExp.splice(idx, 1)[0];
+          nextExp.splice(idx - 1, 0, item);
+          const saved = await saveToServer("save-experience", "experience.json", nextExp, KEY_EXP);
+          if (!saved) return;
+          expState = nextExp;
           renderAdminExperience();
           if (window.loadExperience) await window.loadExperience();
           showToast(`Moved "${item.title}" up to Rank #${idx}`);
@@ -2450,9 +2490,12 @@
       if (moveExpDownBtn) {
         const idx = Number(moveExpDownBtn.dataset.adminMoveExpDown);
         if (idx < expState.length - 1) {
-          const item = expState.splice(idx, 1)[0];
-          expState.splice(idx + 1, 0, item);
-          await saveToServer("save-experience", "experience.json", expState, KEY_EXP);
+          const nextExp = [...expState];
+          const item = nextExp.splice(idx, 1)[0];
+          nextExp.splice(idx + 1, 0, item);
+          const saved = await saveToServer("save-experience", "experience.json", nextExp, KEY_EXP);
+          if (!saved) return;
+          expState = nextExp;
           renderAdminExperience();
           if (window.loadExperience) await window.loadExperience();
           showToast(`Moved "${item.title}" down to Rank #${idx + 2}`);
@@ -2473,8 +2516,11 @@
       if (delExpBtn) {
         const idx = Number(delExpBtn.dataset.adminDeleteExp);
         if (confirm(`Are you sure you want to delete "${expState[idx]?.title}"?`)) {
-          expState.splice(idx, 1);
-          await saveToServer("save-experience", "experience.json", expState, KEY_EXP);
+          const nextExp = [...expState];
+          nextExp.splice(idx, 1);
+          const saved = await saveToServer("save-experience", "experience.json", nextExp, KEY_EXP);
+          if (!saved) return;
+          expState = nextExp;
           renderAdminExperience();
           if (window.loadExperience) await window.loadExperience();
         }
@@ -2486,9 +2532,12 @@
       if (moveVolUpBtn) {
         const idx = Number(moveVolUpBtn.dataset.adminMoveVolUp);
         if (idx > 0) {
-          const item = volState.splice(idx, 1)[0];
-          volState.splice(idx - 1, 0, item);
-          await saveToServer("save-volunteering", "volunteering.json", volState, KEY_VOL);
+          const nextVol = [...volState];
+          const item = nextVol.splice(idx, 1)[0];
+          nextVol.splice(idx - 1, 0, item);
+          const saved = await saveToServer("save-volunteering", "volunteering.json", nextVol, KEY_VOL);
+          if (!saved) return;
+          volState = nextVol;
           renderAdminVolunteering();
           if (window.loadVolunteering) await window.loadVolunteering();
           showToast(`Moved "${item.title}" up to Rank #${idx}`);
@@ -2501,9 +2550,12 @@
       if (moveVolDownBtn) {
         const idx = Number(moveVolDownBtn.dataset.adminMoveVolDown);
         if (idx < volState.length - 1) {
-          const item = volState.splice(idx, 1)[0];
-          volState.splice(idx + 1, 0, item);
-          await saveToServer("save-volunteering", "volunteering.json", volState, KEY_VOL);
+          const nextVol = [...volState];
+          const item = nextVol.splice(idx, 1)[0];
+          nextVol.splice(idx + 1, 0, item);
+          const saved = await saveToServer("save-volunteering", "volunteering.json", nextVol, KEY_VOL);
+          if (!saved) return;
+          volState = nextVol;
           renderAdminVolunteering();
           if (window.loadVolunteering) await window.loadVolunteering();
           showToast(`Moved "${item.title}" down to Rank #${idx + 2}`);
@@ -2524,8 +2576,11 @@
       if (delVolBtn) {
         const idx = Number(delVolBtn.dataset.adminDeleteVol);
         if (confirm(`Are you sure you want to delete "${volState[idx]?.title}"?`)) {
-          volState.splice(idx, 1);
-          await saveToServer("save-volunteering", "volunteering.json", volState, KEY_VOL);
+          const nextVol = [...volState];
+          nextVol.splice(idx, 1);
+          const saved = await saveToServer("save-volunteering", "volunteering.json", nextVol, KEY_VOL);
+          if (!saved) return;
+          volState = nextVol;
           renderAdminVolunteering();
           if (window.loadVolunteering) await window.loadVolunteering();
         }
@@ -2537,9 +2592,12 @@
       if (moveSkillUpBtn) {
         const idx = Number(moveSkillUpBtn.dataset.adminMoveSkillUp);
         if (idx > 0) {
-          const item = skillsState.splice(idx, 1)[0];
-          skillsState.splice(idx - 1, 0, item);
-          await saveToServer("save-skills", "skills.json", skillsState, KEY_SKILLS);
+          const nextSkills = [...skillsState];
+          const item = nextSkills.splice(idx, 1)[0];
+          nextSkills.splice(idx - 1, 0, item);
+          const saved = await saveToServer("save-skills", "skills.json", nextSkills, KEY_SKILLS);
+          if (!saved) return;
+          skillsState = nextSkills;
           renderAdminSkills();
           if (window.loadSkills) await window.loadSkills();
           showToast(`Moved "${item.category}" up`);
@@ -2552,9 +2610,12 @@
       if (moveSkillDownBtn) {
         const idx = Number(moveSkillDownBtn.dataset.adminMoveSkillDown);
         if (idx < skillsState.length - 1) {
-          const item = skillsState.splice(idx, 1)[0];
-          skillsState.splice(idx + 1, 0, item);
-          await saveToServer("save-skills", "skills.json", skillsState, KEY_SKILLS);
+          const nextSkills = [...skillsState];
+          const item = nextSkills.splice(idx, 1)[0];
+          nextSkills.splice(idx + 1, 0, item);
+          const saved = await saveToServer("save-skills", "skills.json", nextSkills, KEY_SKILLS);
+          if (!saved) return;
+          skillsState = nextSkills;
           renderAdminSkills();
           if (window.loadSkills) await window.loadSkills();
           showToast(`Moved "${item.category}" down`);
@@ -2575,8 +2636,11 @@
       if (delSkillBtn) {
         const idx = Number(delSkillBtn.dataset.adminDeleteSkill);
         if (confirm(`Are you sure you want to delete category "${skillsState[idx]?.category}"?`)) {
-          skillsState.splice(idx, 1);
-          await saveToServer("save-skills", "skills.json", skillsState, KEY_SKILLS);
+          const nextSkills = [...skillsState];
+          nextSkills.splice(idx, 1);
+          const saved = await saveToServer("save-skills", "skills.json", nextSkills, KEY_SKILLS);
+          if (!saved) return;
+          skillsState = nextSkills;
           renderAdminSkills();
           if (window.loadSkills) await window.loadSkills();
         }
@@ -2588,9 +2652,12 @@
       if (movePostUpBtn) {
         const idx = Number(movePostUpBtn.dataset.adminMovePostUp);
         if (idx > 0) {
-          const item = postsState.splice(idx, 1)[0];
-          postsState.splice(idx - 1, 0, item);
-          await saveToServer("save-posts", "posts.json", postsState, KEY_POSTS);
+          const nextPosts = [...postsState];
+          const item = nextPosts.splice(idx, 1)[0];
+          nextPosts.splice(idx - 1, 0, item);
+          const saved = await saveToServer("save-posts", "posts.json", nextPosts, KEY_POSTS);
+          if (!saved) return;
+          postsState = nextPosts;
           renderAdminPosts();
           if (window.loadBlog) await window.loadBlog();
           showToast(`Moved "${item.title}" up to Rank #${idx}`);
@@ -2603,9 +2670,12 @@
       if (movePostDownBtn) {
         const idx = Number(movePostDownBtn.dataset.adminMovePostDown);
         if (idx < postsState.length - 1) {
-          const item = postsState.splice(idx, 1)[0];
-          postsState.splice(idx + 1, 0, item);
-          await saveToServer("save-posts", "posts.json", postsState, KEY_POSTS);
+          const nextPosts = [...postsState];
+          const item = nextPosts.splice(idx, 1)[0];
+          nextPosts.splice(idx + 1, 0, item);
+          const saved = await saveToServer("save-posts", "posts.json", nextPosts, KEY_POSTS);
+          if (!saved) return;
+          postsState = nextPosts;
           renderAdminPosts();
           if (window.loadBlog) await window.loadBlog();
           showToast(`Moved "${item.title}" down to Rank #${idx + 2}`);
@@ -2627,7 +2697,12 @@
         const idx = Number(delPostBtn.dataset.adminDeletePost);
         const post = postsState[idx];
         if (confirm(`Are you sure you want to delete "${post?.title}"? This will also delete its images.`)) {
-          // Delete images from server
+          const nextPosts = [...postsState];
+          nextPosts.splice(idx, 1);
+          const saved = await saveToServer("save-posts", "posts.json", nextPosts, KEY_POSTS);
+          if (!saved) return;
+
+          // Delete images from server after JSON update succeeds
           if (post?.slug) {
             try {
               await fetch("/api/delete-blog-images", {
@@ -2635,10 +2710,11 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ slug: post.slug }),
               });
-            } catch (e) { console.warn("Image deletion failed:", e); }
+            } catch (e) {
+              console.warn("Image deletion failed:", e);
+            }
           }
-          postsState.splice(idx, 1);
-          await saveToServer("save-posts", "posts.json", postsState, KEY_POSTS);
+          postsState = nextPosts;
           renderAdminPosts();
           if (window.loadBlog) await window.loadBlog();
         }
@@ -2668,22 +2744,22 @@
 
         // Syntax highlight JSON
         function highlightJSON(json) {
-          const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-          return esc(json).replace(
+          const escHtml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          return escHtml(json).replace(
             /("(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
             (match) => {
-              let cls = "text-amber-600 dark:text-amber-400";       // number
+              let cls = "text-amber-600 dark:text-amber-400"; // number
               if (/^"/.test(match)) {
                 if (/:$/.test(match)) {
                   cls = "text-indigo-600 dark:text-indigo-400 font-semibold"; // key
                   match = match.replace(/:$/, "") + ":";
                 } else {
-                  cls = "text-emerald-600 dark:text-emerald-400";   // string
+                  cls = "text-emerald-600 dark:text-emerald-400"; // string
                 }
               } else if (/true|false/.test(match)) {
-                cls = "text-violet-600 dark:text-violet-400";       // boolean
+                cls = "text-violet-600 dark:text-violet-400"; // boolean
               } else if (/null/.test(match)) {
-                cls = "text-rose-500 dark:text-rose-400 italic";    // null
+                cls = "text-rose-500 dark:text-rose-400 italic"; // null
               }
               return `<span class="${cls}">${match}</span>`;
             }

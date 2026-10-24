@@ -2,7 +2,7 @@
   {
     "id": 1,
     "title": "Khoja-Khuji",
-    "category": "Web Application",
+    "category": "Full Stack Application",
     "technologies": [
       "PHP",
       "MVC",
@@ -14,24 +14,25 @@
     },
     "details": [
       "Khoja-Khuji is a web-based Lost & Found Management System designed to make it easier for users to report, search, and manage lost and found items.",
-      "The system follows the MVC architecture and uses PHP for the backend with MySQL for data management."
-    ],
-    "features": [
+      "The system follows the MVC architecture and uses PHP for the backend with MySQL for data management.",
+      "Key Features",
       "Report lost and found items",
       "Search and filter items",
       "User authentication",
       "Manage reported items",
       "Responsive web interface"
     ],
+    "features": [],
     "image": "images/projects/khoja-khuji.png",
     "liveDemo": "https://aiub-web-project-khoja-khuji.infy.click/",
     "github": "https://github.com/farhanchowdhury738/WebTech-lost-found-management-system",
-    "featured": true
+    "featured": true,
+    "description": "<p>Khoja-Khuji is a web-based Lost &amp; Found Management System designed to make it easier for users to report, search, and manage lost and found items.</p><p>The system follows the MVC architecture and uses PHP for the backend with MySQL for data management.</p><h3><i>Key Features</i></h3><ul><li>Report lost and found items</li><li>Search and filter items</li><li>User authentication</li><li>Manage reported items</li><li>Responsive web interface</li></ul>"
   },
   {
     "id": 2,
     "title": "IEEE-AIUB Event Toolkit",
-    "category": "Web Application",
+    "category": "Full Stack Application",
     "technologies": [
       "HTML",
       "JavaScript",
@@ -43,9 +44,8 @@
     },
     "details": [
       "IEEE-AIUB Event Toolkit is a web-based event management utility designed to simplify participant management and attendance sheet generation.",
-      "The application provides a live preview and allows users to export attendance sheets in PDF and Word formats."
-    ],
-    "features": [
+      "The application provides a live preview and allows users to export attendance sheets in PDF and Word formats.",
+      "Key Features",
       "Participant management",
       "Date and time management",
       "Live attendance sheet preview",
@@ -53,15 +53,17 @@
       "Word document export",
       "Responsive interface"
     ],
+    "features": [],
     "image": "images/projects/ieee-aiub-event-toolkit.png",
     "liveDemo": "https://ieee-aiub-event-toolkit.netlify.app/",
     "github": "https://github.com/farhanchowdhury738/aiub-ieee-attendance-sheet-generator",
-    "featured": true
+    "featured": true,
+    "description": "<p>IEEE-AIUB Event Toolkit is a web-based event management utility designed to simplify participant management and attendance sheet generation.</p><p>The application provides a live preview and allows users to export attendance sheets in PDF and Word formats.</p><h3>Key Features</h3><ul><li>Participant management</li><li>Date and time management</li><li>Live attendance sheet preview</li><li>PDF export</li><li>Word document export</li><li>Responsive interface</li></ul>"
   },
   {
     "id": 13,
     "title": "AIUB Faculty Finder",
-    "category": "Web Application",
+    "category": "Full Stack Application",
     "technologies": [
       "HTML",
       "CSS",
@@ -73,9 +75,8 @@
     },
     "details": [
       "A student-friendly web application that helps AIUB students quickly find faculty room numbers and information.",
-      "The platform also provides faculty Teaching Schedule Form (TSF) information with search, filtering, pagination, and image download features."
-    ],
-    "features": [
+      "The platform also provides faculty Teaching Schedule Form (TSF) information with search, filtering, pagination, and image download features.",
+      "Key Features",
       "Faculty information search",
       "Faculty room number lookup",
       "Faculty TSF lookup",
@@ -93,10 +94,12 @@
       "Responsive design",
       "Feedback form"
     ],
+    "features": [],
     "image": "../images/projects/aiub-faculty-finder.png",
     "liveDemo": "https://aiub-faculty-solution.netlify.app/",
     "github": "https://github.com/farhanchowdhury738/aiubfacultysolution",
-    "featured": true
+    "featured": true,
+    "description": "<p>A student-friendly web application that helps AIUB students quickly find faculty room numbers and information.</p><p>The platform also provides faculty Teaching Schedule Form (TSF) information with search, filtering, pagination, and image download features.</p><h3>Key Features</h3><ul><li>Faculty information search</li><li>Faculty room number lookup</li><li>Faculty TSF lookup</li><li>Search by faculty name</li><li>Search by course and room</li><li>Filter by building</li><li>Filter by floor</li><li>Department and designation search</li><li>Faculty email information</li><li>Faculty profile information</li><li>Pagination</li><li>TSF schedule display</li><li>Download faculty information as image</li><li>Download TSF as image</li><li>Responsive design</li><li>Feedback form</li></ul>"
   },
   {
     "id": 9,
@@ -198,7 +201,7 @@
   {
     "id": 5,
     "title": "Hostel Management System",
-    "category": "Software Development",
+    "category": "Front End Application",
     "technologies": [
       "C#",
       "OOP"
@@ -209,19 +212,20 @@
     },
     "details": [
       "A role-based hostel management system designed to manage hostel-related operations using object-oriented programming.",
-      "The application follows a modular architecture to organize different management functionalities."
-    ],
-    "features": [
+      "The application follows a modular architecture to organize different management functionalities.",
+      "Key Features",
       "Role-based management",
       "Hostel information management",
       "Object-oriented programming",
       "Modular system design",
       "Data management"
     ],
+    "features": [],
     "image": "images/projects/hostel-mangement.png",
     "liveDemo": "",
     "github": "https://github.com/farhanchowdhury738/hostel-management-system_OPP2",
-    "featured": false
+    "featured": false,
+    "description": "<p>A role-based hostel management system designed to manage hostel-related operations using object-oriented programming.</p><p>The application follows a modular architecture to organize different management functionalities.</p><h3>Key Features</h3><ul><li>Role-based management</li><li>Hostel information management</li><li>Object-oriented programming</li><li>Modular system design</li><li>Data management</li></ul>"
   },
   {
     "id": 6,
